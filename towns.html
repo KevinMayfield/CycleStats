@@ -66,7 +66,10 @@ td.n{font-family:var(--mono);text-align:right;white-space:nowrap;font-variant-nu
 th.n{text-align:right}
 td a{color:inherit;text-decoration:none;font-weight:600}td a:hover{color:var(--accent)}
 td small{display:block;color:var(--muted);font-size:11.5px}
-.down{color:var(--low)}
+.down{color:var(--low)!important}
+td.n b{font-weight:500}
+td.n b.up{color:var(--bench)}
+td.n small{text-align:right}
 .bar{display:block;height:5px;border-radius:2px;background:var(--low);margin-top:4px}
 .notes{color:var(--muted);font-size:12px;max-width:95ch;display:grid;gap:6px}
 .notes a{color:inherit}
@@ -142,26 +145,32 @@ function draw(){
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
   });
 }
+// percentage increase from the current share to a target share
+const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
 function table(id,title,sub,ids){
-  const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing));
-  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycle to work 2021</th><th class="n">2011</th><th class="n">Go Dutch</th><th class="n">Travel to work</th><th class="n">Missing cyclists</th></tr></thead><tbody>${
+  const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing)),b=D.bench.share;
+  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody>${
     rows.map((t,i)=>`<tr><td class="n">${i+1}</td><td><a href="index.html?area=${t.area}&nbh=car">${esc(t.name)}</a><small>${esc(t.area_name)} · ${t.deprived}% of neighbourhoods in the most deprived fifth · ${t.nocar}% no car</small></td>
-      <td class="n">${p1(t.slope)}%</td><td class="n">${p1(t.cycle21)}%</td><td class="n${t.cycle21<t.cycle11?' down':''}">${p1(t.cycle11)}%</td><td class="n">${p1(t.dutch)}%</td><td class="n">${nf(t.travel)}</td>
-      <td class="n">${nf(t.missing)}<span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
+      <td class="n">${p1(t.slope)}%</td>
+      <td class="n"><b>${p1(t.cycle21)}%</b><small class="${t.cycle21<t.cycle11?'down':''}">2011: ${p1(t.cycle11)}%</small></td>
+      <td class="n"><b class="up">${inc(t.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
+      <td class="n"><b class="up">${p1(t.dutch)}%</b><small>${inc(t.cycle21,t.dutch)}</small></td>
+      <td class="n">${nf(t.missing)}<small>of ${nf(t.travel)} commuters</small><span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
 }
 fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
   D=d;D.byId=Object.fromEntries(d.towns.map(t=>[t.id,t]));D.lowIds=new Set(d.flat_low.slice(0,15));
   const flat=d.flat_low.map(i=>D.byId[i]),miss=flat.reduce((a,t)=>a+t.missing,0),gm=d.gentle_low.reduce((a,i)=>a+D.byId[i].missing,0);
+  const travel=flat.reduce((a,t)=>a+t.travel,0),nowShare=flat.reduce((a,t)=>a+t.cyclists,0)/travel*100,dutchShare=flat.reduce((a,t)=>a+t.dutch*t.travel,0)/travel;
   const chg=tier=>{const ts=d.towns.filter(t=>t.tier===tier);return ts.reduce((a,t)=>a+t.cycle21-t.cycle11,0)/ts.length};
   const [h,yk]=['Kingston upon Hull','York'].map(n=>d.bench.towns.find(t=>t.name===n));
   document.getElementById('facts').innerHTML=`
     <div class="fact"><b style="color:var(--bench)">${p1(h.cycle21)}% · ${p1(yk.cycle21)}%</b><span>of people travelling to work cycle in Hull and York, on routes averaging ${h.slope}% and ${yk.slope}% gradient.</span></div>
     <div class="fact"><b style="color:var(--low)">${flat.length}</b><span>towns are as flat as Hull and York (routes averaging ${d.flat_max}% or less) but cycle less than their combined ${d.bench.share}%.</span></div>
-    <div class="fact"><b style="color:var(--low)">${nf(Math.round(miss/100)*100)}</b><span>more people would cycle to work in those flat towns at Hull and York levels. Gently sloping towns add ${nf(Math.round(gm/100)*100)}.</span></div>
+    <div class="fact"><b style="color:var(--low)">${p1(nowShare)}% → ${p1(d.bench.share)}%</b><span>cycle to work in those flat towns now, against Hull and York: ${inc(nowShare,d.bench.share)}, or ${nf(Math.round(miss/100)*100)} more people. Go Dutch would be ${p1(dutchShare)}% (${inc(nowShare,dutchShare)}).</span></div>
     <div class="fact"><b>${p1(chg('flat'))} pts</b><span>average change in the share cycling to work in flat towns from 2011 to 2021, against ${p1(chg('hilly'))} in hilly towns. Hull ${p1(h.cycle21-h.cycle11)}, York ${p1(yk.cycle21-yk.cycle11)}.</span></div>`;
   document.getElementById('legend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat towns missing the most cyclists</span><span><i style="background:var(--other)"></i>Other towns</span>`;
   draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(draw,150)});
-  table('flat','Flat like Hull and York, but few cycle',`Routes averaging ${d.flat_max}% gradient or less, ranked by how many more people would cycle to work at Hull and York's ${d.bench.share}%. Orange 2011 figures mark towns where cycling has fallen.`,d.flat_low);
+  table('flat','Flat like Hull and York, but few cycle',`Routes averaging ${d.flat_max}% gradient or less, ranked by how many more people would cycle to work at Hull and York's ${d.bench.share}%. The increases are relative to the share cycling now: +100% means twice as many. Orange 2011 figures mark towns where cycling has fallen since.`,d.flat_low);
   table('gentle','Gently sloping, and few cycle',`Routes averaging ${d.flat_max}–${d.gentle_max}% gradient: gentle enough that hills are a small barrier, especially with e-bikes.`,d.gentle_low);
 }).catch(e=>{document.getElementById('chart').innerHTML=`<p class="err" style="padding:16px">Could not load the town data (${esc(e.message)}). Reload the page to try again.</p>`});
 </script>
