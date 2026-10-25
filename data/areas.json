@@ -54,5 +54,13 @@
  {
   "id": "derbyshire",
   "name": "Derby & Derbyshire"
+ },
+ {
+  "id": "north-yorkshire",
+  "name": "North Yorkshire"
+ },
+ {
+  "id": "middlesbrough-redcar",
+  "name": "Middlesbrough & Redcar"
  }
 ]

@@ -337,5 +337,62 @@
     "places": "town|city",
     "counters": "dft",
     "rename": {}
+  },
+  "north-yorkshire": {
+    "centre": [
+      54.15,
+      -1.4
+    ],
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "name": "North Yorkshire",
+    "eyebrow": "North Yorkshire council area (excluding York)",
+    "in": "inside North Yorkshire",
+    "boundary_label": "North Yorkshire boundary",
+    "gss": "E06000065",
+    "stats19_lad": [
+      "E06000065",
+      "E10000023",
+      "E07000163",
+      "E07000164",
+      "E07000165",
+      "E07000166",
+      "E07000167",
+      "E07000168",
+      "E07000169"
+    ],
+    "dft_la": [
+      100
+    ],
+    "rivers": "Ouse|Swale|Ure|Nidd|Wharfe|Aire|Esk|Derwent|Rye|Tees|Ribble",
+    "water_label": "Rivers Ouse, Swale, Ure, Nidd & Esk"
+  },
+  "middlesbrough-redcar": {
+    "centre": [
+      54.56,
+      -1.1
+    ],
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {},
+    "name": "Middlesbrough & Redcar",
+    "eyebrow": "Middlesbrough and Redcar & Cleveland",
+    "in": "inside Middlesbrough & Redcar",
+    "boundary_label": "Middlesbrough & Redcar & Cleveland boundaries",
+    "gss": [
+      "E06000002",
+      "E06000003"
+    ],
+    "stats19_lad": [
+      "E06000002",
+      "E06000003"
+    ],
+    "dft_la": [
+      170,
+      171
+    ],
+    "rivers": "Tees|Esk|Leven",
+    "water_label": "River Tees & becks"
   }
 }

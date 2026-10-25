@@ -1,6 +1,6 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling across West, South and East Yorkshire, Lincolnshire, Nottinghamshire and Derbyshire: fourteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire and Derbyshire: sixteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
@@ -18,6 +18,8 @@ An interactive map of cycling across West, South and East Yorkshire, Lincolnshir
 | **Lincolnshire** | Lincolnshire county council area (Lincoln, Boston, Grantham, Skegness) |
 | **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
 | **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
+| **North Yorkshire** | North Yorkshire council area (Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
+| **Middlesbrough & Redcar** | Middlesbrough and Redcar & Cleveland |
 
 | Tab | What it ranks | Source |
 |---|---|---|
@@ -76,6 +78,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
 - **Nottingham & Nottinghamshire** and **Derby & Derbyshire** each combine a city (unitary) council with its county, so their DfT count points come from both highway authorities.
+- **North Yorkshire** became one council in 2023; collisions recorded under the former county and district codes are included.
 - **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
 - **Deprivation** deciles are national: decile 1 is the most deprived 10% of neighbourhoods in England. A collision's neighbourhood says where it happened, not where the cyclist lives.
 - Collision and casualty numbers are small on many roads, so the rankings can shift a lot with one or two incidents.

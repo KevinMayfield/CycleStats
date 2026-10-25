@@ -665,6 +665,13 @@
    "n": 467
   },
   {
+   "area": "middlesbrough-redcar",
+   "area_name": "Middlesbrough & Redcar",
+   "coll": 54,
+   "pop": 48,
+   "n": 234
+  },
+  {
    "area": "wakefield",
    "area_name": "Wakefield",
    "coll": 38,
@@ -698,6 +705,13 @@
    "coll": 12,
    "pop": 10,
    "n": 379
+  },
+  {
+   "area": "north-yorkshire",
+   "area_name": "North Yorkshire",
+   "coll": 7,
+   "pop": 6,
+   "n": 584
   },
   {
    "area": "sheffield",
@@ -763,6 +777,14 @@
   {
    "id": "derbyshire",
    "name": "Derby & Derbyshire"
+  },
+  {
+   "id": "north-yorkshire",
+   "name": "North Yorkshire"
+  },
+  {
+   "id": "middlesbrough-redcar",
+   "name": "Middlesbrough & Redcar"
   }
  ],
  "busy": 150
