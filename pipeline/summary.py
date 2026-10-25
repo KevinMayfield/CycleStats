@@ -30,8 +30,7 @@ def where(p, places):
 
 
 def dedupe(items):
-    """areas can overlap (the corridor and the Nottinghamshire/Derbyshire county areas): keep the first of the same
-    name within 300 m"""
+    """keep the first of the same name within 300 m, in case areas overlap"""
     out = []
     for c in items:
         if not any(o['name'] == c['name'] and km((o['lat'], o['lon']), (c['lat'], c['lon'])) < 0.3 for o in out): out.append(c)

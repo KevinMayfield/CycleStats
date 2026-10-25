@@ -20,19 +20,21 @@ def glen(g): return sum(dist(P(*g[i]), P(*g[i + 1])) for i in range(len(g) - 1))
 if 'bbox' in CFG:
     s_, w_, n_, e_ = CFG['bbox']
     ring = [(s_, w_), (s_, e_), (n_, e_), (n_, w_), (s_, w_)]
-    edges = [(ring[i][1], ring[i][0], ring[i + 1][1], ring[i + 1][0]) for i in range(4)]
+    edge_sets = [[(ring[i][1], ring[i][0], ring[i + 1][1], ring[i + 1][0]) for i in range(4)]]
     bnd = [[list(p) for p in ring]]
 else:
-    # one or more council boundary relations; even-odd ray casting works across all of their edges
+    # one or more council boundary relations. Each is tested on its own (outer and inner ways, so a county's hole
+    # where its city sits stays a hole) and a point is in the area if it is in any of them
     rels = [e for e in json.load(open(A + 'osm/paths.json'))['elements'] if e['type'] == 'relation']
-    edges = []; rings = []
+    edge_sets = []; rings = []
     for rel in rels:
-        pieces = []
+        pieces = []; edges = []
         for m in rel['members']:
-            if m['type'] == 'way' and m.get('role') == 'outer':
+            if m['type'] == 'way' and m.get('role') in ('outer', 'inner') and m.get('geometry'):
                 g = [(p['lat'], p['lon']) for p in m['geometry']]
                 for i in range(len(g) - 1): edges.append((g[i][1], g[i][0], g[i + 1][1], g[i + 1][0]))
-                pieces.append(g)
+                if m['role'] == 'outer': pieces.append(g)
+        edge_sets.append(edges)
         # chain each council's outer ways end to end into closed rings, so it draws as one shape
         while pieces:
             ring = pieces.pop(0)
@@ -45,13 +47,16 @@ else:
     bnd = [[[round(la, 5), round(lo, 5)] for la, lo in r[::3] + [r[-1]]] for r in rings]
 ecache = {}
 def inside(lat, lon):
-    """even-odd ray cast against the boundary edges"""
+    """even-odd ray cast against each council's edges; inside any of them counts"""
     k = (round(lat, 5), round(lon, 5))
     if k in ecache: return ecache[k]
-    c = False
-    for x1, y1, x2, y2 in edges:
-        if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1: c = not c
-    ecache[k] = c; return c
+    hit = False
+    for edges in edge_sets:
+        c = False
+        for x1, y1, x2, y2 in edges:
+            if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1: c = not c
+        if c: hit = True; break
+    ecache[k] = hit; return hit
 def clip(g):
     """split a [(lat,lon)] line into pieces inside the area"""
     out = []; cur = []

@@ -163,7 +163,8 @@ const ctx=L.layerGroup().addTo(map);
 let bLayer,wLayers=[],rLayers=[];
 function drawCtx(){
   ctx.clearLayers();wLayers=[];rLayers=[];
-  bLayer=L.polygon(DATA.boundary,{pane:'ctx',color:css('--muted'),weight:1.2,dashArray:'4 4',fillColor:css('--land-in'),fillOpacity:1,interactive:false}).addTo(ctx);
+  // each ring is its own polygon, so a city inside its county's outline is filled rather than drawn as a hole
+  bLayer=L.polygon(DATA.boundary.map(r=>[r]),{pane:'ctx',color:css('--muted'),weight:1.2,dashArray:'4 4',fillColor:css('--land-in'),fillOpacity:1,interactive:false}).addTo(ctx);
   DATA.major.forEach(([t,g])=>rLayers.push(L.polyline(g,{pane:'ctx',color:t==='m'||t==='t'?css('--road-major'):css('--road'),weight:t==='m'?2.6:t==='t'?2:1.4,interactive:false}).addTo(ctx)));
   DATA.water.forEach(w=>wLayers.push(L.polyline(w.g,{pane:'ctx',color:css('--water'),weight:w.w==='river'?2.2:1.6,opacity:.9,dashArray:w.w==='canal'?'1 0':null,interactive:false}).addTo(ctx)));
 }
@@ -357,6 +358,7 @@ setTab(groups[start]?start:'routes');lbls();
 }
 // area: ?area= in the link, else the last one viewed, else Leeds
 let AREA=new URLSearchParams(location.search).get('area');
+if(AREA==='notts-derby') AREA='nottinghamshire';  // the corridor was merged into Nottingham & Nottinghamshire and Derby & Derbyshire
 if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
 fetch('data/areas.json').then(r=>r.json()).then(list=>{
   if(!list.some(a=>a.id===AREA)) AREA=list[0].id;

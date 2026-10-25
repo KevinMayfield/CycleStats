@@ -25,40 +25,6 @@
       "CS3": "Cycle Superhighway 3"
     }
   },
-  "notts-derby": {
-    "name": "Nottingham/Derby Corridor",
-    "eyebrow": "Nottingham–Derby corridor · Hucknall to Castle Donington",
-    "in": "inside the corridor",
-    "boundary_label": "Corridor study area",
-    "bbox": [
-      52.82,
-      -1.57,
-      53.06,
-      -1.06
-    ],
-    "centre": [
-      52.94,
-      -1.31
-    ],
-    "stats19_lad": [],
-    "dft_la": [
-      188,
-      2,
-      119,
-      61,
-      60
-    ],
-    "rivers": "Trent|Derwent|Erewash|Leen|Soar",
-    "water_label": "Rivers Trent, Derwent, Erewash & canals",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {
-      "NCN Route 6": "NCN 6",
-      "NCN Route 15": "NCN 15",
-      "NCN Route 54": "NCN 54",
-      "NCN Route 67": "NCN 67"
-    }
-  },
   "sheffield": {
     "name": "Sheffield",
     "eyebrow": "City of Sheffield",
@@ -319,20 +285,25 @@
     "rename": {}
   },
   "nottinghamshire": {
-    "name": "Nottinghamshire",
-    "eyebrow": "Nottinghamshire county (excluding Nottingham city)",
-    "in": "inside Nottinghamshire county",
-    "boundary_label": "Nottinghamshire county boundary",
-    "gss": "E10000024",
+    "name": "Nottingham & Nottinghamshire",
+    "eyebrow": "Nottingham city and Nottinghamshire county",
+    "in": "inside Nottingham & Nottinghamshire",
+    "boundary_label": "Nottingham & Nottinghamshire boundaries",
+    "gss": [
+      "E10000024",
+      "E06000018"
+    ],
     "centre": [
       53.15,
       -1.0
     ],
     "stats19_lad": [
-      "E10000024"
+      "E10000024",
+      "E06000018"
     ],
     "dft_la": [
-      2
+      2,
+      188
     ],
     "rivers": "Trent|Idle|Maun|Leen|Erewash|Soar",
     "water_label": "Rivers Trent, Idle & Maun",
@@ -341,20 +312,25 @@
     "rename": {}
   },
   "derbyshire": {
-    "name": "Derbyshire",
-    "eyebrow": "Derbyshire county (excluding Derby city)",
-    "in": "inside Derbyshire county",
-    "boundary_label": "Derbyshire county boundary",
-    "gss": "E10000007",
+    "name": "Derby & Derbyshire",
+    "eyebrow": "Derby city and Derbyshire county",
+    "in": "inside Derby & Derbyshire",
+    "boundary_label": "Derby & Derbyshire boundaries",
+    "gss": [
+      "E10000007",
+      "E06000015"
+    ],
     "centre": [
       53.1,
       -1.6
     ],
     "stats19_lad": [
-      "E10000007"
+      "E10000007",
+      "E06000015"
     ],
     "dft_la": [
-      61
+      61,
+      119
     ],
     "rivers": "Derwent|Trent|Wye|Dove|Rother|Erewash|Goyt",
     "water_label": "Rivers Derwent, Trent, Wye & Dove",

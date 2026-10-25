@@ -4,10 +4,6 @@
   "name": "Leeds"
  },
  {
-  "id": "notts-derby",
-  "name": "Nottingham/Derby Corridor"
- },
- {
   "id": "sheffield",
   "name": "Sheffield"
  },
@@ -53,10 +49,10 @@
  },
  {
   "id": "nottinghamshire",
-  "name": "Nottinghamshire"
+  "name": "Nottingham & Nottinghamshire"
  },
  {
   "id": "derbyshire",
-  "name": "Derbyshire"
+  "name": "Derby & Derbyshire"
  }
 ]

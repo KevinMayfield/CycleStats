@@ -1,11 +1,10 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling across West, South and East Yorkshire, Lincolnshire, Nottinghamshire and Derbyshire: fifteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across West, South and East Yorkshire, Lincolnshire, Nottinghamshire and Derbyshire: fourteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
 | **Leeds** | City of Leeds district |
-| **Nottingham/Derby Corridor** | A rectangle covering Derby, Nottingham and the land between, from Hucknall in the north to Castle Donington in the south (52.82–53.06° N, 1.57–1.06° W) |
 | **Sheffield** | City of Sheffield |
 | **Hull** | Kingston upon Hull |
 | **York** | City of York |
@@ -17,8 +16,8 @@ An interactive map of cycling across West, South and East Yorkshire, Lincolnshir
 | **Rotherham** | Rotherham district |
 | **East Riding of Yorkshire** | East Riding (Beverley, Bridlington, Goole) |
 | **Lincolnshire** | Lincolnshire county council area (Lincoln, Boston, Grantham, Skegness) |
-| **Nottinghamshire** | Nottinghamshire county council area (Mansfield, Worksop, Newark, plus the districts the corridor also covers) |
-| **Derbyshire** | Derbyshire county council area (Chesterfield, Buxton, Matlock, plus the districts the corridor also covers) |
+| **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
+| **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
 
 | Tab | What it ranks | Source |
 |---|---|---|
@@ -76,9 +75,8 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **DfT bike counts** on most roads come from a single-day manual count, often carried forward from an earlier year. They undercount weekend and leisure riding. Where a road has no count point on it, the nearest count point on the same road number within 3 km is used, and the page says so.
 - **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
-- **Nottingham/Derby Corridor** spans five highway authorities (Nottingham, Nottinghamshire, Derby, Derbyshire, Leicestershire), so its DfT count points come from all five.
+- **Nottingham & Nottinghamshire** and **Derby & Derbyshire** each combine a city (unitary) council with its county, so their DfT count points come from both highway authorities.
 - **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
-- **Overlapping areas:** the Nottinghamshire and Derbyshire county areas include the districts the corridor also covers (Broxtowe, Gedling, Rushcliffe, Erewash and parts of Ashfield, Amber Valley and South Derbyshire). Each area's own lists are complete; the summary drops repeats.
 - **Deprivation** deciles are national: decile 1 is the most deprived 10% of neighbourhoods in England. A collision's neighbourhood says where it happened, not where the cyclist lives.
 - Collision and casualty numbers are small on many roads, so the rankings can shift a lot with one or two incidents.
 
