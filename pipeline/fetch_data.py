@@ -218,6 +218,48 @@ def fetch_pct(areas):
             print('  pct', region, kind, os.path.getsize(path) // 1024, 'KB')
 
 
+BUA = ('https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/'
+       'LSOA21_BUA22_LAD22_RGN22_EW_LU_v2/FeatureServer/0/query')
+
+
+def fetch_towns(areas):
+    """For the flat-towns comparison: LSOA to built-up area (ONS), Census 2021 cycling to work (Nomis TS061),
+    and PCT commute zone attributes (route hilliness, 2011 cycling, Go Dutch) per region"""
+    d = os.path.join(RAW, 'imd')
+    path = os.path.join(d, 'lsoa_bua.csv')
+    if not have(path):
+        rows = []
+        # Yorkshire and The Humber, East Midlands, North East
+        for rgn in ('E12000003', 'E12000004', 'E12000001'):
+            while True:
+                q = urllib.parse.urlencode(dict(where=f"RGN22CD='{rgn}'", outFields='LSOA21CD,BUA22CD,BUA22NM,LAD22NM',
+                                                resultOffset=sum(r[4] == rgn for r in rows), resultRecordCount=1000, f='json'))
+                got = [f['attributes'] for f in json.load(get(BUA + '?' + q))['features']]
+                rows += [[a['LSOA21CD'], a['BUA22CD'] or '', a['BUA22NM'] or '', a['LAD22NM'], rgn] for a in got]
+                if len(got) < 1000: break
+        with open(path, 'w', newline='') as f:
+            csv.writer(f).writerows([['lsoa', 'bua', 'bua_name', 'lad_name', 'rgn']] + rows)
+        print('  lsoa to built-up area', len(rows))
+    path = os.path.join(d, 'ttw2021.csv')
+    if not have(path):
+        # Census 2021 TS061: 0 = all in employment, 1 = work mainly from home, 9 = bicycle
+        rows = []
+        while True:
+            url = ('https://www.nomisweb.co.uk/api/v01/dataset/NM_2078_1.data.csv?date=latest&geography=TYPE151'
+                   f'&c2021_ttwmeth_12=0,1,9&measures=20100&select=geography_code,c2021_ttwmeth_12,obs_value&recordoffset={len(rows)}')
+            got = list(csv.reader(io.TextIOWrapper(get(url), encoding='utf-8-sig')))[1:]
+            rows += got
+            if len(got) < 25000: break
+        with open(path, 'w', newline='') as f:
+            csv.writer(f).writerows([['lsoa', 'method', 'people']] + rows)
+        print('  census travel to work', len(rows), 'rows')
+    for region in sorted({c['pct_region'] for c in areas.values()}):
+        path = os.path.join(RAW, 'pct', f'{region}_z.csv')
+        if have(path): continue
+        save(path, f'https://media.githubusercontent.com/media/npct/pct-outputs-regional-notR/master/commute/lsoa/{region}/z_attributes.csv')
+        print('  pct zones', region)
+
+
 def main():
     ids = [a for a in sys.argv[1:] if not a.startswith('--')] or list(AREAS)
     areas = {a: AREAS[a] for a in ids}
@@ -237,6 +279,8 @@ def main():
     fetch_deprivation(areas)
     print('Propensity to Cycle Tool')
     fetch_pct(areas)
+    print('Towns: built-up areas, Census 2021 cycling, PCT zones')
+    fetch_towns(areas)
 
 
 if __name__ == '__main__':

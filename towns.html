@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Towns as flat as Hull and York where far fewer people cycle to work: route hilliness against Census 2021 cycling for every town in the CycleStats areas.">
+<title>Flat but Not Cycling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: header + findings, a full-width hilliness/cycling scatter, then the two ranked tables */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df; --grid:#eceee9;
+  --accent:#0f6b5c; --bench:#0b8a6f; --low:#c25e00; --other:#aab1ad; --band:#eef4f1;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
+  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --other:#56605c; --band:#1d2a26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
+  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --other:#56605c; --band:#1d2a26; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:40px;line-height:1.02;margin:4px 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:68ch}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.fact b{display:block;font:700 30px/1 var(--display);margin-bottom:6px}
+.fact span{color:var(--muted);font-size:12.5px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+h2{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.1;margin:0 0 4px}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:95ch}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 18px 0;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chart{position:relative;padding:4px 10px 10px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+svg .lbl{font-family:var(--body);font-size:11.5px;fill:var(--ink);font-weight:500}
+svg .band{fill:var(--band)}
+svg .gl{stroke:var(--grid);stroke-width:1}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg circle{stroke:var(--panel);stroke-width:2}
+svg circle.hit{fill:transparent;stroke:none;cursor:pointer}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);min-width:200px;z-index:2}
+.tip b{display:block;font-size:13px}
+.tip .k{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.tw{overflow-x:auto;padding:4px 12px 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font:600 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n{font-family:var(--mono);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+th.n{text-align:right}
+td a{color:inherit;text-decoration:none;font-weight:600}td a:hover{color:var(--accent)}
+td small{display:block;color:var(--muted);font-size:11.5px}
+.down{color:var(--low)}
+.bar{display:block;height:5px;border-radius:2px;background:var(--low);margin-top:4px}
+.notes{color:var(--muted);font-size:12px;max-width:95ch;display:grid;gap:6px}
+.notes a{color:inherit}
+.err{color:var(--low)}
+@media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · every town in the 16 areas</div>
+      <h1>Flat but Not Cycling</h1>
+      <p class="lede">Hull and York are flat and among the highest-cycling places in England. Many towns here are just as flat, yet far fewer people cycle to work. Hills don't explain the gap; that points to roads, routes and how safe cycling feels.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a></nav>
+  </header>
+  <div class="facts" id="facts"></div>
+  <section>
+    <div class="sh"><h2>Hilliness against cycling to work</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York.</p></div>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="chart"></div>
+  </section>
+  <section id="flat"></section>
+  <section id="gentle"></section>
+  <div class="notes">
+    <div><b>Towns</b> are ONS built-up areas (2022) with at least 3,000 people travelling to work, built from their neighbourhoods (LSOAs) inside the CycleStats areas. Big cities appear as one built-up area; some suburbs and villages are their own.</div>
+    <div><b>Hilliness</b> is the Propensity to Cycle Tool's average gradient of commute routes under 10 km from each neighbourhood, weighted by commuters. It measures the routes people would actually ride, not the landscape around a town.</div>
+    <div><b>Cycling</b> is people who cycle to work as a share of people who travel to work (Census 2021, excluding those working mainly from home, which was high during the pandemic). The 2011 figure is the Census 2011 share of all commuters, from PCT, so the two are close but not identical measures.</div>
+    <div><b>Missing cyclists</b> is how many more people would cycle to work if the town matched Hull and York combined. <b>Go Dutch</b> is PCT's estimate of the share who would cycle with Dutch levels of cycling, given each town's trip lengths and hills. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
+  </div>
+</div>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const nf=n=>n.toLocaleString('en-GB');
+const p1=v=>(Math.abs(v)<0.05?0:v).toFixed(1);
+let D;
+function draw(){
+  const el=document.getElementById('chart'),W=Math.max(320,el.clientWidth-20),H=Math.round(Math.min(520,Math.max(300,W*.48)));
+  const m={l:46,r:16,t:14,b:40},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const xmax=Math.ceil(Math.max(...D.towns.map(t=>t.slope))),ymax=Math.ceil(Math.max(...D.towns.map(t=>t.cycle21))/2)*2;
+  const x=v=>m.l+v/xmax*iw,y=v=>m.t+ih-v/ymax*ih,maxT=Math.max(...D.towns.map(t=>t.travel));
+  const rad=t=>3.5+Math.sqrt(t.travel/maxT)*16;
+  const col=t=>t.tier==='bench'?'var(--bench)':D.lowIds.has(t.id)?'var(--low)':'var(--other)';
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of towns by route gradient and share cycling to work">`;
+  s+=`<rect class="band" x="${x(0)}" y="${m.t}" width="${x(D.flat_max)-x(0)}" height="${ih}"/>`;
+  for(let v=0;v<=ymax;v+=2) s+=`<line class="gl" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}%</text>`;
+  for(let v=0;v<=xmax;v++) s+=`<text x="${x(v)}" y="${H-m.b+18}" text-anchor="middle">${v}%</text>`;
+  s+=`<line class="ax" x1="${m.l}" x2="${W-m.r}" y1="${y(0)}" y2="${y(0)}"/>`;
+  s+=`<text x="${m.l+iw/2}" y="${H-4}" text-anchor="middle">Average gradient of commute routes</text>`;
+  s+=`<text x="${x(D.flat_max)+6}" y="${m.t+12}" style="fill:var(--accent)">As flat as Hull and York</text>`;
+  const order=[...D.towns].sort((a,b)=>(a.tier==='bench')-(b.tier==='bench')||D.lowIds.has(a.id)-D.lowIds.has(b.id)||b.travel-a.travel);
+  order.forEach(t=>{s+=`<circle cx="${x(t.slope).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${rad(t).toFixed(1)}" style="fill:${col(t)}" fill-opacity="${t.tier==='bench'||D.lowIds.has(t.id)?.9:.55}"/>`});
+  // direct labels: the benchmarks and the five flat towns missing most cyclists
+  const lab=[...D.bench.towns.map(b=>D.byId[b.id]),...D.flat_low.slice(0,5).map(i=>D.byId[i])];
+  // place each label right of its dot, else left, else above or below, avoiding labels already placed
+  const placed=[],hits=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
+  lab.forEach(t=>{const r=rad(t),cx=x(t.slope),cy=y(t.cycle21),nm=t.name==='Kingston upon Hull'?'Hull':t.name,w=nm.length*6.6,h=14;
+    const opts=[[cx+r+4,cy+4,'start'],[cx-r-4,cy+4,'end'],[cx,cy-r-5,'middle'],[cx,cy+r+13,'middle']];
+    const box=([px,py,a])=>({x:a==='start'?px:a==='end'?px-w:px-w/2,y:py-11,w,h});
+    const o=opts.find(o=>!placed.some(p=>hits(p,box(o))))||opts[0];placed.push(box(o));
+    s+=`<text class="lbl" x="${o[0].toFixed(1)}" y="${o[1].toFixed(1)}" text-anchor="${o[2]}">${esc(nm)}</text>`});
+  order.forEach(t=>{s+=`<circle class="hit" data-id="${t.id}" cx="${x(t.slope).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${Math.max(rad(t),9).toFixed(1)}"/>`});
+  s+='</svg><div class="tip" id="tip" hidden></div>';
+  el.innerHTML=s;
+  const tip=document.getElementById('tip');
+  el.querySelectorAll('circle.hit').forEach(c=>{
+    c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
+      tip.hidden=false;const r=el.getBoundingClientRect(),b=c.getBoundingClientRect();
+      let lx=b.left-r.left+b.width/2+12,ly=b.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
+    c.addEventListener('mouseleave',()=>{tip.hidden=true});
+  });
+}
+function table(id,title,sub,ids){
+  const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing));
+  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycle to work 2021</th><th class="n">2011</th><th class="n">Go Dutch</th><th class="n">Travel to work</th><th class="n">Missing cyclists</th></tr></thead><tbody>${
+    rows.map((t,i)=>`<tr><td class="n">${i+1}</td><td><a href="index.html?area=${t.area}&nbh=car">${esc(t.name)}</a><small>${esc(t.area_name)} · ${t.deprived}% of neighbourhoods in the most deprived fifth · ${t.nocar}% no car</small></td>
+      <td class="n">${p1(t.slope)}%</td><td class="n">${p1(t.cycle21)}%</td><td class="n${t.cycle21<t.cycle11?' down':''}">${p1(t.cycle11)}%</td><td class="n">${p1(t.dutch)}%</td><td class="n">${nf(t.travel)}</td>
+      <td class="n">${nf(t.missing)}<span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
+}
+fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
+  D=d;D.byId=Object.fromEntries(d.towns.map(t=>[t.id,t]));D.lowIds=new Set(d.flat_low.slice(0,15));
+  const flat=d.flat_low.map(i=>D.byId[i]),miss=flat.reduce((a,t)=>a+t.missing,0),gm=d.gentle_low.reduce((a,i)=>a+D.byId[i].missing,0);
+  const chg=tier=>{const ts=d.towns.filter(t=>t.tier===tier);return ts.reduce((a,t)=>a+t.cycle21-t.cycle11,0)/ts.length};
+  const [h,yk]=['Kingston upon Hull','York'].map(n=>d.bench.towns.find(t=>t.name===n));
+  document.getElementById('facts').innerHTML=`
+    <div class="fact"><b style="color:var(--bench)">${p1(h.cycle21)}% · ${p1(yk.cycle21)}%</b><span>of people travelling to work cycle in Hull and York, on routes averaging ${h.slope}% and ${yk.slope}% gradient.</span></div>
+    <div class="fact"><b style="color:var(--low)">${flat.length}</b><span>towns are as flat as Hull and York (routes averaging ${d.flat_max}% or less) but cycle less than their combined ${d.bench.share}%.</span></div>
+    <div class="fact"><b style="color:var(--low)">${nf(Math.round(miss/100)*100)}</b><span>more people would cycle to work in those flat towns at Hull and York levels. Gently sloping towns add ${nf(Math.round(gm/100)*100)}.</span></div>
+    <div class="fact"><b>${p1(chg('flat'))} pts</b><span>average change in the share cycling to work in flat towns from 2011 to 2021, against ${p1(chg('hilly'))} in hilly towns. Hull ${p1(h.cycle21-h.cycle11)}, York ${p1(yk.cycle21-yk.cycle11)}.</span></div>`;
+  document.getElementById('legend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat towns missing the most cyclists</span><span><i style="background:var(--other)"></i>Other towns</span>`;
+  draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(draw,150)});
+  table('flat','Flat like Hull and York, but few cycle',`Routes averaging ${d.flat_max}% gradient or less, ranked by how many more people would cycle to work at Hull and York's ${d.bench.share}%. Orange 2011 figures mark towns where cycling has fallen.`,d.flat_low);
+  table('gentle','Gently sloping, and few cycle',`Routes averaging ${d.flat_max}–${d.gentle_max}% gradient: gentle enough that hills are a small barrier, especially with e-bikes.`,d.gentle_low);
+}).catch(e=>{document.getElementById('chart').innerHTML=`<p class="err" style="padding:16px">Could not load the town data (${esc(e.message)}). Reload the page to try again.</p>`});
+</script>
+</body>
+</html>

@@ -20,5 +20,6 @@ for a in "${args[@]}"; do
   echo "   wrote data/$a.json ($(du -h "../data/$a.json" | cut -f1))"
 done
 python3 summary.py > /dev/null && echo "   wrote data/summary.json and data/priorities.json"
+python3 towns.py > /dev/null && echo "   wrote data/towns.json"
 # index of areas for the app's area picker
 python3 -c "import json,os;a=json.load(open('areas.json'));json.dump([{'id':k,'name':v['name']} for k,v in a.items() if os.path.exists('../data/'+k+'.json')],open('../data/areas.json','w'),indent=1)"
