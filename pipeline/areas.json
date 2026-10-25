@@ -225,5 +225,33 @@
     "places": "town|suburb|city|village",
     "counters": "dft",
     "rename": {}
+  },
+  "doncaster-barnsley": {
+    "name": "Doncaster & Barnsley",
+    "eyebrow": "Doncaster & Barnsley districts",
+    "in": "inside Doncaster & Barnsley",
+    "boundary_label": "Doncaster & Barnsley boundaries",
+    "gss": [
+      "E08000017",
+      "E08000038"
+    ],
+    "centre": [
+      53.53,
+      -1.3
+    ],
+    "stats19_lad": [
+      "E08000017",
+      "E08000016",
+      "E08000038"
+    ],
+    "dft_la": [
+      79,
+      194
+    ],
+    "rivers": "Don|Dearne|Torne|Went|Idle|Dove",
+    "water_label": "Rivers Don, Dearne & canals",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
   }
 }

@@ -40,6 +40,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .lede{color:var(--muted);margin:0;font-size:13px}
 .pick{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
 .pick select{font:600 14px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 28px 6px 10px;min-width:0;max-width:100%}
+.sumlink{color:var(--accent);font-weight:600;white-space:nowrap}
 .pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-bottom:1px solid var(--line)}
 .tab{flex:1 0 auto;white-space:nowrap;font:600 14px/1.1 var(--display);letter-spacing:.01em;padding:11px 7px 10px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer}
@@ -108,7 +109,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
       <div class="eyebrow" id="eyebrow">Cycling top 10s</div>
       <h1 id="title">Cycling Top&nbsp;10s</h1>
       <p class="lede">The longest signed cycle routes, the longest cycle paths, and the roads where most cyclists were hurt (2021–2025).</p>
-      <label class="pick" for="area">Area <select id="area"></select></label>
+      <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="summary.html">All-area summary</a></div>
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes</button>

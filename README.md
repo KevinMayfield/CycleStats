@@ -1,6 +1,6 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling in nine areas, with an area picker and six views for each:
+An interactive map of cycling in ten areas, with an area picker and six views for each, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
@@ -13,6 +13,7 @@ An interactive map of cycling in nine areas, with an area picker and six views f
 | **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
 | **Bradford** | City of Bradford district |
 | **Wakefield** | Wakefield district |
+| **Doncaster & Barnsley** | Doncaster and Barnsley districts |
 
 | Tab | What it ranks | Source |
 |---|---|---|
@@ -58,7 +59,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 | 4 | `safe_busy.py` | Same calculation for every road that has a DfT count, then ranks the well-used ones by lowest rate |
 | 5 | `council_counters.py` | Leeds: averages each council counter over complete days. Other areas: lists the busiest DfT count points. Then attaches the busiest count to each path and route |
 
-`area.py` holds the shared settings and geometry each step uses.
+`area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/summary.json` for `summary.html`: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
 
 ## Method notes and limits
 
@@ -68,7 +69,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
 - **Nottingham/Derby Corridor** spans five highway authorities (Nottingham, Nottinghamshire, Derby, Derbyshire, Leicestershire), so its DfT count points come from all five.
-- **Sheffield** changed ONS code in 2023 (E08000019 → E08000039); collisions under both codes are included.
+- **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
 - Collision and casualty numbers are small on many roads, so the rankings can shift a lot with one or two incidents.
 
 ## Data licences

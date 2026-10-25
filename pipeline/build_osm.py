@@ -96,7 +96,7 @@ top_paths=sorted(m.values(),key=lambda x:-x['km'])[:10]
 for x in top_paths: x['km']=round(x['km'],1)
 ctx=json.load(open(A+'osm/ctx.json'))
 water=[dict(n=e['tags'].get('name',''),w=e['tags']['waterway'],g=simp([(p['lat'],p['lon']) for p in e['geometry']],15)) for e in ctx['elements'] if e['type']=='way']
-places=[[e['tags']['name'],round(e['lat'],4),round(e['lon'],4),e['tags']['place']] for e in ctx['elements'] if e['type']=='node']
+places=[[e['tags']['name'],round(e['lat'],4),round(e['lon'],4),e['tags']['place']] for e in ctx['elements'] if e['type']=='node' and e['tags'].get('name')]
 major=[]
 for wid,(nm,ref,hw,g) in roadways.items():
     if hw in ('motorway','trunk','primary'): major.append([hw[0],simp(list(g),20)])

@@ -50,3 +50,5 @@ safe=sorted(busy,key=lambda c:(c['rate'],-c['aadf']))
 for c in safe[:20]: print(f"{c['name'][:26]:26} {str(c['ref']):6} aadf={c['aadf']:4} km={c['km']:5} n={c['n']:2} ksi={c['ksi']} rate={c['rate']}")
 d=json.load(open(A+'work/data.json'));d['safe']=safe[:10];d['meta']['safe_min']=MIN
 json.dump(d,open(A+'work/data.json','w'),separators=(',',':'))
+# every road with a DfT count, for the cross-area summary
+json.dump([{k:c[k] for k in ('name','ref','km','n','ksi','aadf','rate','geom')} for c in long_],open(A+'work/safe_all.json','w'))
