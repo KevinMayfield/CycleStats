@@ -15,9 +15,10 @@ for a in "${args[@]}"; do
   python3 safe_busy.py "$a" > /dev/null        # safe and well-used roads
   python3 council_counters.py "$a" > /dev/null # bike counts tab
   python3 deprivation.py "$a"                  # neighbourhood layer, collisions by deprivation
+  python3 priorities.py "$a"                   # harm, protection, PCT potential per stretch for Where to build
   cp "../raw/$a/work/data.json" "../data/$a.json"
   echo "   wrote data/$a.json ($(du -h "../data/$a.json" | cut -f1))"
 done
-python3 summary.py > /dev/null && echo "   wrote data/summary.json"
+python3 summary.py > /dev/null && echo "   wrote data/summary.json and data/priorities.json"
 # index of areas for the app's area picker
 python3 -c "import json,os;a=json.load(open('areas.json'));json.dump([{'id':k,'name':v['name']} for k,v in a.items() if os.path.exists('../data/'+k+'.json')],open('../data/areas.json','w'),indent=1)"

@@ -74,6 +74,60 @@ def main():
         print(k)
         for c in out[k]:
             print(f"   {c['name'][:30]:30} {c['town'][:28]:28} {c['area_name'][:22]:22} {c.get('avg') or c.get('n')} {c.get('aadf','')} {c.get('rate','')}")
+    priorities()
+
+
+def priorities():
+    """Where to build: road stretches where protected cycle infrastructure would most improve safety and use.
+      safety  = harm per year x share of the stretch without protection
+                harm = collisions + 2 x killed/seriously injured (so a KSI counts 3), over 5 years. A total for the
+                stretch, not per km: a protected route along a whole corridor prevents the corridor's harm
+      use     = PCT 'Go Dutch' commuters + school pupils minus those cycling now (2011 Census / school census)
+      both    = geometric mean of the two, each scaled to the 90th percentile of eligible stretches
+    Eligible: 0.5 km or longer and at least half without protection; safety and 'both' also need 5+ collisions."""
+    rows, women, children, cas_n = [], [], [], 0
+    for aid, cfg in AREAS.items():
+        path = os.path.join(RAW, aid, 'work', 'priorities.json')
+        if not os.path.exists(path): continue
+        places = json.load(open(os.path.join(DATA, aid + '.json')))['places']
+        for c in json.load(open(path)):
+            unprot = max(0.0, 1 - c['protected'] - 0.5 * c['lane'])
+            harm = (c['n'] + 2 * c['ksi']) / 5
+            c.update(area=aid, area_name=cfg['name'], town=where((c['lat'], c['lon']), places), unprot=round(unprot, 2),
+                     harm=round(harm, 2), per_km=round(harm / max(c['km'], 1), 2), safety=round(harm * unprot, 3),
+                     uplift=max(0, c['pct_dutch'] - c['pct_now']) + max(0, c['school_dutch'] - c['school_now']))
+            rows.append(c)
+    elig = [c for c in rows if c['unprot'] >= 0.5]
+    hurt = [c for c in elig if c['n'] >= 5]
+    p90 = lambda key, xs: sorted(x[key] for x in xs)[int(0.9 * len(xs))] or 1
+    ps, pu = p90('safety', hurt), p90('uplift', hurt)
+    for c in hurt: c['both'] = round((min(c['safety'] / ps, 1.5) * min(c['uplift'] / pu, 1.5)) ** 0.5, 3)
+    slim = lambda xs: [{k: v for k, v in c.items() if k != 'geom'} | dict(geom=c['geom']) for c in xs]
+    best = dedupe(sorted(hurt, key=lambda c: -c['both']))
+    per_area = {}
+    for c in best:
+        if len(per_area.setdefault(c['area'], [])) < 3: per_area[c['area']].append(c)
+    # who gets hurt: across every measured stretch with casualties (each casualty counted once per stretch)
+    tot = lambda key: sum(c[key] * c['casualties'] / 100 for c in rows if c[key] is not None)
+    known = sum(c['casualties'] for c in rows if c['women'] is not None)
+    out = dict(
+        both=slim(best[:10]),
+        safety=slim(dedupe(sorted(hurt, key=lambda c: -c['safety']))[:10]),
+        use=slim(dedupe(sorted(elig, key=lambda c: -c['uplift']))[:10]),
+        per_area={a: [{k: v for k, v in c.items() if k != 'geom'} for c in xs] for a, xs in per_area.items()},
+        stats=dict(stretches=len(rows), eligible=len(hurt), women=round(100 * tot('women') / known) if known else None,
+                   children=round(100 * tot('children') / known) if known else None,
+                   pct_now=sum(c['pct_now'] for c in best[:10]), pct_dutch=sum(c['pct_dutch'] for c in best[:10]),
+                   pct_women=sum(c['pct_women'] for c in best[:10])),
+        areas=[dict(id=a, name=AREAS[a]['name']) for a in AREAS if os.path.exists(os.path.join(DATA, a + '.json'))])
+    json.dump(out, open(os.path.join(DATA, 'priorities.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    for k in ('both', 'safety', 'use'):
+        print('priorities', k)
+        for c in out[k]:
+            print(f"   {c['name'][:24]:24} {c['town'][:24]:24} {c['area_name'][:14]:14} n={c['n']:2} ksi={c['ksi']:2} km={c['km']:5} "
+                  f"prot={c['protected']} part={c['lane']} commuters {c['pct_now']}->{c['pct_dutch']} school {c['school_now']}->{c['school_dutch']} "
+                  f"women%={c['women']}")
+    print(out['stats'])
 
 
 if __name__ == '__main__':

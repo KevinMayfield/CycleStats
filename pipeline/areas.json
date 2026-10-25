@@ -23,7 +23,8 @@
       "NCN Route 66": "NCN 66 · Leeds–Bradford–Hull",
       "NCN Route 67": "Trans Pennine Trail (NCN 67)",
       "CS3": "Cycle Superhighway 3"
-    }
+    },
+    "pct_region": "west-yorkshire"
   },
   "sheffield": {
     "name": "Sheffield",
@@ -46,7 +47,8 @@
     "water_label": "Rivers Don, Sheaf & canal",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "south-yorkshire"
   },
   "hull": {
     "name": "Hull",
@@ -68,7 +70,8 @@
     "water_label": "Humber & River Hull",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "humberside"
   },
   "york": {
     "name": "York",
@@ -90,7 +93,8 @@
     "water_label": "Rivers Ouse & Foss",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "north-yorkshire"
   },
   "grimsby-scunthorpe": {
     "name": "Grimsby, Immingham & Scunthorpe",
@@ -117,7 +121,8 @@
     "water_label": "Humber, Trent & Ancholme",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "humberside"
   },
   "kirklees-calderdale": {
     "name": "Kirklees & Calderdale",
@@ -144,7 +149,8 @@
     "water_label": "Rivers Calder, Colne & canals",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "west-yorkshire"
   },
   "bradford": {
     "name": "Bradford",
@@ -166,7 +172,8 @@
     "water_label": "Rivers Aire, Wharfe & canal",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "west-yorkshire"
   },
   "wakefield": {
     "name": "Wakefield",
@@ -188,7 +195,8 @@
     "water_label": "Rivers Calder, Aire & canals",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "west-yorkshire"
   },
   "doncaster-barnsley": {
     "name": "Doncaster & Barnsley",
@@ -216,7 +224,8 @@
     "water_label": "Rivers Don, Dearne & canals",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "south-yorkshire"
   },
   "rotherham": {
     "name": "Rotherham",
@@ -238,7 +247,8 @@
     "water_label": "Rivers Don, Rother & canal",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "south-yorkshire"
   },
   "east-riding": {
     "name": "East Riding of Yorkshire",
@@ -260,7 +270,8 @@
     "water_label": "Humber, Ouse, Derwent & River Hull",
     "places": "town|city",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "humberside"
   },
   "lincolnshire": {
     "name": "Lincolnshire",
@@ -282,7 +293,8 @@
     "water_label": "Rivers Witham, Trent & Welland",
     "places": "town|city",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "lincolnshire"
   },
   "nottinghamshire": {
     "name": "Nottingham & Nottinghamshire",
@@ -309,7 +321,8 @@
     "water_label": "Rivers Trent, Idle & Maun",
     "places": "town|city",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "nottinghamshire"
   },
   "derbyshire": {
     "name": "Derby & Derbyshire",
@@ -336,7 +349,8 @@
     "water_label": "Rivers Derwent, Trent, Wye & Dove",
     "places": "town|city",
     "counters": "dft",
-    "rename": {}
+    "rename": {},
+    "pct_region": "derbyshire"
   },
   "north-yorkshire": {
     "centre": [
@@ -366,7 +380,8 @@
       100
     ],
     "rivers": "Ouse|Swale|Ure|Nidd|Wharfe|Aire|Esk|Derwent|Rye|Tees|Ribble",
-    "water_label": "Rivers Ouse, Swale, Ure, Nidd & Esk"
+    "water_label": "Rivers Ouse, Swale, Ure, Nidd & Esk",
+    "pct_region": "north-yorkshire"
   },
   "middlesbrough-redcar": {
     "centre": [
@@ -393,6 +408,7 @@
       171
     ],
     "rivers": "Tees|Esk|Leven",
-    "water_label": "River Tees & becks"
+    "water_label": "River Tees & becks",
+    "pct_region": "north-east"
   }
 }

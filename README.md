@@ -67,8 +67,9 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 | 4 | `safe_busy.py` | Same calculation for every road that has a DfT count, then ranks the well-used ones by lowest rate |
 | 5 | `council_counters.py` | Leeds: averages each council counter over complete days. Other areas: lists the busiest DfT count points. Then attaches the busiest count to each path and route |
 | 6 | `deprivation.py` | Writes `data/<area>-imd.json` (LSOA outlines with IMD, housing condition and no-car figures), counts cycle collisions by deprivation decile using the LSOA in each STATS19 record, and tags each listed road with the decile at its midpoint |
+| 7 | `priorities.py` | For every stretch with collisions or a DfT count: harm, share protected (OSM track or segregated sidepath) or partial (painted lane, shared pavement), speed limit, PCT commuters and pupils now and Go Dutch, and the share of cyclist casualties who were women or children |
 
-`area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/summary.json` for `summary.html`: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
+`area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/priorities.json` for `priorities.html` (Where to build: top 10 corridors for safety, for more cycling, and for both, scored as described on the page) and `data/summary.json` for `summary.html`: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
 
 ## Method notes and limits
 
@@ -88,4 +89,5 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, available under the Open Database Licence (ODbL).
 - [DfT road safety data (STATS19)](https://www.data.gov.uk/dataset/cb7ae6f0-4be6-4935-9277-47e5ce24a11f/road-accidents-safety-data) and [DfT road traffic statistics](https://roadtraffic.dft.gov.uk/), Open Government Licence v3.0.
 - [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025), MHCLG; [Census 2021 TS045 car or van availability](https://www.nomisweb.co.uk/); [LSOA 2021 boundaries](https://geoportal.statistics.gov.uk/), ONS. All Open Government Licence v3.0; boundaries contain OS data © Crown copyright and database right.
+- [Propensity to Cycle Tool](https://www.pct.bike/) route networks (commute and school, Go Dutch and gender-equality scenarios), npct/pct-outputs-regional-notR, Open Government Licence / CC BY 4.0.
 - [Leeds Annual Cycle Growth](https://datamillnorth.org/dataset/e1dmk), Leeds City Council via Data Mill North, Open Government Licence v3.0.

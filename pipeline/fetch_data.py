@@ -207,6 +207,17 @@ def fetch_deprivation(areas):
         print('  lsoa boundaries', aid, len(feats))
 
 
+def fetch_pct(areas):
+    """Propensity to Cycle Tool route networks (commute and school): cyclists per road segment now and in its
+    'Go Dutch' and gender-equality scenarios. Stored with Git LFS in npct/pct-outputs-regional-notR."""
+    for region in sorted({c['pct_region'] for c in areas.values()}):
+        for kind in ('commute', 'school'):
+            path = os.path.join(RAW, 'pct', f'{region}_{kind}.geojson')
+            if have(path): continue
+            save(path, f'https://media.githubusercontent.com/media/npct/pct-outputs-regional-notR/master/{kind}/lsoa/{region}/rnet_full.geojson')
+            print('  pct', region, kind, os.path.getsize(path) // 1024, 'KB')
+
+
 def main():
     ids = [a for a in sys.argv[1:] if not a.startswith('--')] or list(AREAS)
     areas = {a: AREAS[a] for a in ids}
@@ -224,6 +235,8 @@ def main():
         fetch_leeds_counters()
     print('Deprivation and car availability')
     fetch_deprivation(areas)
+    print('Propensity to Cycle Tool')
+    fetch_pct(areas)
 
 
 if __name__ == '__main__':
