@@ -14,6 +14,7 @@ for a in "${args[@]}"; do
   python3 dft_usage.py "$a" > /dev/null        # bikes/day on the dangerous roads, risk per rider
   python3 safe_busy.py "$a" > /dev/null        # safe and well-used roads
   python3 council_counters.py "$a" > /dev/null # bike counts tab
+  python3 deprivation.py "$a"                  # neighbourhood layer, collisions by deprivation
   cp "../raw/$a/work/data.json" "../data/$a.json"
   echo "   wrote data/$a.json ($(du -h "../data/$a.json" | cut -f1))"
 done

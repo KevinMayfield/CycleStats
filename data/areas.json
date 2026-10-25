@@ -38,5 +38,25 @@
  {
   "id": "doncaster-barnsley",
   "name": "Doncaster & Barnsley"
+ },
+ {
+  "id": "rotherham",
+  "name": "Rotherham"
+ },
+ {
+  "id": "east-riding",
+  "name": "East Riding of Yorkshire"
+ },
+ {
+  "id": "lincolnshire",
+  "name": "Lincolnshire"
+ },
+ {
+  "id": "nottinghamshire",
+  "name": "Nottinghamshire"
+ },
+ {
+  "id": "derbyshire",
+  "name": "Derbyshire"
  }
 ]

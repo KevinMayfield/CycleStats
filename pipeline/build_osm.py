@@ -1,5 +1,5 @@
 """Routes, paths, collisions snapped to named roads, and map context for one area."""
-import json,collections,csv
+import json,collections,csv,re
 from area import *
 b=json.load(open(A+'osm/paths.json'))
 # ===== 1. ROUTES =====
@@ -12,6 +12,8 @@ for e in rels:
     name=t.get('name') or ('NCN Route '+t['ref'] if t.get('network')=='ncn' and t.get('ref') else t.get('ref'))
     # skip unnamed bits (a bare number) and umbrella relations for a whole network
     if not name or name.isdigit() or name.lower().endswith('network'): continue
+    # EuroVelo routes are split into national sections: 'EuroVelo 12 - North Sea Cycle Route - part United Kingdom 3'
+    name=re.sub(r' - part United Kingdom \d+$','',name).replace('EuroVelo 12 - ','EuroVelo 12 · ')
     pieces=[];seen=set()
     for m in e['members']:
         if m['type']!='way' or not m.get('geometry') or m['ref'] in seen: continue

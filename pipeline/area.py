@@ -132,7 +132,7 @@ def collision_rows():
         if r['collision_index'] not in cyc: continue
         try: la, lo = float(r['latitude']), float(r['longitude'])
         except ValueError: continue
-        if (r['local_authority_ons_district'] in lad) if lad else inside(la, lo):
+        if (r['local_authority_ons_district'] in lad or r['local_authority_highway'] in lad) if lad else inside(la, lo):
             yield r, la, lo
 def aadf_rows():
     """DfT count point rows (2021-2025) for this area's highway authorities, inside the area"""

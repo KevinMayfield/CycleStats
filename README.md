@@ -1,6 +1,6 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling in ten areas, with an area picker and six views for each, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across West, South and East Yorkshire, Lincolnshire, Nottinghamshire and Derbyshire: fifteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
@@ -14,6 +14,11 @@ An interactive map of cycling in ten areas, with an area picker and six views fo
 | **Bradford** | City of Bradford district |
 | **Wakefield** | Wakefield district |
 | **Doncaster & Barnsley** | Doncaster and Barnsley districts |
+| **Rotherham** | Rotherham district |
+| **East Riding of Yorkshire** | East Riding (Beverley, Bridlington, Goole) |
+| **Lincolnshire** | Lincolnshire county council area (Lincoln, Boston, Grantham, Skegness) |
+| **Nottinghamshire** | Nottinghamshire county council area (Mansfield, Worksop, Newark, plus the districts the corridor also covers) |
+| **Derbyshire** | Derbyshire county council area (Chesterfield, Buxton, Matlock, plus the districts the corridor also covers) |
 
 | Tab | What it ranks | Source |
 |---|---|---|
@@ -23,6 +28,8 @@ An interactive map of cycling in ten areas, with an area picker and six views fo
 | **Risk/rider** | Collisions per million km cycled, using bikes per day × road length | STATS19 + DfT traffic counts |
 | **Safe & busy** | Roads with 150+ bikes a day and the fewest collisions per km cycled | STATS19 + DfT traffic counts |
 | **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
+
+The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Collisions and Risk/rider tabs say what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
 
 **Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=` and its id from `pipeline/areas.json`, for example `?area=bradford`)
 
@@ -45,7 +52,7 @@ Downloads go into `raw/` (git-ignored) and each area is written to `data/<area>.
 
 Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An area is either one or more council areas, set with `gss` (an ONS code as tagged `ref:gss` in OpenStreetMap, or a list of them), or a rectangle, set with `bbox` (`[south, west, north, east]`). Also set:
 
-- `stats19_lad`: the ONS district codes used in STATS19 (leave empty for a `bbox` area; collisions are then picked by location)
+- `stats19_lad`: the ONS codes used in STATS19, either district codes or a county's highway authority code (leave empty for a `bbox` area; collisions are then picked by location)
 - `dft_la`: the DfT road traffic local authority ids of the highway authorities that cover the area ([list](https://roadtraffic.dft.gov.uk/api/local-authorities))
 - `centre`, `rivers`, `places` and the labels shown on the page
 
@@ -58,6 +65,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 | 3 | `dft_usage.py` | Matches DfT count points to the high-collision roads and works out collisions per million km cycled |
 | 4 | `safe_busy.py` | Same calculation for every road that has a DfT count, then ranks the well-used ones by lowest rate |
 | 5 | `council_counters.py` | Leeds: averages each council counter over complete days. Other areas: lists the busiest DfT count points. Then attaches the busiest count to each path and route |
+| 6 | `deprivation.py` | Writes `data/<area>-imd.json` (LSOA outlines with IMD, housing condition and no-car figures), counts cycle collisions by deprivation decile using the LSOA in each STATS19 record, and tags each listed road with the decile at its midpoint |
 
 `area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/summary.json` for `summary.html`: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
 
@@ -70,10 +78,13 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
 - **Nottingham/Derby Corridor** spans five highway authorities (Nottingham, Nottinghamshire, Derby, Derbyshire, Leicestershire), so its DfT count points come from all five.
 - **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
+- **Overlapping areas:** the Nottinghamshire and Derbyshire county areas include the districts the corridor also covers (Broxtowe, Gedling, Rushcliffe, Erewash and parts of Ashfield, Amber Valley and South Derbyshire). Each area's own lists are complete; the summary drops repeats.
+- **Deprivation** deciles are national: decile 1 is the most deprived 10% of neighbourhoods in England. A collision's neighbourhood says where it happened, not where the cyclist lives.
 - Collision and casualty numbers are small on many roads, so the rankings can shift a lot with one or two incidents.
 
 ## Data licences
 
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, available under the Open Database Licence (ODbL).
 - [DfT road safety data (STATS19)](https://www.data.gov.uk/dataset/cb7ae6f0-4be6-4935-9277-47e5ce24a11f/road-accidents-safety-data) and [DfT road traffic statistics](https://roadtraffic.dft.gov.uk/), Open Government Licence v3.0.
+- [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025), MHCLG; [Census 2021 TS045 car or van availability](https://www.nomisweb.co.uk/); [LSOA 2021 boundaries](https://geoportal.statistics.gov.uk/), ONS. All Open Government Licence v3.0; boundaries contain OS data © Crown copyright and database right.
 - [Leeds Annual Cycle Growth](https://datamillnorth.org/dataset/e1dmk), Leeds City Council via Data Mill North, Open Government Licence v3.0.

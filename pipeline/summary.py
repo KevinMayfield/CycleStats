@@ -29,13 +29,25 @@ def where(p, places):
     return f'{near[1]}, {town}' if near[0] < 1.5 and near[1] and near[1] != town else town
 
 
+def dedupe(items):
+    """areas can overlap (the corridor and the Nottinghamshire/Derbyshire county areas): keep the first of the same
+    name within 300 m"""
+    out = []
+    for c in items:
+        if not any(o['name'] == c['name'] and km((o['lat'], o['lon']), (c['lat'], c['lon'])) < 0.3 for o in out): out.append(c)
+    return out
+
+
 def main():
-    counts, roads, safe = [], [], []
+    counts, roads, safe, dep = [], [], [], []
     for aid, cfg in AREAS.items():
         path = os.path.join(DATA, aid + '.json')
         if not os.path.exists(path): continue
         d = json.load(open(path)); places = d['places']
         base = dict(area=aid, area_name=cfg['name'])
+        if d['meta'].get('dep'):
+            x = d['meta']['dep']
+            dep.append(dict(base, coll=x['coll_share_most'], pop=x['pop_share_most'], n=x['coll_matched']))
         for c in d['counts']:
             counts.append(dict(base, name=c['name'], town=where((c['lat'], c['lon']), places), avg=c['avg'], kind=c['kind'],
                                src=c['src'], period=c['period'], lat=c['lat'], lon=c['lon']))
@@ -50,10 +62,12 @@ def main():
             safe.append(dict(base, name=c['name'], ref=c['ref'], town=where(p, places), km=c['km'], n=c['n'], ksi=c['ksi'],
                              aadf=c['aadf'], rate=c['rate'], lat=p[0], lon=p[1]))
     out = dict(
-        popular=sorted(counts, key=lambda c: -c['avg'])[:10],
-        collisions=sorted(roads, key=lambda c: (-c['n'], -c['ksi']))[:10],
-        risk=sorted([c for c in roads if c['aadf'] and c['aadf'] >= 20 and c['n'] >= 5], key=lambda c: -c['rate'])[:10],
-        safe=sorted(safe, key=lambda c: (c['rate'], -c['aadf']))[:10],
+        popular=dedupe(sorted(counts, key=lambda c: -c['avg']))[:10],
+        collisions=dedupe(sorted(roads, key=lambda c: (-c['n'], -c['ksi'])))[:10],
+        risk=dedupe(sorted([c for c in roads if c['aadf'] and c['aadf'] >= 20 and c['n'] >= 5], key=lambda c: -c['rate']))[:10],
+        safe=dedupe(sorted(safe, key=lambda c: (c['rate'], -c['aadf'])))[:10],
+        # share of cycle collisions in the most deprived 20% of neighbourhoods vs share of residents living there
+        deprivation=sorted(dep, key=lambda c: -(c['coll'] - c['pop'])),
         areas=[dict(id=a, name=AREAS[a]['name']) for a in AREAS if os.path.exists(os.path.join(DATA, a + '.json'))],
         busy=BUSY)
     json.dump(out, open(os.path.join(DATA, 'summary.json'), 'w'), ensure_ascii=False, indent=1)

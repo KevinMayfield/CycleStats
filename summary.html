@@ -11,17 +11,17 @@
 /* Layout: header band, then four ranked lists in a 2×2 grid (one column on phones) */
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
-  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --risk:#8e1a14;
+  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --risk:#8e1a14; --dep:#6b2fa0; --dep-soft:#efe6f6;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --risk:#ff8a7a; color-scheme:dark}}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --risk:#ff8a7a; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --risk:#ff8a7a; color-scheme:dark}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --risk:#ff8a7a; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -57,6 +57,17 @@ ol{list-style:none;margin:0;padding:6px}
 .s-col{--c:var(--danger);--soft:var(--danger-soft)}
 .s-risk{--c:var(--risk);--soft:var(--danger-soft)}
 .s-safe{--c:var(--safe);--soft:var(--safe-soft)}
+.s-dep{--c:var(--dep);--soft:var(--dep-soft);margin-top:18px}
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dtw{overflow-x:auto;padding:4px 12px 12px}
+.dt th{text-align:left;font:600 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 8px 6px;border-bottom:1px solid var(--line)}
+.dt td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.dt td.num{font-family:var(--mono);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dt a{color:inherit;font-weight:600;text-decoration:none}.dt a:hover{color:var(--dep)}
+.pair{display:grid;gap:3px;min-width:140px}.pair i{display:block;height:6px;border-radius:2px}
+.pair .c{background:var(--dep)}.pair .p{background:var(--line)}
+.key{display:flex;gap:14px;font-size:12px;color:var(--muted);padding:0 20px}
+.key span::before{content:"";display:inline-block;width:12px;height:6px;border-radius:2px;margin-right:5px;vertical-align:middle;background:var(--k)}
 .notes{margin-top:22px;color:var(--muted);font-size:12px;max-width:90ch;display:grid;gap:6px}
 .notes a{color:inherit}
 .err{color:var(--danger)}
@@ -74,10 +85,12 @@ ol{list-style:none;margin:0;padding:6px}
     <nav class="areas" id="areas" aria-label="Area maps"></nav>
   </header>
   <div class="grid" id="grid"></div>
+  <section class="s-dep" id="dep" hidden></section>
   <div class="notes">
     <div><b>Most popular</b> mixes Leeds City Council automatic counters (12-month averages) with DfT traffic counts, which are mostly single weekday counts on main roads. Some counters record one direction of a one-way lane, and a road can appear twice where it has two count points.</div>
     <div><b>Collisions</b> are police-reported injury collisions involving a bicycle (DfT STATS19, 2021–2025), matched to the nearest named road. A road is a connected stretch of one name, so long roads collect more.</div>
     <div><b>Risk per rider</b> = collisions ÷ (bikes per day × length × 365 × 5) × 1,000,000, for roads with 5+ collisions and a DfT cycle count. Where bike counts are low, a few collisions give a high rate, so treat the order as indicative.</div>
+    <div><b>Deprivation</b> uses the English Indices of Deprivation 2025: the most deprived fifth means neighbourhoods (LSOAs) in deciles 1–2 for England as a whole. Collisions are placed in the neighbourhood STATS19 records for them. Each area map has a Neighbourhoods layer showing deprivation, housing condition and households with no car.</div>
     <div><b>Safe &amp; busy</b> lists roads with 150+ bikes a day and the fewest collisions per km cycled. Off-road paths have no police collision data, so none appear here. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
   </div>
 </div>
@@ -106,6 +119,14 @@ fetch('data/summary.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
         <div class="bar"><i style="width:${(sec.val(c)/mx*100).toFixed(1)}%"></i></div></span>
         <span class="fig">${f}<small>${u}</small></span></a></li>`}).join('')}</ol></section>`;
   }).join('');
+  if(S.deprivation&&S.deprivation.length){
+    const el=document.getElementById('dep');el.hidden=false;
+    el.innerHTML=`<div class="sh"><h2>Collisions and deprivation</h2><p>Share of cycle collisions in each area's most deprived fifth of neighbourhoods, against the share of residents who live there. Areas where collisions are most over-represented come first.</p></div>
+      <div class="key"><span style="--k:var(--dep)">Cycle collisions</span><span style="--k:var(--line)">Residents</span></div>
+      <div class="dtw"><table class="dt"><thead><tr><th>Area</th><th class="num">Collisions</th><th class="num">Residents</th><th></th><th class="num">Collisions counted</th></tr></thead><tbody>${
+      S.deprivation.map(d=>`<tr><td><a href="index.html?area=${d.area}#danger">${esc(d.area_name)}</a></td><td class="num">${d.coll}%</td><td class="num">${d.pop}%</td>
+        <td><div class="pair"><i class="c" style="width:${d.coll}%"></i><i class="p" style="width:${d.pop}%"></i></div></td><td class="num">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+  }
 }).catch(e=>{document.getElementById('grid').innerHTML=`<p class="err">Could not load the summary (${esc(e.message)}). Reload the page to try again.</p>`});
 </script>
 </body>

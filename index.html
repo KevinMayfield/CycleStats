@@ -13,7 +13,7 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
   --land:#eceee9; --land-in:#f9faf7; --road:#c9cdc6; --road-major:#b3b8b0; --water:#8fb8d6; --label:#4b5450;
-  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e;
+  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e; --dep:#6b2fa0; --dep-soft:#efe6f6;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -21,11 +21,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; color-scheme:dark}}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; color-scheme:dark}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -75,6 +75,15 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .mapwrap{position:relative;min-width:0}
 #map{position:absolute;inset:0;background:var(--land)}
 .leaflet-container{background:var(--land);font-family:var(--body)}
+.nbh{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:500;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);max-width:calc(100% - 80px)}
+.nbh select{font:500 12.5px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;min-width:0;max-width:100%}
+.nbh select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.legend .ramp{display:flex;gap:2px;margin-top:2px}.legend .ramp i{flex:1;height:8px;border-radius:1px}
+.legend .rl{display:flex;justify-content:space-between;color:var(--muted);font-size:10.5px}
+.legend .lh{font-weight:600;margin-top:4px}
+.chip.dp{background:var(--dep-soft);color:var(--dep)}
+.depstat{margin:0 12px 6px;padding:8px 10px;border-radius:6px;background:var(--dep-soft);color:var(--ink);font-size:12.5px}
+.depstat b{color:var(--dep)}
 .legend{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:500;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:11.5px;color:var(--ink);display:grid;gap:4px;max-width:220px}
 .legend .r{display:flex;gap:7px;align-items:center}
 .sw{width:18px;height:4px;border-radius:2px;flex:none}
@@ -122,7 +131,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
     <div class="list" id="list" role="tabpanel"></div>
     <div class="foot">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors (ODbL). Collisions: DfT STATS19 road safety data 2021–2025 (OGL v3). Lengths are measured <span id="in">inside the area</span> only. Bike counts: DfT road traffic statistics, and for Leeds, Leeds City Council via Data Mill North. <a href="https://github.com/KevinMayfield/CycleStats">Source and method on GitHub</a>.</div>
   </aside>
-  <div class="mapwrap"><div id="map"></div><div class="legend" id="legend"></div></div>
+  <div class="mapwrap"><div id="map"></div><label class="nbh" for="nbh">Neighbourhoods <select id="nbh"><option value="">Off</option><option value="imd">Deprivation (IMD 2025)</option><option value="ind">Poor housing condition</option><option value="car">Households with no car</option></select></label><div class="legend" id="legend"></div></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -149,7 +158,7 @@ function resized(){map.invalidateSize();if(pendingFit){const p=pendingFit;pendin
 new ResizeObserver(resized).observe(document.getElementById('map'));
 addEventListener('resize',resized);document.addEventListener('visibilitychange',resized);
 map.attributionControl.setPrefix(false).addAttribution('© OpenStreetMap contributors · DfT STATS19');
-map.createPane('ctx').style.zIndex=350;map.createPane('lbl').style.zIndex=640;
+map.createPane('ctx').style.zIndex=350;map.createPane('nbh').style.zIndex=360;map.createPane('lbl').style.zIndex=640;
 const ctx=L.layerGroup().addTo(map);
 let bLayer,wLayers=[],rLayers=[];
 function drawCtx(){
@@ -232,7 +241,8 @@ function render(k){
   if(k==='counts') return renderCounts();
   const hurt=k==='danger'||k==='risk'||k==='safe',val=r=>k==='danger'?r.score:k==='risk'?r.rate:k==='safe'?r.aadf:r.km;
   const rows=DATA[k],mx=Math.max(...rows.map(val));
-  let h=`<p class="blurb">${BLURB[k]}</p>`;
+  let h=`<p class="blurb">${BLURB[k]}</p>`+((k==='danger'||k==='risk')&&M.dep?depStat():'');
+  if(!rows.length) h+=`<p class="blurb"><b>${{risk:'No road here has both 5+ cycle collisions and a DfT cycle count, so none can be ranked.',safe:'No road here has a DfT cycle count high enough to rank.'}[k]||'Nothing to rank here.'}</b></p>`;
   rows.forEach((r,i)=>{
     const col=colOf(k,i);
     let sub,fig,chips='';
@@ -242,7 +252,7 @@ function render(k){
       fig=k==='risk'?`${fmt(r.rate)}<small>PER M KM</small>`:k==='safe'?`${r.aadf}<small>BIKES/DAY</small>`:`${r.n}<small>COLLISIONS</small>`;
       const use=r.aadf==null?'<em>No DfT cycle count on this road</em>'
         :`~${r.aadf} bikes/day${k==='risk'?` · ${r.n} collisions`:` · ${fmt(r.rate)} per M km`}${r.match!=='on road'?` <em>(count ${r.match})</em>`:''}`;
-      chips=`<div class="use">${use}</div><div class="chips">${r.fatal?`<span class="chip k">${r.fatal} fatal</span>`:''}<span class="chip">${r.serious} serious</span><span class="chip">${r.n-r.fatal-r.serious} slight</span></div>`;}
+      chips=`<div class="use">${use}</div><div class="chips">${r.fatal?`<span class="chip k">${r.fatal} fatal</span>`:''}<span class="chip">${r.serious} serious</span><span class="chip">${r.n-r.fatal-r.serious} slight</span>${depChips(r)}</div>`;}
     const v=val(r);
     h+=`<button class="item" id="it-${k}-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${r.name}</div><div class="sub">${sub}</div>${chips}<div class="bar"><i style="width:${(v/mx*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${fig}</span></button>`;
   });
@@ -252,6 +262,48 @@ function render(k){
   legend.innerHTML=hurt
     ?`<div class="r"><span class="sw" style="background:${colOf(k,0)}"></span>${k==='safe'?'Top 10 road (darker = safer)':'Top 10 road (darker = worse)'}</div><div class="r"><span class="dot" style="background:var(--accent);border-radius:1px;transform:rotate(45deg);width:8px;height:8px"></span>DfT cycle count point</div><div class="r"><span class="dot" style="background:var(--danger)"></span>Fatal (${s.fatal})</div><div class="r"><span class="dot" style="background:var(--amber)"></span>Serious (${s.serious})</div><div class="r"><span class="dot" style="background:var(--muted)"></span>Slight (${s.n-s.fatal-s.serious})</div><div class="r" style="color:var(--muted)">${s.n.toLocaleString()} cycle collisions, 2021–25</div>`
     :`<div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
+  legend.innerHTML+=nbhLegend();
+}
+// --- neighbourhood layer: IMD 2025 deciles, Indoors (housing condition) deciles, Census 2021 households with no car ---
+const NBH={
+  imd:{title:'Deprivation (IMD 2025)',v:f=>f[2],op:v=>[.48,.38,.28,.16,.08,.03,.02,.01,0,0][v-1],lo:'Most deprived 10%',hi:'Least deprived'},
+  ind:{title:'Poor housing condition',v:f=>f[3],op:v=>[.48,.38,.28,.16,.08,.03,.02,.01,0,0][v-1],lo:'Worst 10% in England',hi:'Best'},
+  car:{title:'Households with no car',v:f=>f[4],op:v=>v==null?0:v>=50?.48:v>=40?.36:v>=30?.24:v>=20?.12:.02,lo:'50%+',hi:'Under 20%'},
+};
+let nbhMode='',nbhData=null;const nbhLayer=L.layerGroup();
+try{nbhMode=localStorage.getItem('nbh')||''}catch(e){}
+const nbhUrl=new URLSearchParams(location.search).get('nbh');if(nbhUrl!==null&&(nbhUrl===''||NBH[nbhUrl]))nbhMode=nbhUrl;
+const nbhSel=document.getElementById('nbh');nbhSel.value=nbhMode;
+function nbhTip(f){return `<b>${f[1]}</b><br>Deprivation: decile ${f[2]} of 10${f[2]<=2?' (most deprived '+f[2]*10+'%)':''}<br>Housing condition: decile ${f[3]} of 10<br>No car: ${f[4]==null?'n/a':Math.round(f[4])+'% of households'}<br><span style="opacity:.7">Decile 1 = most deprived 10% in England</span>`}
+function drawNbh(){
+  nbhLayer.clearLayers();
+  if(!nbhMode||!nbhData){nbhLayer.remove();return}
+  const m=NBH[nbhMode],col=css('--dep');
+  nbhData.f.forEach(f=>{
+    const op=m.op(m.v(f));
+    L.polygon(f[5],{pane:'nbh',stroke:op>.3,color:col,weight:.5,opacity:.5,fillColor:col,fillOpacity:op})
+      .bindTooltip(nbhTip(f),{sticky:true,className:'tt'}).addTo(nbhLayer);
+  });
+  nbhLayer.addTo(map);
+}
+function nbhLegend(){
+  if(!nbhMode) return '';
+  const m=NBH[nbhMode],steps=nbhMode==='car'?[55,45,35,25,10]:[1,2,3,4,5,6];
+  return `<div class="lh">${m.title}</div><div class="ramp">${steps.map(v=>`<i style="background:var(--dep);opacity:${Math.max(m.op(v),.04)}"></i>`).join('')}</div><div class="rl"><span>${m.lo}</span><span>${m.hi}</span></div>`;
+}
+nbhSel.onchange=()=>{
+  nbhMode=nbhSel.value;try{localStorage.setItem('nbh',nbhMode)}catch(e){}
+  if(nbhMode&&!nbhData){fetch(`data/${M.id}-imd.json`).then(r=>r.json()).then(d=>{nbhData=d;drawNbh();render(cur)});return}
+  drawNbh();render(cur);
+};
+if(nbhMode) nbhSel.onchange();
+function depChips(r){
+  if(r.imd==null) return '';
+  return `<span class="chip dp">${r.imd<=2?'Most deprived '+r.imd*10+'%':'Deprivation decile '+r.imd}</span>`+(r.nocar!=null&&r.nocar>=35?`<span class="chip dp">${Math.round(r.nocar)}% no car</span>`:'');
+}
+function depStat(){
+  const d=M.dep;
+  return `<p class="depstat"><b>${d.coll_share_most}%</b> of cycle collisions ${M.in} happened in the most deprived fifth of neighbourhoods in England, which are home to <b>${d.pop_share_most}%</b> of residents here.</p>`;
 }
 function cnt(r){
   if(!r.counters||!r.counters.length) return '';
@@ -269,7 +321,7 @@ function renderCounts(){
   list.querySelectorAll('.item').forEach(b=>b.onclick=()=>select('counts',+b.dataset.i,true));
   legend.innerHTML=(DATA.counts.some(c=>c.kind==='Off-road path')
     ?`<div class="r"><span class="dot" style="background:var(--offroad)"></span>Off-road path counter</div><div class="r"><span class="dot" style="background:var(--count)"></span>On-road track or lane counter</div>`
-    :`<div class="r"><span class="dot" style="background:var(--count)"></span>DfT traffic count point</div>`)+`<div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`;
+    :`<div class="r"><span class="dot" style="background:var(--count)"></span>DfT traffic count point</div>`)+`<div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`+nbhLegend();
 }
 function setTab(k){
   cur=k;sel=null;
@@ -278,7 +330,8 @@ function setTab(k){
   render(k);
   try{localStorage.setItem('leedsTab',k)}catch(e){}
   if(location.hash.slice(1)!==k) history.replaceState(null,'','#'+k);
-  fit(k==='counts'?groups.counts.getBounds():L.latLngBounds(DATA[k].flatMap(d=>d.geom.flat())),{padding:[24,24]});
+  const b=k==='counts'?groups.counts.getBounds():L.latLngBounds(DATA[k].flatMap(d=>d.geom.flat()));
+  fit(b.isValid()?b:L.latLngBounds(DATA.boundary.flat()),{padding:[24,24]});
 }
 function select(k,i,zoom){
   if(k!==cur) setTab(k);
@@ -295,7 +348,7 @@ function select(k,i,zoom){
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.k));
 // theme changes: restyle context layers
-function retheme(){drawCtx();drawDots();drawCounts();}
+function retheme(){drawCtx();drawDots();drawCounts();drawNbh();}
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',retheme);
 new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 let start=location.hash.slice(1);

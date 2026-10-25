@@ -607,6 +607,113 @@
    "lon": -1.77182
   }
  ],
+ "deprivation": [
+  {
+   "area": "grimsby-scunthorpe",
+   "area_name": "Grimsby, Immingham & Scunthorpe",
+   "coll": 44,
+   "pop": 29,
+   "n": 642
+  },
+  {
+   "area": "kirklees-calderdale",
+   "area_name": "Kirklees & Calderdale",
+   "coll": 45,
+   "pop": 32,
+   "n": 415
+  },
+  {
+   "area": "notts-derby",
+   "area_name": "Nottingham/Derby Corridor",
+   "coll": 36,
+   "pop": 26,
+   "n": 1636
+  },
+  {
+   "area": "hull",
+   "area_name": "Hull",
+   "coll": 62,
+   "pop": 52,
+   "n": 1008
+  },
+  {
+   "area": "lincolnshire",
+   "area_name": "Lincolnshire",
+   "coll": 27,
+   "pop": 17,
+   "n": 827
+  },
+  {
+   "area": "rotherham",
+   "area_name": "Rotherham",
+   "coll": 44,
+   "pop": 35,
+   "n": 143
+  },
+  {
+   "area": "leeds",
+   "area_name": "Leeds",
+   "coll": 36,
+   "pop": 29,
+   "n": 1209
+  },
+  {
+   "area": "bradford",
+   "area_name": "Bradford",
+   "coll": 59,
+   "pop": 53,
+   "n": 467
+  },
+  {
+   "area": "wakefield",
+   "area_name": "Wakefield",
+   "coll": 38,
+   "pop": 33,
+   "n": 313
+  },
+  {
+   "area": "doncaster-barnsley",
+   "area_name": "Doncaster & Barnsley",
+   "coll": 43,
+   "pop": 39,
+   "n": 408
+  },
+  {
+   "area": "york",
+   "area_name": "York",
+   "coll": 9,
+   "pop": 6,
+   "n": 561
+  },
+  {
+   "area": "east-riding",
+   "area_name": "East Riding of Yorkshire",
+   "coll": 12,
+   "pop": 10,
+   "n": 379
+  },
+  {
+   "area": "derbyshire",
+   "area_name": "Derbyshire",
+   "coll": 18,
+   "pop": 20,
+   "n": 661
+  },
+  {
+   "area": "sheffield",
+   "area_name": "Sheffield",
+   "coll": 32,
+   "pop": 36,
+   "n": 612
+  },
+  {
+   "area": "nottinghamshire",
+   "area_name": "Nottinghamshire",
+   "coll": 17,
+   "pop": 24,
+   "n": 830
+  }
+ ],
  "areas": [
   {
    "id": "leeds",
@@ -647,6 +754,26 @@
   {
    "id": "doncaster-barnsley",
    "name": "Doncaster & Barnsley"
+  },
+  {
+   "id": "rotherham",
+   "name": "Rotherham"
+  },
+  {
+   "id": "east-riding",
+   "name": "East Riding of Yorkshire"
+  },
+  {
+   "id": "lincolnshire",
+   "name": "Lincolnshire"
+  },
+  {
+   "id": "nottinghamshire",
+   "name": "Nottinghamshire"
+  },
+  {
+   "id": "derbyshire",
+   "name": "Derbyshire"
   }
  ],
  "busy": 150

@@ -151,9 +151,7 @@
     "water_label": "Humber, Trent & Ancholme",
     "places": "town|suburb|city|village",
     "counters": "dft",
-    "rename": {
-      "EuroVelo 12 - North Sea Cycle Route - part United Kingdom 3": "EuroVelo 12 · North Sea Cycle Route"
-    }
+    "rename": {}
   },
   "kirklees-calderdale": {
     "name": "Kirklees & Calderdale",
@@ -251,6 +249,116 @@
     "rivers": "Don|Dearne|Torne|Went|Idle|Dove",
     "water_label": "Rivers Don, Dearne & canals",
     "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "rotherham": {
+    "name": "Rotherham",
+    "eyebrow": "Rotherham district",
+    "in": "inside Rotherham district",
+    "boundary_label": "Rotherham district boundary",
+    "gss": "E08000018",
+    "centre": [
+      53.4,
+      -1.3
+    ],
+    "stats19_lad": [
+      "E08000018"
+    ],
+    "dft_la": [
+      62
+    ],
+    "rivers": "Don|Rother|Dearne",
+    "water_label": "Rivers Don, Rother & canal",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "east-riding": {
+    "name": "East Riding of Yorkshire",
+    "eyebrow": "East Riding of Yorkshire (excluding Hull)",
+    "in": "inside the East Riding",
+    "boundary_label": "East Riding boundary",
+    "gss": "E06000011",
+    "centre": [
+      53.85,
+      -0.6
+    ],
+    "stats19_lad": [
+      "E06000011"
+    ],
+    "dft_la": [
+      89
+    ],
+    "rivers": "Humber|Hull|Derwent|Ouse|Gypsey Race",
+    "water_label": "Humber, Ouse, Derwent & River Hull",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {}
+  },
+  "lincolnshire": {
+    "name": "Lincolnshire",
+    "eyebrow": "Lincolnshire county (excluding North & North East Lincs)",
+    "in": "inside Lincolnshire",
+    "boundary_label": "Lincolnshire county boundary",
+    "gss": "E10000019",
+    "centre": [
+      53.1,
+      -0.2
+    ],
+    "stats19_lad": [
+      "E10000019"
+    ],
+    "dft_la": [
+      99
+    ],
+    "rivers": "Witham|Trent|Welland|Steeping|Glen|Bain",
+    "water_label": "Rivers Witham, Trent & Welland",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {}
+  },
+  "nottinghamshire": {
+    "name": "Nottinghamshire",
+    "eyebrow": "Nottinghamshire county (excluding Nottingham city)",
+    "in": "inside Nottinghamshire county",
+    "boundary_label": "Nottinghamshire county boundary",
+    "gss": "E10000024",
+    "centre": [
+      53.15,
+      -1.0
+    ],
+    "stats19_lad": [
+      "E10000024"
+    ],
+    "dft_la": [
+      2
+    ],
+    "rivers": "Trent|Idle|Maun|Leen|Erewash|Soar",
+    "water_label": "Rivers Trent, Idle & Maun",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {}
+  },
+  "derbyshire": {
+    "name": "Derbyshire",
+    "eyebrow": "Derbyshire county (excluding Derby city)",
+    "in": "inside Derbyshire county",
+    "boundary_label": "Derbyshire county boundary",
+    "gss": "E10000007",
+    "centre": [
+      53.1,
+      -1.6
+    ],
+    "stats19_lad": [
+      "E10000007"
+    ],
+    "dft_la": [
+      61
+    ],
+    "rivers": "Derwent|Trent|Wye|Dove|Rother|Erewash|Goyt",
+    "water_label": "Rivers Derwent, Trent, Wye & Dove",
+    "places": "town|city",
     "counters": "dft",
     "rename": {}
   }

@@ -107,7 +107,8 @@ def fetch_stats19(areas):
     boxes = [c['bbox'] for c in areas.values() if 'bbox' in c]
 
     def keep_collision(row, h):
-        if row[h['local_authority_ons_district']] in lads: return True
+        # a district code, or a county code in the highway authority column
+        if row[h['local_authority_ons_district']] in lads or row[h['local_authority_highway']] in lads: return True
         try: la, lo = float(row[h['latitude']]), float(row[h['longitude']])
         except ValueError: return False
         return any(s <= la <= n and w <= lo <= e for s, w, n, e in boxes)
@@ -165,6 +166,47 @@ def fetch_leeds_counters():
     print('  counters: latest month', latest[-1])
 
 
+IOD = ('https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/'
+       'File_7_IoD2025_All_Ranks_Scores_Deciles_Population_Denominators.csv')
+LSOA = ('https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/'
+        'Lower_layer_Super_Output_Areas_December_2021_Boundaries_EW_BSC_V4/FeatureServer/0/query')
+
+
+def fetch_deprivation(areas):
+    """English Indices of Deprivation 2025, Census 2021 car availability, and LSOA boundaries per area"""
+    d = os.path.join(RAW, 'imd')
+    if not have(os.path.join(d, 'imd2025.csv')):
+        save(os.path.join(d, 'imd2025.csv'), IOD)
+    nocar = os.path.join(d, 'nocar.csv')
+    if not have(nocar):
+        # Census 2021 TS045: % of households with no car or van, every LSOA (Nomis returns at most 25,000 rows a call)
+        rows = []
+        while True:
+            url = ('https://www.nomisweb.co.uk/api/v01/dataset/NM_2063_1.data.csv?date=latest&geography=TYPE151'
+                   f'&c2021_cars_5=1&measures=20301&select=geography_code,obs_value&recordoffset={len(rows)}')
+            got = list(csv.reader(io.TextIOWrapper(get(url), encoding='utf-8-sig')))[1:]
+            rows += got
+            if len(got) < 25000: break
+        with open(nocar, 'w', newline='') as f:
+            csv.writer(f).writerows([['lsoa', 'pct_no_car']] + rows)
+        print('  census no-car households', len(rows), 'LSOAs')
+    for aid, cfg in areas.items():
+        path = os.path.join(RAW, aid, 'lsoa.geojson')
+        if have(path): continue
+        s, w, n, e = bbox_of(os.path.join(RAW, aid, 'osm', 'paths.json'), cfg)
+        feats = []
+        while True:
+            q = urllib.parse.urlencode(dict(geometry=f'{w},{s},{e},{n}', geometryType='esriGeometryEnvelope', inSR=4326,
+                                            spatialRel='esriSpatialRelIntersects', outFields='LSOA21CD', outSR=4326,
+                                            geometryPrecision=5, resultOffset=len(feats), resultRecordCount=2000, f='geojson'))
+            page = json.load(get(LSOA + '?' + q))
+            feats += page['features']
+            if len(page['features']) < 2000 and not page.get('properties', {}).get('exceededTransferLimit'): break
+        with open(path, 'w') as f:
+            json.dump({'type': 'FeatureCollection', 'features': feats}, f)
+        print('  lsoa boundaries', aid, len(feats))
+
+
 def main():
     ids = [a for a in sys.argv[1:] if not a.startswith('--')] or list(AREAS)
     areas = {a: AREAS[a] for a in ids}
@@ -180,6 +222,8 @@ def main():
     if any(c['counters'] == 'leeds' for c in areas.values()):
         print('Leeds City Council cycle counters')
         fetch_leeds_counters()
+    print('Deprivation and car availability')
+    fetch_deprivation(areas)
 
 
 if __name__ == '__main__':
