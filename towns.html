@@ -48,30 +48,45 @@ h2{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.1;mar
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .chart{position:relative;padding:4px 10px 10px}
-.mapbox{position:relative;height:min(640px,72vh);min-height:380px}
-#map{position:absolute;inset:0;background:var(--bg)}
-.leaflet-container{background:var(--bg);font-family:var(--body)}
+.leaflet-container{font-family:var(--body)}
 .leaflet-tooltip.tt{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px}
 .leaflet-tooltip.tt:before{display:none}
 .leaflet-bar a{background:var(--panel);color:var(--ink);border-color:var(--line)}
-.leaflet-control-attribution{background:var(--panel)!important;color:var(--muted)!important;font-size:10px}
-.tlab{font:600 11px/1 var(--body);color:var(--ink);white-space:nowrap;text-shadow:0 0 3px var(--bg),0 0 3px var(--bg),0 0 2px var(--bg)}
-.rds{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
-.rds .lab{font:600 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.rd{font-size:12px;padding:3px 8px;border-radius:4px;background:var(--bg);border:1px solid var(--line)}
-.rd b{font-weight:600}
-.rd.also{background:none;border-style:dashed}.rd span{color:var(--muted);font-family:var(--mono);font-size:11px}
-tr.sub td{border-bottom:1px solid var(--line);padding-top:0}
-tr.main td{border-bottom:0}
-.showmap{font:500 11.5px/1 var(--body);color:var(--accent);background:none;border:0;padding:0;cursor:pointer;margin-left:6px}
-svg{display:block;width:100%;height:auto;overflow:visible}
-svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
-svg .lbl{font-family:var(--body);font-size:11.5px;fill:var(--ink);font-weight:500}
-svg .band{fill:var(--band)}
-svg .gl{stroke:var(--grid);stroke-width:1}
-svg .ax{stroke:var(--line);stroke-width:1}
-svg circle{stroke:var(--panel);stroke-width:2}
-svg circle.hit{fill:transparent;stroke:none;cursor:pointer}
+.leaflet-control-attribution{font-size:10px}
+tbody.town tr.main{cursor:pointer}
+tbody.town tr.main:hover td{background:var(--bg)}
+tbody.town tr.main.open td{border-bottom:0;background:var(--bg)}
+.tog{display:inline-flex;align-items:flex-start;gap:8px;font:600 13.5px/1.3 var(--body);color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.tog:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chev{width:20px;height:20px;border:1px solid var(--line);border-radius:4px;display:inline-grid;place-items:center;flex:none;font-size:10px;color:var(--muted);background:var(--panel);transition:transform .15s}
+.tog[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.tname small{font-weight:400}
+tr.det td{padding:0 8px 14px;border-bottom:1px solid var(--line);background:var(--bg)}
+.panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;padding:4px 4px 0}
+.ptitle{font:700 17px/1.2 var(--display);margin:0 0 6px}
+.pnote{color:var(--muted);font-size:12px;margin:8px 0 0}
+.pnote a{color:var(--accent)}
+.townmap.dark .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85)}
+.townmap .leaflet-tile-pane{opacity:.85}
+.townmap{height:400px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+table.rt{font-size:12.5px;background:var(--panel);border-radius:6px;overflow:hidden}
+table.rt th,table.rt td{padding:7px 8px}
+table.rt tr.r:hover td,table.rt tr.r.hl td{background:var(--band)}
+table.rt td small{display:block;color:var(--muted);font-size:11px}
+table.rt .k{font-family:var(--mono);font-size:11px;color:var(--muted)}
+table.rt tr.sep td{font:600 10.5px/1.2 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:10px}
+.num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font:700 11.5px/1 var(--mono);color:#fff;background:var(--low)}
+.num.also{background:var(--other)}
+.mk .num{box-shadow:0 0 0 2px var(--panel),0 1px 4px rgba(0,0,0,.35)}
+@media (max-width:900px){.panel{grid-template-columns:minmax(0,1fr)}.townmap{height:320px}}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.chart svg .lbl{font-family:var(--body);font-size:11.5px;fill:var(--ink);font-weight:500}
+.chart svg .band{fill:var(--band)}
+.chart svg .gl{stroke:var(--grid);stroke-width:1}
+.chart svg .ax{stroke:var(--line);stroke-width:1}
+.chart svg circle{stroke:var(--panel);stroke-width:2}
+.chart svg circle.hit{fill:transparent;stroke:none;cursor:pointer}
 .tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);min-width:200px;z-index:2}
 .tip b{display:block;font-size:13px}
 .tip .k{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
@@ -109,11 +124,6 @@ td.n small{text-align:right}
     <div class="sh"><h2>Hilliness against cycling to work</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York.</p></div>
     <div class="legend" id="legend"></div>
     <div class="chart" id="chart"></div>
-  </section>
-  <section>
-    <div class="sh"><h2>Roads to improve, town by town</h2><p>Each flat or gently sloping town where few cycle, with up to five roads where protected cycle routes would do most good (and three more, dashed): the harm recorded on the unprotected parts of the road, and how many more commuters and pupils would cycle along it at Dutch levels. Hover a road or town for details; select a town to zoom to it.</p></div>
-    <div class="legend" id="maplegend"></div>
-    <div class="mapbox"><div id="map"></div></div>
   </section>
   <section id="flat"></section>
   <section id="gentle"></section>
@@ -172,55 +182,65 @@ function draw(){
 const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
 function table(id,title,sub,ids){
   const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing)),b=D.bench.share;
-  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody>${
-    rows.map((t,i)=>`<tr class="main"><td class="n">${i+1}</td><td><a href="index.html?area=${t.area}&nbh=car">${esc(t.name)}</a>${t.roads&&t.roads.length?`<button class="showmap" data-id="${t.id}">Show on map</button>`:''}<small>${esc(t.area_name)} · ${t.deprived}% of neighbourhoods in the most deprived fifth · ${t.nocar}% no car</small></td>
+  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
+    rows.map((t,i)=>`<tbody class="town"><tr class="main" data-id="${t.id}"><td class="n">${i+1}</td>
+      <td><button class="tog" aria-expanded="false" aria-controls="det-${t.id}"><span class="chev" aria-hidden="true">▶</span><span class="tname">${esc(t.name)}<small>${esc(t.area_name)} · ${t.roads&&t.roads.length?Math.min(5,t.roads.length)+' roads to improve':'no roads ranked'}</small></span></button></td>
       <td class="n">${p1(t.slope)}%</td>
       <td class="n"><b>${p1(t.cycle21)}%</b><small class="${t.cycle21<t.cycle11?'down':''}">2011: ${p1(t.cycle11)}%</small></td>
       <td class="n"><b class="up">${inc(t.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(t.dutch)}%</b><small>${inc(t.cycle21,t.dutch)}</small></td>
       <td class="n">${nf(t.missing)}<small>of ${nf(t.travel)} commuters</small><span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>
-      <tr class="sub"><td></td><td colspan="6"><div class="rds"><span class="lab">Roads to improve</span>${roadChips(t)}</div></td></tr>`).join('')}</tbody></table></div>`;
-  document.querySelectorAll(`#${id} .showmap`).forEach(b=>b.onclick=()=>{focusTown(b.dataset.id);document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'})});
+      <tr class="det" id="det-${t.id}" hidden><td colspan="7"></td></tr></tbody>`).join('')}</table></div>`;
+  document.querySelectorAll(`#${id} tr.main`).forEach(tr=>tr.addEventListener('click',e=>{if(!e.target.closest('a'))toggle(tr)}));
 }
-const protTxt=r=>r.protected>=.3?`${Math.round(r.protected*100)}% protected, complete the route`:r.protected>=.05?`${Math.round(r.protected*100)}% protected`:r.lane>=.1?'painted or shared only':'no protection';
-function roadChips(t){
-  if(!t.roads||!t.roads.length) return '<span class="rd"><span>No road here has enough collisions or cycling potential to rank</span></span>';
-  const chip=(r,also)=>`<span class="rd${also?' also':''}" title="${esc(r.name)}: ${r.n} cycle collisions (${r.ksi} killed or seriously injured) over ${r.km.toFixed(1)} km, ${protTxt(r)}. Commuters cycling ${r.pct_now} → ${r.pct_dutch} Go Dutch; pupils ${r.school_now} → ${r.school_dutch}."><b>${esc(r.name)}</b> <span>${r.n} coll · ${protTxt(r)} · ${r.pct_now}→${r.pct_dutch}</span></span>`;
-  const more=t.roads.slice(5);
-  return t.roads.slice(0,5).map(r=>chip(r,false)).join('')+(more.length?`<span class="lab">Also</span>${more.map(r=>chip(r,true)).join('')}`:'');
+function toggle(tr){
+  const t=D.byId[tr.dataset.id],det=tr.nextElementSibling,btn=tr.querySelector('.tog'),open=det.hidden;
+  det.hidden=!open;tr.classList.toggle('open',open);btn.setAttribute('aria-expanded',open);
+  if(open) history.replaceState(null,'','#'+t.id);
+  if(open&&!det.dataset.built){det.dataset.built=1;det.firstElementChild.innerHTML=panel(t);if(t.roads&&t.roads.length)townMap(t,det.querySelector('.townmap'),det)}
 }
-// --- overview map: area outlines, towns, and each town's suggested roads ---
-let map,roadLayers={},townLayers={};
-function drawMap(){
-  map=L.map('map',{zoomSnap:.25,preferCanvas:true}).setView([53.4,-1.2],8);
-  map.attributionControl.setPrefix(false).addAttribution('© OpenStreetMap contributors · DfT · ONS · PCT');
-  map.createPane('out').style.zIndex=350;map.createPane('lbl').style.zIndex=640;
-  const outl=L.featureGroup().addTo(map);
-  D.outlines.forEach(o=>o.rings.forEach(r=>L.polygon(r,{pane:'out',color:css('--muted'),weight:1,dashArray:'3 4',fillColor:css('--panel'),fillOpacity:1,interactive:false}).addTo(outl)));
-  const shown=[...D.flat_low,...D.gentle_low].map(i=>D.byId[i]).filter(t=>t.missing>0);
-  const maxT=Math.max(...shown.map(t=>t.travel));
-  shown.forEach(t=>{
-    const col=t.tier==='flat'?css('--low'):css('--gentle');
-    const g=L.featureGroup().addTo(map);
-    (t.roads||[]).forEach((r,ri)=>r.geom.forEach(line=>{
-      L.polyline(line,{color:'#000',weight:12,opacity:.001}).bindTooltip(`<b>${esc(r.name)}</b> · ${esc(t.name)}<br>${r.n} cycle collisions, ${r.ksi} killed or seriously injured<br>${protTxt(r)} · ${r.km.toFixed(1)} km<br>Commuters ${r.pct_now} → ${r.pct_dutch} Go Dutch`,{sticky:true,className:'tt'}).addTo(g);
-      L.polyline(line,{color:col,weight:ri<5?3.5:2,opacity:ri<5?.95:.6,dashArray:ri<5?null:'4 4',lineCap:'round'}).addTo(g);
-    }));
-    roadLayers[t.id]=g;
-    townLayers[t.id]=L.circleMarker([t.lat,t.lon],{radius:4+Math.sqrt(t.travel/maxT)*10,color:css('--panel'),weight:1.5,fillColor:col,fillOpacity:.35})
-      .bindTooltip(`<b>${esc(t.name)}</b><br>${p1(t.cycle21)}% cycle to work now · ${inc(t.cycle21,D.bench.share)} to match Hull &amp; York<br>${(t.roads||[]).slice(0,5).map(r=>esc(r.name)).join(', ')||'No roads ranked'}`,{className:'tt'})
-      .on('click',()=>focusTown(t.id)).addTo(map);
+const protTxt=r=>r.protected>=.3?`${Math.round(r.protected*100)}% protected`:r.protected>=.05?`${Math.round(r.protected*100)}% protected`:r.lane>=.1?'Painted lane or shared path only':'None';
+const protNote=r=>r.protected>=.3?'complete the route':r.lane>=.1&&r.protected<.05?'no physical protection':'';
+function panel(t){
+  const area=`<a href="index.html?area=${t.area}&nbh=car">Open the ${esc(t.area_name)} map</a>`;
+  if(!t.roads||!t.roads.length) return `<div class="panel" style="grid-template-columns:1fr"><p class="pnote">No road in ${esc(t.name)} has enough cycle collisions or cycling potential to rank. ${area}.</p></div>`;
+  const row=(r,i)=>`<tr class="r" data-i="${i}"><td><span class="num${i>=5?' also':''}">${i+1}</span></td><td><b>${esc(r.name)}</b>${r.ref?` <span class="k">${esc(r.ref)}</span>`:''}<small>${r.km.toFixed(1)} km${r.speed?` · ${r.speed} mph`:''}</small></td>
+    <td class="n">${r.n}<small>${r.ksi} serious</small></td><td>${protTxt(r)}<small>${protNote(r)}</small></td>
+    <td class="n">${r.pct_now} → <b class="up">${r.pct_dutch}</b><small>pupils ${r.school_now} → ${r.school_dutch}</small></td></tr>`;
+  const top=t.roads.slice(0,5),more=t.roads.slice(5);
+  return `<div class="panel"><div><div class="ptitle">Roads to improve in ${esc(t.name)}</div>
+    <table class="rt"><thead><tr><th></th><th>Road</th><th class="n">Collisions</th><th>Protection now</th><th class="n">Commuters now → Go Dutch</th></tr></thead><tbody>
+    ${top.map(row).join('')}${more.length?`<tr class="sep"><td colspan="5">Also worth looking at</td></tr>${more.map((r,j)=>row(r,j+5)).join('')}`:''}</tbody></table>
+    <p class="pnote">Ranked half on cycle collisions on the unprotected parts of each road (2021–25, serious counted three times) and half on how many more commuters and pupils would cycle along it at Dutch levels (PCT). ${area}.</p></div>
+    <div class="townmap" role="img" aria-label="Street map of ${esc(t.name)} with the roads to improve highlighted"></div></div>`;
+}
+function isDark(){const th=document.documentElement.dataset.theme;return th?th==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function townMap(t,el,det){
+  const m=L.map(el,{zoomSnap:.25,scrollWheelZoom:false});
+  el.classList.toggle('dark',isDark());
+  // set the view before drawing, so the roads are projected at the zoom they are shown at
+  m.fitBounds(L.latLngBounds(t.roads.flatMap(r=>r.geom.flat())).pad(.12),{maxZoom:15,animate:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(m);
+  const all=L.featureGroup().addTo(m),lines=[];
+  // outlines first, then the coloured lines, so one section's outline never covers the next section's end
+  t.roads.forEach(r=>r.geom.forEach(line=>L.polyline(line,{color:css('--panel'),weight:9,opacity:.9,lineCap:'round',interactive:false}).addTo(all)));
+  t.roads.forEach((r,i)=>{
+    const col=i<5?css('--low'):css('--other'),mine=[];
+    const tip=`<b>${i+1}. ${esc(r.name)}</b><br>${r.n} cycle collisions, ${r.ksi} serious · ${r.km.toFixed(1)} km<br>Protection: ${protTxt(r)}<br>Commuters ${r.pct_now} → ${r.pct_dutch} Go Dutch`;
+    r.geom.forEach(line=>{
+      mine.push(L.polyline(line,{color:col,weight:5,opacity:.95,lineCap:'round',dashArray:i<5?null:'6 6'}).bindTooltip(tip,{sticky:true,className:'tt'}).addTo(all));
+    });
+    const longest=r.geom.reduce((a,b)=>b.length>a.length?b:a,[]),mid=longest[Math.floor(longest.length/2)];
+    if(mid) L.marker(mid,{zIndexOffset:i<5?1000:0,icon:L.divIcon({className:'mk',html:`<span class="num${i>=5?' also':''}">${i+1}</span>`,iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(tip,{className:'tt'}).addTo(all);
+    lines[i]=mine;
   });
-  D.towns.filter(t=>t.tier==='bench').forEach(t=>L.circleMarker([t.lat,t.lon],{radius:9,color:css('--panel'),weight:1.5,fillColor:css('--bench'),fillOpacity:.9})
-    .bindTooltip(`<b>${esc(t.name)}</b><br>${p1(t.cycle21)}% cycle to work · benchmark`,{className:'tt'}).addTo(map));
-  shown.filter(t=>t.missing>=700).forEach(t=>L.marker([t.lat,t.lon],{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="tlab" style="transform:translate(10px,-50%)">${esc(t.name)}</div>`,iconSize:[0,0]})}).addTo(map));
-  map.fitBounds(outl.getBounds(),{padding:[10,10]});
-  document.getElementById('maplegend').innerHTML=`<span><i style="background:var(--low)"></i>Flat town and its roads</span><span><i style="background:var(--gentle)"></i>Gently sloping town and its roads</span><span><i style="background:var(--bench)"></i>Hull and York</span>`;
-}
-function focusTown(id){
-  const g=roadLayers[id];if(!g)return;
-  const b=g.getLayers().length?g.getBounds():L.latLngBounds([townLayers[id].getLatLng()]);
-  map.fitBounds(b.pad(.25),{maxZoom:14});townLayers[id].openTooltip();
+  // hovering a road in the list thickens it on the map
+  det.querySelectorAll('tr.r').forEach(tr=>{
+    const ls=lines[+tr.dataset.i]||[];
+    tr.addEventListener('mouseenter',()=>{ls.forEach(l=>{l.setStyle({weight:9});l.bringToFront()});tr.classList.add('hl')});
+    tr.addEventListener('mouseleave',()=>{ls.forEach(l=>l.setStyle({weight:5}));tr.classList.remove('hl')});
+  });
 }
 fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
   D=d;D.byId=Object.fromEntries(d.towns.map(t=>[t.id,t]));D.lowIds=new Set(d.flat_low.slice(0,15));
@@ -237,7 +257,9 @@ fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.js
   draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(draw,150)});
   table('flat','Flat like Hull and York, but few cycle',`Routes averaging ${d.flat_max}% gradient or less, ranked by how many more people would cycle to work at Hull and York's ${d.bench.share}%. The increases are relative to the share cycling now: +100% means twice as many. Orange 2011 figures mark towns where cycling has fallen since.`,d.flat_low);
   table('gentle','Gently sloping, and few cycle',`Routes averaging ${d.flat_max}–${d.gentle_max}% gradient: gentle enough that hills are a small barrier, especially with e-bikes.`,d.gentle_low);
-  drawMap();
+  // towns.html#<built-up area code> opens that town's panel
+  const want=location.hash.slice(1),tr=want&&document.querySelector(`tr.main[data-id="${CSS.escape(want)}"]`);
+  if(tr){toggle(tr);tr.scrollIntoView({block:'start'})}
 }).catch(e=>{document.getElementById('chart').innerHTML=`<p class="err" style="padding:16px">Could not load the town data (${esc(e.message)}). Reload the page to try again.</p>`});
 </script>
 </body>

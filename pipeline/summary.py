@@ -6,6 +6,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, '..', 'data')
 RAW = os.path.join(HERE, '..', 'raw')
 AREAS = json.load(open(os.path.join(HERE, 'areas.json')))
+# credit for partial provision (a painted lane, or a pavement shared with walkers or split by a painted line): little
+# protection at side roads and junctions, so a quarter of a protected track
+PARTIAL = 0.25
 BUSY = 150  # bikes/day for "safe & busy" across areas (individual areas may use a lower bar)
 
 
@@ -91,7 +94,7 @@ def priorities():
         if not os.path.exists(path): continue
         places = json.load(open(os.path.join(DATA, aid + '.json')))['places']
         for c in json.load(open(path)):
-            unprot = max(0.0, 1 - c['protected'] - 0.5 * c['lane'])
+            unprot = max(0.0, 1 - c['protected'] - PARTIAL * c['lane'])
             harm = (c['n'] + 2 * c['ksi']) / 5
             c.update(area=aid, area_name=cfg['name'], town=where((c['lat'], c['lon']), places), unprot=round(unprot, 2),
                      harm=round(harm, 2), per_km=round(harm / max(c['km'], 1), 2), safety=round(harm * unprot, 3),

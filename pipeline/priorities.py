@@ -13,22 +13,27 @@ from area import *
 
 rg, roadways = load_roads()
 tags = {w['id']: w['tags'] for w in json.load(open(A + 'osm/roads.json'))['elements']}
-PROTECTED = {'track', 'separate', 'opposite_track'}
+PROTECTED = {'track', 'opposite_track'}   # 'separate' means mapped as its own way: that way is judged below
+
+
+PHYSICAL = {'bollard', 'kerb', 'flex_post', 'planter', 'vertical_panel', 'guard_rail', 'parking_lane', 'separation_kerb', 'fence'}
 
 
 def cyc_tags(t):
     vals = {t.get(k) for k in ('cycleway', 'cycleway:both', 'cycleway:left', 'cycleway:right')}
-    return 'protected' if vals & PROTECTED else 'lane' if vals & {'lane', 'opposite_lane'} else None
+    # lanes in the road separated from traffic by bollards, kerbs, wands or planters (cycleway:*:separation*)
+    physical = any(':separation' in k and set(v.split(';')) & PHYSICAL for k, v in t.items() if k.startswith('cycleway'))
+    return 'protected' if vals & PROTECTED or physical else 'lane' if vals & {'lane', 'opposite_lane', 'separate'} else None
 
 
-# separate cycleways beside a road: a track segregated from walkers (segregated=yes, or foot=no) counts as protection.
-# Anything else is a shared-use pavement and only partial provision, like a painted lane: in the UK walkers may use a
-# cycleway unless it says otherwise, so an untagged one is treated as shared
+# separate cycleways beside a road: only a dedicated cycle track (foot=no) counts as protection. A pavement shared with
+# walkers, or split from them by a painted line (segregated=yes), is partial provision like a painted lane: narrow, and
+# it gives way at every side road. In the UK walkers may use a cycleway unless it says otherwise.
 cg, sg = Grid(40), Grid(40)
 for w in json.load(open(A + 'osm/paths.json'))['elements']:
     t = w.get('tags', {})
     if w['type'] == 'way' and t.get('highway') == 'cycleway':
-        shared = t.get('segregated') != 'yes' and t.get('foot') != 'no'
+        shared = t.get('foot') != 'no'
         g = [P(p['lat'], p['lon']) for p in w['geometry']]
         for i in range(len(g) - 1): (sg if shared else cg).add(w['id'], g[i], g[i + 1])
 

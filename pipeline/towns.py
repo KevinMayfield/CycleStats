@@ -15,6 +15,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 DATA = os.path.join(HERE, '..', 'data')
 AREAS = json.load(open(os.path.join(HERE, 'areas.json')))
+# credit for partial provision (a painted lane, or a pavement shared with walkers or split by a painted line): little
+# protection at side roads and junctions, so a quarter of a protected track
+PARTIAL = 0.25
 MIN_TRAVEL = 3000          # people travelling to work: roughly a town of 10,000 or more
 BENCH = ('Kingston upon Hull', 'York')
 
@@ -120,7 +123,7 @@ for aid in AREAS:
         votes = collections.Counter(bua.get(lsoa_at(*p), ('',))[0] for p in pts)
         town, k = max(((t, v) for t, v in votes.items() if t in town_ids), key=lambda x: x[1], default=(None, 0))
         if not town or k < 0.4 * len(pts): continue
-        unprot = max(0.0, 1 - c['protected'] - 0.5 * c['lane'])
+        unprot = max(0.0, 1 - c['protected'] - PARTIAL * c['lane'])
         if c['protected'] >= 0.8: continue              # already protected; partly protected roads stay, as routes to complete
         uplift = max(0, c['pct_dutch'] - c['pct_now']) + max(0, c['school_dutch'] - c['school_now'])
         r = roads[town].get(c['name'])
@@ -138,7 +141,7 @@ for aid in AREAS:
                                           school_now=c['school_now'], school_dutch=c['school_dutch'], uplift=uplift, aadf=c.get('aadf'), geom=geom)
 for r in rows:
     cand = [x for x in roads.get(r['id'], {}).values() if x['n'] >= 2 or x['uplift'] >= 50]
-    for x in cand: x['safety'] = (x['n'] + 2 * x['ksi']) / 5 * max(0.0, 1 - x['protected'] - 0.5 * x['lane'])
+    for x in cand: x['safety'] = (x['n'] + 2 * x['ksi']) / 5 * max(0.0, 1 - x['protected'] - PARTIAL * x['lane'])
     ms = max([x['safety'] for x in cand], default=0) or 1; mu = max([x['uplift'] for x in cand], default=0) or 1
     for x in cand: x['score'] = round(0.5 * x['safety'] / ms + 0.5 * x['uplift'] / mu, 3)
     r['roads'] = sorted(cand, key=lambda x: -x['score'])[:8]   # the page shows five, then three more
