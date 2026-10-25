@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Leeds cycle routes, cycle paths, collision hotspots, risk per rider and bike counts on one interactive map.">
-<title>Leeds Cycling Top 10s</title>
+<meta name="description" content="Cycle routes, cycle paths, collision hotspots, risk per rider and bike counts on one interactive map.">
+<title>Cycling Top 10s</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -38,6 +38,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14p
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;margin:4px 0 6px;text-wrap:balance}
 .lede{color:var(--muted);margin:0;font-size:13px}
+.pick{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
+.pick select{font:600 14px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 28px 6px 10px;min-width:0;max-width:100%}
+.pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-bottom:1px solid var(--line)}
 .tab{flex:1 0 auto;white-space:nowrap;font:600 14px/1.1 var(--display);letter-spacing:.01em;padding:11px 7px 10px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
@@ -102,9 +105,10 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 <div class="app">
   <aside class="side">
     <div class="head">
-      <div class="eyebrow">City of Leeds district · data to Oct 2026</div>
-      <h1>Leeds Cycling Top&nbsp;10s</h1>
+      <div class="eyebrow" id="eyebrow">Cycling top 10s</div>
+      <h1 id="title">Cycling Top&nbsp;10s</h1>
       <p class="lede">The longest signed cycle routes, the longest cycle paths, and the roads where most cyclists were hurt (2021–2025).</p>
+      <label class="pick" for="area">Area <select id="area"></select></label>
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes</button>
@@ -115,7 +119,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
       <button class="tab" role="tab" id="tab-counts" data-k="counts" aria-selected="false">Bike counts</button>
     </div>
     <div class="list" id="list" role="tabpanel"></div>
-    <div class="foot">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors (ODbL). Collisions: DfT STATS19 road safety data 2021–2025 (OGL v3). Lengths are measured inside the Leeds district boundary only. Bike counts: Leeds City Council via Data Mill North and DfT road traffic statistics. <a href="https://github.com/KevinMayfield/CycleStats">Source and method on GitHub</a>.</div>
+    <div class="foot">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors (ODbL). Collisions: DfT STATS19 road safety data 2021–2025 (OGL v3). Lengths are measured <span id="in">inside the area</span> only. Bike counts: DfT road traffic statistics, and for Leeds, Leeds City Council via Data Mill North. <a href="https://github.com/KevinMayfield/CycleStats">Source and method on GitHub</a>.</div>
   </aside>
   <div class="mapwrap"><div id="map"></div><div class="legend" id="legend"></div></div>
 </div>
@@ -123,19 +127,20 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 function run(DATA){
+const M=DATA.meta;
 const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 const PAL=['#2f6fd6','#e0752d','#1f9d74','#a24bc9','#d23a6c','#6b8e23','#0aa2c0','#b8860b','#5b5bd6','#c2532d'];
 const SAFE=['#0b5e33','#0f6b3b','#137843','#18854b','#1d8a4e','#2b975a','#3aa367','#4aae74','#5bb981','#6cc38e'];
 const DANGER=['#8e1a14','#a4231c','#b52b22','#c3322b','#cd4a33','#d6603c','#de7546','#e58a52','#ea9d60','#eeae70'];
 const BLURB={
-  routes:'Signed, waymarked cycle routes from OpenStreetMap, ranked by how many kilometres run inside Leeds. Routes share some streets, so lines can overlap.',
+  routes:'Signed, waymarked cycle routes from OpenStreetMap, ranked by how many kilometres run '+M.in+'. Routes share some streets, so lines can overlap.',
   paths:'Dedicated cycle paths (cycleways and bike-designated paths), joined up by name and ranked by length. Unnamed tracks alongside a road take that road’s name.',
-  danger:'Named roads ranked by injury collisions involving a bicycle, weighted fatal ×10, serious ×3, slight ×1. Dots show every recorded cycle collision in Leeds. Police-reported collisions only, so off-road paths are not covered. Busy roads rank high partly because more people cycle on them: see Risk per rider.',
+  danger:'Named roads ranked by injury collisions involving a bicycle, weighted fatal ×10, serious ×3, slight ×1. Dots show every recorded cycle collision '+M.in+'. Police-reported collisions only, so off-road paths are not covered. Busy roads rank high partly because more people cycle on them: see Risk per rider.',
   risk:'The same collisions divided by how much cycling happens there: collisions per million km cycled, using DfT traffic count bikes per day (2021–25 average) × road length. Only roads with 5+ collisions and a DfT cycle count are ranked. Diamonds mark the count points. Counts are often single-day manual counts carried forward, so treat the order as indicative.',
   safe:'Well-used roads (150+ bikes a day on DfT counts) with the fewest cycle collisions per million km cycled, 2021–25. Low collision numbers swing easily, so read this as a shortlist. Off-road paths like the canal towpath have no DfT counts and police data does not cover them, so they cannot be ranked here. For off-road usage see Bike counts.',
-  counts:'Average bikes per day from Leeds City Council automatic counters (12 months to June 2026 where available), plus two DfT counts on the ELOR track. Green dots are off-road paths. Counters on one-way lanes count one direction only, so a road with two counters carries roughly their sum. Police collision data does not cover off-road paths, so they have usage figures but no safety rating.'
+  counts:M.counts_blurb
 };
-const map=L.map('map',{zoomSnap:.25,preferCanvas:true,attributionControl:true}).setView([53.81,-1.53],11);
+const map=L.map('map',{zoomSnap:.25,preferCanvas:true,attributionControl:true}).setView([53.8,-1.5],11);
 // fitBounds needs a sized map: defer it while the map is hidden or not laid out yet
 let pendingFit=null;
 function fit(b,o){const z=map.getSize();if(!z.x||!z.y){pendingFit=[b,o];return}map.fitBounds(b,o)}
@@ -156,8 +161,8 @@ drawCtx();
 // place labels
 const towns=L.layerGroup().addTo(map),subs=L.layerGroup();
 DATA.places.forEach(([n,la,lo,t])=>{
-  const big=t!=='suburb';
-  L.marker([la,lo],{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="plc ${big?'t':''}" style="transform:translate(-50%,-50%)">${n==='Leeds'?'Leeds city centre':n}</div>`,iconSize:[0,0]})}).addTo(big?towns:subs);
+  const big=t==='town'||t==='city';
+  L.marker([la,lo],{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="plc ${big?'t':''}" style="transform:translate(-50%,-50%)">${t==='city'?n+' city centre':n}</div>`,iconSize:[0,0]})}).addTo(big?towns:subs);
 });
 function lbls(){map.getZoom()>=12.5?subs.addTo(map):subs.remove()}
 map.on('zoomend',lbls);
@@ -172,7 +177,7 @@ const feats={routes:[],paths:[],danger:[],risk:[],safe:[],counts:[]};
       L.polyline(g,{color:'#fff',weight:7,opacity:.0001,interactive:true}).addTo(fg); // fat hit target
       L.polyline(g,{color:PAL[i],weight:k==='routes'?3.6:4,opacity:.92,lineCap:'round'}).addTo(fg);
     });
-    fg.bindTooltip(`<b>${i+1}. ${r.name}</b><br>${fmt(r.km)} km in Leeds`,{sticky:true,className:'tt'});
+    fg.bindTooltip(`<b>${i+1}. ${r.name}</b><br>${fmt(r.km)} km ${M.in}`,{sticky:true,className:'tt'});
     fg.on('click',()=>select(k,i,false));
     fg.addTo(groups[k]);feats[k].push(fg);
   });
@@ -245,7 +250,7 @@ function render(k){
   const s=DATA.stats;
   legend.innerHTML=hurt
     ?`<div class="r"><span class="sw" style="background:${colOf(k,0)}"></span>${k==='safe'?'Top 10 road (darker = safer)':'Top 10 road (darker = worse)'}</div><div class="r"><span class="dot" style="background:var(--accent);border-radius:1px;transform:rotate(45deg);width:8px;height:8px"></span>DfT cycle count point</div><div class="r"><span class="dot" style="background:var(--danger)"></span>Fatal (${s.fatal})</div><div class="r"><span class="dot" style="background:var(--amber)"></span>Serious (${s.serious})</div><div class="r"><span class="dot" style="background:var(--muted)"></span>Slight (${s.n-s.fatal-s.serious})</div><div class="r" style="color:var(--muted)">${s.n.toLocaleString()} cycle collisions, 2021–25</div>`
-    :`<div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>River Aire, Wharfe &amp; canal</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>Leeds district boundary</div>`;
+    :`<div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
 }
 function cnt(r){
   if(!r.counters||!r.counters.length) return '';
@@ -257,11 +262,13 @@ function renderCounts(){
   let h=`<p class="blurb">${BLURB.counts}</p>`;
   DATA.counts.forEach((c,i)=>{
     const off=c.kind==='Off-road path',col=off?'var(--offroad)':'var(--count)';
-    h+=`<button class="item" id="it-counts-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${c.name}</div><div class="sub">${c.kind} · ${c.period}</div><div class="chips"><span class="chip">${c.src.startsWith('DfT')?'DfT one-day count':c.days+' days counted'}</span>${c.note&&!c.src.startsWith('DfT')?`<span class="chip">${c.note}</span>`:''}</div><div class="bar"><i style="width:${(c.avg/cmax*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${c.avg}<small>BIKES/DAY</small></span></button>`;
+    h+=`<button class="item" id="it-counts-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${c.name}</div><div class="sub">${c.kind} · ${c.period}</div><div class="chips"><span class="chip">${c.chip}</span>${c.note&&!c.src.startsWith('DfT')?`<span class="chip">${c.note}</span>`:''}</div><div class="bar"><i style="width:${(c.avg/cmax*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${c.avg}<small>BIKES/DAY</small></span></button>`;
   });
   list.innerHTML=h;
   list.querySelectorAll('.item').forEach(b=>b.onclick=()=>select('counts',+b.dataset.i,true));
-  legend.innerHTML=`<div class="r"><span class="dot" style="background:var(--offroad)"></span>Off-road path counter</div><div class="r"><span class="dot" style="background:var(--count)"></span>On-road track or lane counter</div><div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`;
+  legend.innerHTML=(DATA.counts.some(c=>c.kind==='Off-road path')
+    ?`<div class="r"><span class="dot" style="background:var(--offroad)"></span>Off-road path counter</div><div class="r"><span class="dot" style="background:var(--count)"></span>On-road track or lane counter</div>`
+    :`<div class="r"><span class="dot" style="background:var(--count)"></span>DfT traffic count point</div>`)+`<div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`;
 }
 function setTab(k){
   cur=k;sel=null;
@@ -294,7 +301,23 @@ let start=location.hash.slice(1);
 if(!groups[start]){try{start=localStorage.getItem('leedsTab')}catch(e){}}
 setTab(groups[start]?start:'routes');lbls();
 }
-fetch('data/leeds-cycling.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(run)
+// area: ?area= in the link, else the last one viewed, else Leeds
+let AREA=new URLSearchParams(location.search).get('area');
+if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
+fetch('data/areas.json').then(r=>r.json()).then(list=>{
+  if(!list.some(a=>a.id===AREA)) AREA=list[0].id;
+  try{localStorage.setItem('area',AREA)}catch(e){}
+  const sel=document.getElementById('area');
+  sel.innerHTML=list.map(a=>`<option value="${a.id}"${a.id===AREA?' selected':''}>${a.name}</option>`).join('');
+  sel.onchange=()=>{const u=new URL(location.href);u.searchParams.set('area',sel.value);location.href=u.toString()};
+  return fetch(`data/${AREA}.json`);
+}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
+  document.getElementById('eyebrow').textContent=d.meta.eyebrow+' · data to Oct 2026';
+  document.getElementById('title').innerHTML=d.meta.name+' Cycling Top&nbsp;10s';
+  document.getElementById('in').textContent=d.meta.in;
+  document.title=d.meta.name+' Cycling Top 10s';
+  run(d);
+})
   .catch(e=>{document.getElementById('list').innerHTML='<p class="err">Could not load the map data ('+e.message+'). Reload the page to try again.</p>'});
 </script>
 </body>

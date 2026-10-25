@@ -1,31 +1,15 @@
-import json,csv,math,collections
-import os
-HERE=os.path.dirname(os.path.abspath(__file__))
-S=os.path.join(HERE,'..','raw')+'/'
-src=open(os.path.join(HERE,'build_osm.py')).read().split('# ===== 1. ROUTES')[0]
-exec(src.split('# --- boundary edges')[0]); exec(src.split('# --- grid index')[1].split('\n',1)[1])
-def segd(p,a,b):
-    dx,dy=b[0]-a[0],b[1]-a[1];L=dx*dx+dy*dy;t=0 if L==0 else max(0,min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L))
-    return math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy)
-rd=json.load(open(S+'osm/roads.json'))
-rg=Grid(60);roadways={}
-for w in rd['elements']:
-    g=[(p['lat'],p['lon']) for p in w['geometry']];t=w['tags']
-    roadways[w['id']]=(t.get('name'),t.get('ref'),t.get('highway'),g)
-    for i in range(len(g)-1): rg.add(w['id'],P(*g[i]),P(*g[i+1]))
+"""Well-used roads (150+ bikes/day on DfT counts) with the fewest cycle collisions per km cycled."""
+import json,collections
+from area import *
+rg,roadways=load_roads()
 # collisions
-cyc={r['collision_index'] for r in csv.DictReader(open(S+'dft/cycle_veh.csv'))}
 byway=collections.defaultdict(list)
-for r in csv.DictReader(open(S+'dft/leeds_coll.csv')):
-    if r['collision_index'] not in cyc: continue
-    try: la,lo=float(r['latitude']),float(r['longitude'])
-    except: continue
+for r,la,lo in collision_rows():
     d,k=rg.near(P(la,lo),40)
     if k: byway[k].append([round(la,5),round(lo,5),int(r['collision_severity']),r['date'],r['speed_limit']])
 # count points -> snap to road way (prefer same ref)
 cps=collections.defaultdict(list)
-for r in csv.DictReader(open(S+'dft/aadf_leeds.csv')):
-    if 2021<=int(r['year'])<=2025: cps[r['count_point_id']].append(r)
+for r in aadf_rows(): cps[r['count_point_id']].append(r)
 cpway={}
 for cid,rs in cps.items():
     r0=rs[0];p=P(float(r0['latitude']),float(r0['longitude']));ref=r0['road_name']
@@ -58,5 +42,5 @@ busy=[c for c in corr if c['aadf']>=150 and c['km']>=0.5]
 print(len(corr),'corridors with counts;',len(busy),'busy')
 safe=sorted(busy,key=lambda c:(c['rate'],-c['aadf']))
 for c in safe[:20]: print(f"{c['name'][:26]:26} {str(c['ref']):6} aadf={c['aadf']:4} km={c['km']:5} n={c['n']:2} ksi={c['ksi']} rate={c['rate']}")
-d=json.load(open(S+'work/data.json'));d['safe']=safe[:10]
-json.dump(d,open(S+'work/data.json','w'),separators=(',',':'))
+d=json.load(open(A+'work/data.json'));d['safe']=safe[:10]
+json.dump(d,open(A+'work/data.json','w'),separators=(',',':'))

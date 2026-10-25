@@ -1,0 +1,22 @@
+[
+ {
+  "id": "leeds",
+  "name": "Leeds"
+ },
+ {
+  "id": "notts-derby",
+  "name": "Nottingham/Derby Corridor"
+ },
+ {
+  "id": "sheffield",
+  "name": "Sheffield"
+ },
+ {
+  "id": "hull",
+  "name": "Hull"
+ },
+ {
+  "id": "york",
+  "name": "York"
+ }
+]

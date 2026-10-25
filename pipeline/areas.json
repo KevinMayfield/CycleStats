@@ -1,0 +1,129 @@
+{
+  "leeds": {
+    "name": "Leeds",
+    "eyebrow": "City of Leeds district",
+    "in": "inside Leeds",
+    "boundary_label": "Leeds district boundary",
+    "gss": "E08000035",
+    "centre": [
+      53.8,
+      -1.55
+    ],
+    "stats19_lad": [
+      "E08000035"
+    ],
+    "dft_la": [
+      63
+    ],
+    "rivers": "Aire|Wharfe",
+    "water_label": "River Aire, Wharfe & canal",
+    "places": "town|suburb|city",
+    "counters": "leeds",
+    "rename": {
+      "NCN Route 66": "NCN 66 · Leeds–Bradford–Hull",
+      "NCN Route 67": "Trans Pennine Trail (NCN 67)",
+      "CS3": "Cycle Superhighway 3"
+    }
+  },
+  "notts-derby": {
+    "name": "Nottingham/Derby Corridor",
+    "eyebrow": "Nottingham–Derby corridor · Hucknall to Castle Donington",
+    "in": "inside the corridor",
+    "boundary_label": "Corridor study area",
+    "bbox": [
+      52.82,
+      -1.57,
+      53.06,
+      -1.06
+    ],
+    "centre": [
+      52.94,
+      -1.31
+    ],
+    "stats19_lad": [],
+    "dft_la": [
+      188,
+      2,
+      119,
+      61,
+      60
+    ],
+    "rivers": "Trent|Derwent|Erewash|Leen|Soar",
+    "water_label": "Rivers Trent, Derwent, Erewash & canals",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {
+      "NCN Route 6": "NCN 6",
+      "NCN Route 15": "NCN 15",
+      "NCN Route 54": "NCN 54",
+      "NCN Route 67": "NCN 67"
+    }
+  },
+  "sheffield": {
+    "name": "Sheffield",
+    "eyebrow": "City of Sheffield",
+    "in": "inside Sheffield",
+    "boundary_label": "Sheffield council boundary",
+    "gss": "E08000039",
+    "centre": [
+      53.39,
+      -1.47
+    ],
+    "stats19_lad": [
+      "E08000019",
+      "E08000039"
+    ],
+    "dft_la": [
+      159
+    ],
+    "rivers": "Don|Sheaf|Rivelin|Loxley|Porter",
+    "water_label": "Rivers Don, Sheaf & canal",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "hull": {
+    "name": "Hull",
+    "eyebrow": "City of Kingston upon Hull",
+    "in": "inside Hull",
+    "boundary_label": "Hull council boundary",
+    "gss": "E06000010",
+    "centre": [
+      53.76,
+      -0.35
+    ],
+    "stats19_lad": [
+      "E06000010"
+    ],
+    "dft_la": [
+      169
+    ],
+    "rivers": "Humber|Hull",
+    "water_label": "Humber & River Hull",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "york": {
+    "name": "York",
+    "eyebrow": "City of York",
+    "in": "inside York",
+    "boundary_label": "York council boundary",
+    "gss": "E06000014",
+    "centre": [
+      53.96,
+      -1.08
+    ],
+    "stats19_lad": [
+      "E06000014"
+    ],
+    "dft_la": [
+      202
+    ],
+    "rivers": "Ouse|Foss|Derwent",
+    "water_label": "Rivers Ouse & Foss",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  }
+}

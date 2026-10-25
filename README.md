@@ -1,45 +1,70 @@
-# CycleStats: Leeds Cycling Top 10s
+# CycleStats: Cycling Top 10s
 
-An interactive map of cycling in the City of Leeds district, with six views:
+An interactive map of cycling in five areas, with an area picker and six views for each:
+
+| Area | Boundary |
+|---|---|
+| **Leeds** | City of Leeds district |
+| **Nottingham/Derby Corridor** | A rectangle covering Derby, Nottingham and the land between, from Hucknall in the north to Castle Donington in the south (52.82–53.06° N, 1.57–1.06° W) |
+| **Sheffield** | City of Sheffield |
+| **Hull** | Kingston upon Hull |
+| **York** | City of York |
 
 | Tab | What it ranks | Source |
 |---|---|---|
-| **Routes** | The 10 longest signed cycle routes, measured inside the Leeds boundary | OpenStreetMap |
+| **Routes** | The 10 longest signed cycle routes, measured inside the area | OpenStreetMap |
 | **Paths** | The 10 longest dedicated cycle paths (cycleways and bike-designated paths) | OpenStreetMap |
 | **Collisions** | The 10 named roads with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1 | DfT STATS19, 2021–2025 |
 | **Risk/rider** | Collisions per million km cycled, using bikes per day × road length | STATS19 + DfT traffic counts |
 | **Safe & busy** | Roads with 150+ bikes a day and the fewest collisions per km cycled | STATS19 + DfT traffic counts |
-| **Bike counts** | Average bikes per day at every council counter, including off-road paths | Leeds City Council + DfT |
+| **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
 
-**Live site:** https://kevinmayfield.github.io/CycleStats/
+**Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=leeds`, `notts-derby`, `sheffield`, `hull` or `york`)
 
-It is a static web app: `index.html` loads Leaflet from cdnjs and the prepared data from `data/leeds-cycling.json`. It draws its own basemap (boundary, main roads, rivers, place names), so it needs no map tile service.
+It is a static web app: `index.html` loads Leaflet from cdnjs, `data/areas.json` for the area list and `data/<area>.json` for the chosen area. It draws its own basemap (boundary, main roads, rivers, place names), so it needs no map tile service.
 
 ## Rebuilding the data
 
 Requires Python 3.8+ (standard library only) and about 1 GB of free disk for the downloads.
 
 ```bash
-pipeline/run_all.sh
+pipeline/run_all.sh                 # every area
+pipeline/run_all.sh york hull       # just these areas
+pipeline/run_all.sh --keep          # only download files that are missing (after a failed run)
+pipeline/run_all.sh --skip-fetch    # re-run the analysis on what is already in raw/
 ```
 
-This downloads everything into `raw/` (git-ignored), runs the pipeline and writes `data/leeds-cycling.json`. Use `pipeline/run_all.sh --skip-fetch` to re-run the analysis on data you already have.
+Downloads go into `raw/` (git-ignored) and each area is written to `data/<area>.json`.
+
+### Adding an area
+
+Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An area is either a council area, set with `gss` (its ONS code as tagged `ref:gss` in OpenStreetMap), or a rectangle, set with `bbox` (`[south, west, north, east]`). Also set:
+
+- `stats19_lad`: the ONS district codes used in STATS19 (leave empty for a `bbox` area; collisions are then picked by location)
+- `dft_la`: the DfT road traffic local authority ids of the highway authorities that cover the area ([list](https://roadtraffic.dft.gov.uk/api/local-authorities))
+- `centre`, `rivers`, `places` and the labels shown on the page
+
+### Pipeline steps
 
 | Step | Script | Does |
 |---|---|---|
-| 1 | `fetch_data.py` | Overpass queries for Leeds (E08000035); streams the national STATS19 files and keeps only Leeds collisions and bicycle vehicles/casualties; downloads DfT AADF for local authority 63; downloads the latest 12 months of council counter data from Data Mill North |
-| 2 | `build_osm.py` | Clips routes and paths to the Leeds boundary, joins path segments by name, snaps each cycle collision to the nearest named road within 40 m and groups roads into connected stretches |
-| 3 | `dft_usage.py` | Matches DfT count points to the dangerous roads and works out collisions per million km cycled |
+| 1 | `fetch_data.py` | Overpass queries per area; streams the national STATS19 files once and keeps collisions for every area plus all bicycle vehicles and casualties; downloads DfT AADF per highway authority; downloads Leeds council counter data from Data Mill North |
+| 2 | `build_osm.py` | Clips routes and paths to the area, joins path segments by name, snaps each cycle collision to the nearest named road within 40 m and groups roads into connected stretches |
+| 3 | `dft_usage.py` | Matches DfT count points to the high-collision roads and works out collisions per million km cycled |
 | 4 | `safe_busy.py` | Same calculation for every road that has a DfT count, then ranks the well-used ones by lowest rate |
-| 5 | `council_counters.py` | Averages each council counter over complete days and attaches the busiest counter to each path and route |
+| 5 | `council_counters.py` | Leeds: averages each council counter over complete days. Other areas: lists the busiest DfT count points. Then attaches the busiest count to each path and route |
+
+`area.py` holds the shared settings and geometry each step uses.
 
 ## Method notes and limits
 
-- **Collisions** are police-reported injury collisions involving a pedal cycle (STATS19). Incidents on off-road paths and unreported incidents are not included, so off-road paths have usage figures but no safety rating.
+- **Collisions** are police-reported injury collisions involving a pedal cycle (STATS19). Incidents on off-road paths and unreported incidents are not included, so off-road paths have usage figures (Leeds only) but no safety rating.
 - **Risk per rider** = collisions ÷ (bikes per day × stretch length × 365 × 5 years) × 1,000,000. Only roads with 5+ collisions and a DfT cycle count are ranked.
 - **DfT bike counts** on most roads come from a single-day manual count, often carried forward from an earlier year. They undercount weekend and leisure riding. Where a road has no count point on it, the nearest count point on the same road number within 3 km is used, and the page says so.
-- **Council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane.
-- **ELOR** has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
+- **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
+- **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
+- **Nottingham/Derby Corridor** spans five highway authorities (Nottingham, Nottinghamshire, Derby, Derbyshire, Leicestershire), so its DfT count points come from all five.
+- **Sheffield** changed ONS code in 2023 (E08000019 → E08000039); collisions under both codes are included.
 - Collision and casualty numbers are small on many roads, so the rankings can shift a lot with one or two incidents.
 
 ## Data licences
