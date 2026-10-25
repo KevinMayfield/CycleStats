@@ -109,3 +109,5 @@ out['meta']['id']=AREA
 json.dump(out,open(A+'work/data.json','w'),separators=(',',':'))
 print('ROUTES10',[(x['name'],x['km']) for x in top_routes]);print('PATHS10',[(x['name'],x['km'],x['kind']) for x in top_paths])
 json.dump(corr[:80],open(A+'work/corr.json','w'))
+# every road with 2+ cycle collisions, for the per-town suggestions
+json.dump([c for c in corr if c['n']>=2],open(A+'work/corr_all.json','w'))

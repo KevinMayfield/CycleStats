@@ -97,7 +97,7 @@ def priorities():
                      harm=round(harm, 2), per_km=round(harm / max(c['km'], 1), 2), safety=round(harm * unprot, 3),
                      uplift=max(0, c['pct_dutch'] - c['pct_now']) + max(0, c['school_dutch'] - c['school_now']))
             rows.append(c)
-    elig = [c for c in rows if c['unprot'] >= 0.5]
+    elig = [c for c in rows if c['unprot'] >= 0.5 and c['km'] >= 0.5]
     hurt = [c for c in elig if c['n'] >= 5]
     p90 = lambda key, xs: sorted(x[key] for x in xs)[int(0.9 * len(xs))] or 1
     ps, pu = p90('safety', hurt), p90('uplift', hurt)

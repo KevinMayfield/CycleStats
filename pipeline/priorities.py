@@ -21,13 +21,14 @@ def cyc_tags(t):
     return 'protected' if vals & PROTECTED else 'lane' if vals & {'lane', 'opposite_lane'} else None
 
 
-# separate cycleways beside a road: a track segregated from walkers counts as protection; a shared-use pavement
-# (foot=designated without segregated=yes) is only partial provision, like a painted lane
+# separate cycleways beside a road: a track segregated from walkers (segregated=yes, or foot=no) counts as protection.
+# Anything else is a shared-use pavement and only partial provision, like a painted lane: in the UK walkers may use a
+# cycleway unless it says otherwise, so an untagged one is treated as shared
 cg, sg = Grid(40), Grid(40)
 for w in json.load(open(A + 'osm/paths.json'))['elements']:
     t = w.get('tags', {})
     if w['type'] == 'way' and t.get('highway') == 'cycleway':
-        shared = t.get('segregated') != 'yes' and t.get('foot') in ('designated', 'yes', 'permissive')
+        shared = t.get('segregated') != 'yes' and t.get('foot') != 'no'
         g = [P(p['lat'], p['lon']) for p in w['geometry']]
         for i in range(len(g) - 1): (sg if shared else cg).add(w['id'], g[i], g[i + 1])
 
@@ -120,12 +121,12 @@ def measure(c):
         imd=f[2] if f else None, nocar=f[4] if f else None)
 
 
-# candidates: every counted road, plus the high-collision stretches without a count
+# candidates: every counted road, plus every stretch with 2+ cycle collisions
 cands = json.load(open(A + 'work/safe_all.json'))
-for c in json.load(open(A + 'work/corr_risk.json')):
+for c in json.load(open(A + 'work/corr_all.json')):
     m = [p for g in c['geom'] for p in g][len([p for g in c['geom'] for p in g]) // 2]
     if not any(o['name'] == c['name'] and min(dist(P(*m), P(*q)) for g in o['geom'] for q in g) < 300 for o in cands):
         cands.append(c)
-out = [m for m in (measure(c) for c in cands if c['km'] >= 0.5) if m]
+out = [m for m in (measure(c) for c in cands if c['km'] >= 0.3) if m]
 json.dump(out, open(A + 'work/priorities.json', 'w'))
 print(f"{CFG['name']}: {len(out)} stretches measured")
