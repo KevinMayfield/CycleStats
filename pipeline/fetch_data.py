@@ -6,7 +6,7 @@ Sources:
   - DfT road traffic statistics: annual average daily flow (AADF) count points for Leeds
   - Leeds City Council automatic cycle counters (Data Mill North dataset e1dmk)
 """
-import csv, io, json, os, sys, time, urllib.parse, urllib.request
+import csv, io, json, os, sys, time, urllib.error, urllib.parse, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '..', 'raw'))
@@ -18,9 +18,17 @@ MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Augus
           'November', 'December']
 
 
-def get(url, data=None, timeout=600):
-    req = urllib.request.Request(url, data=data, headers=UA)
-    return urllib.request.urlopen(req, timeout=timeout)
+def get(url, data=None, timeout=600, tries=6):
+    """Open a URL, backing off on rate limits (429) and server errors."""
+    for attempt in range(tries):
+        try:
+            return urllib.request.urlopen(urllib.request.Request(url, data=data, headers=UA), timeout=timeout)
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or attempt == tries - 1:
+                raise
+            wait = int(e.headers.get('Retry-After') or 0) or 15 * 2 ** attempt
+            print(f'  HTTP {e.code}, retrying in {wait}s')
+            time.sleep(wait)
 
 
 def save(path, url, data=None):
@@ -90,15 +98,17 @@ def main():
         parts = name.replace('.csv', '').split()
         if len(parts) == 4 and parts[:2] == ['Cycle', 'Data'] and parts[2] in MONTHS:
             monthly[(int(parts[3]), MONTHS.index(parts[2]) + 1)] = res['url']
+    # latest 12 months, plus older months for counters that have since stopped reporting
+    # (Kirkstall Forge towpath and Meanwood path: Dec 2023 - Nov 2024; Wykebeck Woods: July 2022)
     latest = sorted(monthly)[-12:]
-    for n, ym in enumerate(reversed(latest), 1):
-        save(os.path.join(RAW, 'lcc', f'm{n}.csv'), monthly[ym])
-    # older months for counters that have since stopped reporting (Kirkstall Forge towpath, Meanwood path, Wykebeck Woods)
-    for ym in [(2023, 12)] + [(2024, m) for m in range(1, 12)]:
-        if ym in monthly:
-            save(os.path.join(RAW, 'lcc', 'old', f'{ym[0]}-{ym[1]:02}.csv'), monthly[ym])
-    if (2022, 7) in monthly:
-        save(os.path.join(RAW, 'lcc', 'y22.csv'), monthly[(2022, 7)])
+    wanted = set(latest) | {(2023, 12), (2022, 7)} | {(2024, m) for m in range(1, 12)}
+    for ym in sorted(wanted & set(monthly)):
+        path = os.path.join(RAW, 'lcc', 'months', f'{ym[0]}-{ym[1]:02}.csv')
+        # past months don't change, so only fetch what's missing (and always the newest month)
+        if os.path.exists(path) and ym != latest[-1]:
+            continue
+        save(path, monthly[ym])
+        time.sleep(2)  # Data Mill North rate-limits rapid downloads
     print('  counters: latest month', latest[-1])
 
 

@@ -22,7 +22,11 @@ def daily(files):
             ms=sorted({d[3:] for d in full},key=lambda m:(m[3:],m[:2]))
             res[c]=dict(days=len(full),avg=round(sum(vol[c][d] for d in full)/len(full)),months=len(ms),first=ms[0],last=ms[-1])
     return res
-recent=daily(glob.glob(S+'lcc/m*.csv'));old=daily(glob.glob(S+'lcc/old/*.csv'));o22=daily([S+'lcc/y22.csv'])
+M=S+'lcc/months/'
+have=sorted(f[:-4] for f in os.listdir(M) if f.endswith('.csv'))
+recent=daily([M+m+'.csv' for m in have[-12:]])
+old=daily([M+m+'.csv' for m in have if '2023-12'<=m<='2024-11'])
+o22=daily([M+m+'.csv' for m in have if m=='2022-07'])
 out=[]
 for c,s in sites.items():
     r=recent.get(c) or old.get(c) or o22.get(c)
