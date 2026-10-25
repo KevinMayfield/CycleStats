@@ -23,23 +23,25 @@ if 'bbox' in CFG:
     edges = [(ring[i][1], ring[i][0], ring[i + 1][1], ring[i + 1][0]) for i in range(4)]
     bnd = [[list(p) for p in ring]]
 else:
-    rel = [e for e in json.load(open(A + 'osm/paths.json'))['elements'] if e['type'] == 'relation'][0]
-    edges = []; pieces = []
-    for m in rel['members']:
-        if m['type'] == 'way' and m.get('role') == 'outer':
-            g = [(p['lat'], p['lon']) for p in m['geometry']]
-            for i in range(len(g) - 1): edges.append((g[i][1], g[i][0], g[i + 1][1], g[i + 1][0]))
-            pieces.append(g)
-    # chain the outer ways end to end into closed rings, so the boundary draws as one shape
-    rings = []
-    while pieces:
-        ring = pieces.pop(0)
-        while ring[0] != ring[-1]:
-            nxt = next((i for i, p in enumerate(pieces) if ring[-1] in (p[0], p[-1])), None)
-            if nxt is None: break
-            p = pieces.pop(nxt)
-            ring += (p if p[0] == ring[-1] else p[::-1])[1:]
-        rings.append(ring)
+    # one or more council boundary relations; even-odd ray casting works across all of their edges
+    rels = [e for e in json.load(open(A + 'osm/paths.json'))['elements'] if e['type'] == 'relation']
+    edges = []; rings = []
+    for rel in rels:
+        pieces = []
+        for m in rel['members']:
+            if m['type'] == 'way' and m.get('role') == 'outer':
+                g = [(p['lat'], p['lon']) for p in m['geometry']]
+                for i in range(len(g) - 1): edges.append((g[i][1], g[i][0], g[i + 1][1], g[i + 1][0]))
+                pieces.append(g)
+        # chain each council's outer ways end to end into closed rings, so it draws as one shape
+        while pieces:
+            ring = pieces.pop(0)
+            while ring[0] != ring[-1]:
+                nxt = next((i for i, p in enumerate(pieces) if ring[-1] in (p[0], p[-1])), None)
+                if nxt is None: break
+                p = pieces.pop(nxt)
+                ring += (p if p[0] == ring[-1] else p[::-1])[1:]
+            rings.append(ring)
     bnd = [[[round(la, 5), round(lo, 5)] for la, lo in r[::3] + [r[-1]]] for r in rings]
 ecache = {}
 def inside(lat, lon):

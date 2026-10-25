@@ -1,6 +1,6 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling in five areas, with an area picker and six views for each:
+An interactive map of cycling in nine areas, with an area picker and six views for each:
 
 | Area | Boundary |
 |---|---|
@@ -9,6 +9,10 @@ An interactive map of cycling in five areas, with an area picker and six views f
 | **Sheffield** | City of Sheffield |
 | **Hull** | Kingston upon Hull |
 | **York** | City of York |
+| **Grimsby, Immingham & Scunthorpe** | North East Lincolnshire and North Lincolnshire |
+| **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
+| **Bradford** | City of Bradford district |
+| **Wakefield** | Wakefield district |
 
 | Tab | What it ranks | Source |
 |---|---|---|
@@ -19,7 +23,7 @@ An interactive map of cycling in five areas, with an area picker and six views f
 | **Safe & busy** | Roads with 150+ bikes a day and the fewest collisions per km cycled | STATS19 + DfT traffic counts |
 | **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
 
-**Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=leeds`, `notts-derby`, `sheffield`, `hull` or `york`)
+**Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=` and its id from `pipeline/areas.json`, for example `?area=bradford`)
 
 It is a static web app: `index.html` loads Leaflet from cdnjs, `data/areas.json` for the area list and `data/<area>.json` for the chosen area. It draws its own basemap (boundary, main roads, rivers, place names), so it needs no map tile service.
 
@@ -38,7 +42,7 @@ Downloads go into `raw/` (git-ignored) and each area is written to `data/<area>.
 
 ### Adding an area
 
-Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An area is either a council area, set with `gss` (its ONS code as tagged `ref:gss` in OpenStreetMap), or a rectangle, set with `bbox` (`[south, west, north, east]`). Also set:
+Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An area is either one or more council areas, set with `gss` (an ONS code as tagged `ref:gss` in OpenStreetMap, or a list of them), or a rectangle, set with `bbox` (`[south, west, north, east]`). Also set:
 
 - `stats19_lad`: the ONS district codes used in STATS19 (leave empty for a `bbox` area; collisions are then picked by location)
 - `dft_la`: the DfT road traffic local authority ids of the highway authorities that cover the area ([list](https://roadtraffic.dft.gov.uk/api/local-authorities))

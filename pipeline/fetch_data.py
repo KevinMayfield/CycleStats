@@ -69,21 +69,26 @@ def bbox_of(paths_json, cfg):
     """(s,w,n,e) of the area: its configured bbox, or the boundary relation's bounds"""
     if 'bbox' in cfg: return cfg['bbox']
     rels = [e for e in json.load(open(paths_json))['elements'] if e['type'] == 'relation']
-    if not rels:
+    found = {r['tags'].get('ref:gss') for r in rels}
+    if found != set(gss_codes(cfg)):
         os.remove(paths_json)
-        sys.exit(f'No OpenStreetMap boundary has ref:gss={cfg["gss"]}; check the code in areas.json')
-    rel = rels[0]
-    b = rel['bounds']
-    return [b['minlat'], b['minlon'], b['maxlat'], b['maxlon']]
+        sys.exit(f'OpenStreetMap boundaries found for {sorted(found)}, expected {gss_codes(cfg)}; check the codes in areas.json')
+    bs = [r['bounds'] for r in rels]
+    return [min(b['minlat'] for b in bs), min(b['minlon'] for b in bs), max(b['maxlat'] for b in bs), max(b['maxlon'] for b in bs)]
+
+
+def gss_codes(cfg):
+    """an area can be one council area or several (gss as a list)"""
+    return cfg['gss'] if isinstance(cfg['gss'], list) else [cfg['gss']]
 
 
 def fetch_osm(aid, cfg):
     d = os.path.join(RAW, aid, 'osm')
     if 'bbox' in cfg:
-        sel = '(' + ','.join(map(str, cfg['bbox'])) + ')'; boundary = ''
+        sel = '(' + ','.join(map(str, cfg['bbox'])) + ')'; boundary = ''; pre = ''
     else:
-        sel = '(area.a)'; boundary = f'rel["ref:gss"="{cfg["gss"]}"];out geom;'
-    pre = '' if 'bbox' in cfg else f'area["ref:gss"="{cfg["gss"]}"]->.a;'
+        gss = '["boundary"="administrative"]["ref:gss"~"^(' + '|'.join(gss_codes(cfg)) + ')$"]'
+        sel = '(area.a)'; boundary = f'rel{gss};out geom;'; pre = f'area{gss}->.a;'
     overpass(os.path.join(d, 'paths.json'), pre + boundary + f'(way["highway"="cycleway"]{sel};'
              f'way["highway"~"^(path|bridleway|track|footway)$"]["bicycle"="designated"]{sel};);out tags geom;')
     s, w, n, e = bbox_of(os.path.join(d, 'paths.json'), cfg)

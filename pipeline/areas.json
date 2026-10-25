@@ -125,5 +125,105 @@
     "places": "town|suburb|city|village",
     "counters": "dft",
     "rename": {}
+  },
+  "grimsby-scunthorpe": {
+    "name": "Grimsby, Immingham & Scunthorpe",
+    "eyebrow": "North East Lincolnshire & North Lincolnshire",
+    "in": "inside the two councils",
+    "boundary_label": "North East & North Lincolnshire boundaries",
+    "gss": [
+      "E06000012",
+      "E06000013"
+    ],
+    "centre": [
+      53.6,
+      -0.4
+    ],
+    "stats19_lad": [
+      "E06000012",
+      "E06000013"
+    ],
+    "dft_la": [
+      131,
+      130
+    ],
+    "rivers": "Humber|Trent|Ancholme|Freshney",
+    "water_label": "Humber, Trent & Ancholme",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {
+      "EuroVelo 12 - North Sea Cycle Route - part United Kingdom 3": "EuroVelo 12 · North Sea Cycle Route"
+    }
+  },
+  "kirklees-calderdale": {
+    "name": "Kirklees & Calderdale",
+    "eyebrow": "Huddersfield, Halifax & the Calder valley",
+    "in": "inside Kirklees & Calderdale",
+    "boundary_label": "Kirklees & Calderdale boundaries",
+    "gss": [
+      "E08000034",
+      "E08000033"
+    ],
+    "centre": [
+      53.68,
+      -1.85
+    ],
+    "stats19_lad": [
+      "E08000034",
+      "E08000033"
+    ],
+    "dft_la": [
+      197,
+      87
+    ],
+    "rivers": "Calder|Colne|Holme|Hebble|Ryburn|Spen",
+    "water_label": "Rivers Calder, Colne & canals",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "bradford": {
+    "name": "Bradford",
+    "eyebrow": "City of Bradford district",
+    "in": "inside Bradford district",
+    "boundary_label": "Bradford district boundary",
+    "gss": "E08000032",
+    "centre": [
+      53.83,
+      -1.85
+    ],
+    "stats19_lad": [
+      "E08000032"
+    ],
+    "dft_la": [
+      195
+    ],
+    "rivers": "Aire|Wharfe|Worth|Bradford Beck",
+    "water_label": "Rivers Aire, Wharfe & canal",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
+  },
+  "wakefield": {
+    "name": "Wakefield",
+    "eyebrow": "Wakefield district",
+    "in": "inside Wakefield district",
+    "boundary_label": "Wakefield district boundary",
+    "gss": "E08000036",
+    "centre": [
+      53.66,
+      -1.42
+    ],
+    "stats19_lad": [
+      "E08000036"
+    ],
+    "dft_la": [
+      88
+    ],
+    "rivers": "Calder|Aire|Dearne",
+    "water_label": "Rivers Calder, Aire & canals",
+    "places": "town|suburb|city|village",
+    "counters": "dft",
+    "rename": {}
   }
 }

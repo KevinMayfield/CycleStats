@@ -38,9 +38,15 @@ for nm,wids in byname.items():
           aadf=round(aadf),rate=round(n/(max(aadf,1)*L*365*5)*1e6,1),counted=sum(r['estimation_method']=='Counted' for c in cp for r in cps[c]),obs=len(vals),match='on road',
           geom=[simp(lines[i]) for i in comp],pts=pts,
           cp_pts=[[float(cps[c][0]['latitude']),float(cps[c][0]['longitude']),round(sum(int(r['pedal_cycles']) for r in cps[c])/len(cps[c])),c] for c in cp]))
-busy=[c for c in corr if c['aadf']>=150 and c['km']>=0.5]
+# "well used" means 150+ bikes/day; where cycling is lighter and fewer than 10 roads reach that,
+# drop the bar to the 20th busiest road's figure (never below 50) so the list still compares the busier roads
+long_=[c for c in corr if c['km']>=0.5]
+MIN=150
+if sum(c['aadf']>=150 for c in long_)<10:
+    MIN=max(50,sorted((c['aadf'] for c in long_),reverse=True)[min(19,len(long_)-1)] if long_ else 50)
+busy=[c for c in long_ if c['aadf']>=MIN]
 print(len(corr),'corridors with counts;',len(busy),'busy')
 safe=sorted(busy,key=lambda c:(c['rate'],-c['aadf']))
 for c in safe[:20]: print(f"{c['name'][:26]:26} {str(c['ref']):6} aadf={c['aadf']:4} km={c['km']:5} n={c['n']:2} ksi={c['ksi']} rate={c['rate']}")
-d=json.load(open(A+'work/data.json'));d['safe']=safe[:10]
+d=json.load(open(A+'work/data.json'));d['safe']=safe[:10];d['meta']['safe_min']=MIN
 json.dump(d,open(A+'work/data.json','w'),separators=(',',':'))

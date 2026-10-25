@@ -18,5 +18,21 @@
  {
   "id": "york",
   "name": "York"
+ },
+ {
+  "id": "grimsby-scunthorpe",
+  "name": "Grimsby, Immingham & Scunthorpe"
+ },
+ {
+  "id": "kirklees-calderdale",
+  "name": "Kirklees & Calderdale"
+ },
+ {
+  "id": "bradford",
+  "name": "Bradford"
+ },
+ {
+  "id": "wakefield",
+  "name": "Wakefield"
  }
 ]

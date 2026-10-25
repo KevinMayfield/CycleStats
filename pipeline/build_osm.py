@@ -11,7 +11,7 @@ for e in rels:
     t=e.get('tags',{})
     name=t.get('name') or ('NCN Route '+t['ref'] if t.get('network')=='ncn' and t.get('ref') else t.get('ref'))
     # skip unnamed bits (a bare number) and umbrella relations for a whole network
-    if not name or name.isdigit() or name.endswith('Network'): continue
+    if not name or name.isdigit() or name.lower().endswith('network'): continue
     pieces=[];seen=set()
     for m in e['members']:
         if m['type']!='way' or not m.get('geometry') or m['ref'] in seen: continue
