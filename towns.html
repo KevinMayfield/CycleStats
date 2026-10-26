@@ -91,6 +91,19 @@ tbody.net tr:hover td,tbody.net tr.on td{background:var(--band)}
 .chip{display:inline-block;font:500 11px/1.2 var(--body);padding:2px 7px;border-radius:999px;border:1px solid var(--line);margin:3px 4px 0 0;color:var(--ink);background:var(--panel)}
 .chip.flat{border-color:var(--low)}.chip.gentle{border-color:var(--gentle)}
 .tname .nw{color:var(--accent)}
+/* one-hue blue ramp for car ownership and deprivation: light to dark on light, dark to light on dark */
+:root{--q1:#b7d3f6;--q2:#6da7ec;--q3:#3987e5;--q4:#256abf;--q5:#104281}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}}
+:root[data-theme="dark"]{--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}
+.mbar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:12px 18px 0}
+.mbar .legend{padding:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.seg button{font:500 12.5px/1 var(--body);color:var(--muted);background:none;border:0;padding:8px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tag{display:inline-block;font:600 10.5px/1.2 var(--mono);letter-spacing:.03em;text-transform:uppercase;color:var(--ink);border:1px solid var(--q3);border-left-width:4px;border-radius:3px;padding:2px 5px;margin:3px 4px 0 0;white-space:nowrap}
+td.n b.hi{font-weight:700}
 @media (max-width:900px){.ovmap{height:400px}}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
 .chart svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
@@ -134,8 +147,8 @@ td.n small{text-align:right}
   </header>
   <div class="facts" id="facts"></div>
   <section>
-    <div class="sh"><h2>Where the flat towns are</h2><p>Every town shaded by how hilly its commute routes are. Dashed lines join flat and gently sloping towns whose built-up edges touch: together they make one network, where most short trips stay on level ground and cross from one town into the next. Click a town to open its roads, or a network below to zoom to it.</p></div>
-    <div class="legend" id="mlegend"></div>
+    <div class="sh"><h2>Where the flat towns are</h2><p>Every town shaded by how hilly its commute routes are, or for flat and gently sloping towns by the share of households with no car or how deprived its neighbourhoods are. Where few households have a car, a bike is often the cheapest way to reach work, and safe routes matter most. Dashed lines join flat and gently sloping towns whose built-up edges touch: together they make one network, where most short trips stay on level ground and cross from one town into the next. Click a town to open its roads, or a network below to zoom to it.</p></div>
+    <div class="mbar"><div class="seg" id="shade" role="group" aria-label="Shade towns by"><button type="button" data-k="tier" aria-pressed="true">Hilliness</button><button type="button" data-k="nocar" aria-pressed="false">No car</button><button type="button" data-k="deprived" aria-pressed="false">Deprivation</button></div><div class="legend" id="mlegend"></div></div>
     <div class="ovmap" id="ovmap" role="img" aria-label="Map of the towns, shaded by hilliness, with networks of touching flat towns joined"></div>
   </section>
   <section id="networks"></section>
@@ -150,6 +163,7 @@ td.n small{text-align:right}
     <div><b>Towns</b> are ONS built-up areas (2022) with at least 3,000 people travelling to work, built from their neighbourhoods (LSOAs) inside the CycleStats areas. Big cities appear as one built-up area; some suburbs and villages are their own.</div>
     <div><b>Hilliness</b> is the Propensity to Cycle Tool's average gradient of commute routes under 10 km from each neighbourhood, weighted by commuters. It measures the routes people would actually ride, not the landscape around a town.</div>
     <div><b>Cycling</b> is people who cycle to work as a share of people who travel to work (Census 2021, excluding those working mainly from home, which was high during the pandemic). The 2011 figure is the Census 2011 share of all commuters, from PCT, so the two are close but not identical measures.</div>
+    <div><b>No car</b> is the share of households with no car or van (Census 2021), averaged over each town's neighbourhoods weighted by people travelling to work. <b>Deprived</b> is the share of its neighbourhoods in England's most deprived fifth on the Indices of Deprivation 2025 (a fifth by definition across England). Towns and networks are tagged <b>Low car ownership</b> where a quarter or more of households have no car, and <b>Deprived</b> where over a third of neighbourhoods are in the most deprived fifth.</div>
     <div><b>Missing cyclists</b> is how many more people would cycle to work if the town matched Hull and York combined. <b>Go Dutch</b> is PCT's estimate of the share who would cycle with Dutch levels of cycling, given each town's trip lengths and hills. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
   </div>
 </div>
@@ -191,7 +205,7 @@ function draw(){
   const tip=document.getElementById('tip');
   el.querySelectorAll('circle.hit').forEach(c=>{
     c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
-      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div><div class="k">No car ${t.nocar}% of households · ${t.deprived}% deprived</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
       tip.hidden=false;const r=el.getBoundingClientRect(),b=c.getBoundingClientRect();
       let lx=b.left-r.left+b.width/2+12,ly=b.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
@@ -201,15 +215,16 @@ function draw(){
 const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
 function table(id,title,sub,ids){
   const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing)),b=D.bench.share;
-  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
+  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
     rows.map((t,i)=>`<tbody class="town"><tr class="main" data-id="${t.id}"><td class="n">${i+1}</td>
-      <td><button class="tog" aria-expanded="false" aria-controls="det-${t.id}"><span class="chev" aria-hidden="true">▶</span><span class="tname">${esc(t.name)}<small>${esc(t.area_name)} · ${t.roads&&t.roads.length?Math.min(5,t.roads.length)+' roads to improve':'no roads ranked'}${D.netOf[t.id]?` · <span class="nw">${esc(D.netOf[t.id].name)} network</span>`:''}</small></span></button></td>
+      <td><button class="tog" aria-expanded="false" aria-controls="det-${t.id}"><span class="chev" aria-hidden="true">▶</span><span class="tname">${esc(t.name)}<small>${esc(t.area_name)} · ${t.roads&&t.roads.length?Math.min(5,t.roads.length)+' roads to improve':'no roads ranked'}${D.netOf[t.id]?` · <span class="nw">${esc(D.netOf[t.id].name)} network</span>`:''}</small>${tags(t)}</span></button></td>
       <td class="n">${p1(t.slope)}%</td>
       <td class="n"><b>${p1(t.cycle21)}%</b><small class="${t.cycle21<t.cycle11?'down':''}">2011: ${p1(t.cycle11)}%</small></td>
+      ${socCell(t)}
       <td class="n"><b class="up">${inc(t.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(t.dutch)}%</b><small>${inc(t.cycle21,t.dutch)}</small></td>
       <td class="n">${nf(t.missing)}<small>of ${nf(t.travel)} commuters</small><span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>
-      <tr class="det" id="det-${t.id}" hidden><td colspan="7"></td></tr></tbody>`).join('')}</table></div>`;
+      <tr class="det" id="det-${t.id}" hidden><td colspan="8"></td></tr></tbody>`).join('')}</table></div>`;
   document.querySelectorAll(`#${id} tr.main`).forEach(tr=>tr.addEventListener('click',e=>{if(!e.target.closest('a'))toggle(tr)}));
 }
 function toggle(tr){
@@ -275,10 +290,11 @@ function overview(){
   // hilly towns first so the flat ones sit on top
   [...D.towns].sort((a,b)=>(a.tier==='hilly')<(b.tier==='hilly')?1:-1).forEach(t=>{
     if(!t.shape||!t.shape.length) return;
-    const n=D.netOf[t.id],c=tierCol(t);
-    const tip=`<b>${esc(t.name)}</b><br>${tierTxt[t.tier]} · routes average ${p1(t.slope)}%<br>Cycling to work ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%${t.missing?`<br>${nf(t.missing)} more at Hull/York levels`:''}${n?`<br><b>${esc(n.name)} network</b> (${n.towns.length} towns)`:''}`;
-    shapes[t.id]=L.polygon(t.shape,{color:c,weight:n?2:1,fillColor:c,fillOpacity:t.tier==='hilly'?.25:.55,opacity:.9})
+    const n=D.netOf[t.id];
+    const tip=`<b>${esc(t.name)}</b><br>${tierTxt[t.tier]} · routes average ${p1(t.slope)}%<br>Cycling to work ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%${t.missing?`<br>${nf(t.missing)} more at Hull/York levels`:''}<br>${t.nocar}% of households have no car · ${t.deprived}% of neighbourhoods in England's most deprived fifth${n?`<br><b>${esc(n.name)} network</b> (${n.towns.length} towns)`:''}`;
+    shapes[t.id]=L.polygon(t.shape,{weight:n?2:1,opacity:.9})
       .bindTooltip(tip,{sticky:true,className:'tt'}).on('click',()=>openTown(t.id)).addTo(all);
+    shapes[t.id].town=t;
   });
   // network links between the centres of towns that touch
   const links=L.layerGroup().addTo(m);
@@ -289,7 +305,25 @@ function overview(){
     L.tooltip({permanent:true,direction:'right',offset:[6,0],className:'lab',interactive:false}).setLatLng([t.lat,t.lon]).setContent(esc(t.name==='Kingston upon Hull'?'Hull':t.name)).addTo(m)});
   m.fitBounds(all.getBounds().pad(.03));
   OV={m,shapes};
+  shade('tier');
+  document.querySelectorAll('#shade button').forEach(b=>b.addEventListener('click',()=>shade(b.dataset.k)));
 }
+// shading: hilliness tiers, or a five-step ramp of no-car households or deprivation for the flat and gentle towns
+const BINS={nocar:[15,20,25,30],deprived:[10,20,35,50]};
+const qCol=(k,v)=>css('--q'+(1+BINS[k].filter(b=>v>=b).length));
+function shade(k){
+  document.querySelectorAll('#shade button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
+  Object.values(OV.shapes).forEach(s=>{const t=s.town,ramp=k!=='tier'&&t.tier!=='hilly';
+    const c=k==='tier'?tierCol(t):ramp?qCol(k,t[k]):css('--other');
+    s.setStyle({color:c,fillColor:c,fillOpacity:k==='tier'?(t.tier==='hilly'?.25:.55):ramp?.8:.15})});
+  const sw=(c,txt,cls='sq')=>`<span><i class="${cls}" style="background:${c}"></i>${txt}</span>`;
+  if(k==='tier') document.getElementById('mlegend').innerHTML=sw('var(--bench)','Hull and York')+sw('var(--low)',`Flat (routes ${D.flat_max}% or less)`)+sw('var(--gentle)',`Gently sloping (to ${D.gentle_max}%)`)+sw('var(--other)','Hilly')+'<span><i class="ln"></i>Touching towns in a network</span>';
+  else{const b=BINS[k],lab=[`under ${b[0]}%`,`${b[0]}–${b[1]}%`,`${b[1]}–${b[2]}%`,`${b[2]}–${b[3]}%`,`${b[3]}% or more`];
+    document.getElementById('mlegend').innerHTML=`<span>${k==='nocar'?'Households with no car':'Neighbourhoods in England’s most deprived fifth'}:</span>`+lab.map((l,i)=>sw(`var(--q${i+1})`,l)).join('')+sw('var(--other)','Hilly town');}
+}
+// tags for towns where cars are scarce or neighbourhoods deprived
+const tags=t=>(t.nocar>=D.nocar_high?`<span class="tag">Low car ownership</span>`:'')+(t.deprived>=D.deprived_high?`<span class="tag">Deprived</span>`:'');
+const socCell=t=>`<td class="n"><b class="${t.nocar>=D.nocar_high?'hi':''}">${t.nocar}%</b><small>${t.deprived}% deprived</small></td>`;
 function openTown(id){
   const tr=document.querySelector(`tr.main[data-id="${CSS.escape(id)}"]`);if(!tr) return;
   if(tr.nextElementSibling.hidden) toggle(tr);
@@ -299,11 +333,12 @@ function networksTable(){
   const ns=D.networks.filter(n=>n.missing>0),mx=Math.max(...ns.map(n=>n.missing)),b=D.bench.share;
   const chip=i=>{const t=D.byId[i];return `<span class="chip ${t.tier}">${esc(t.name)}</span>`};
   document.getElementById('networks').innerHTML=`<div class="sh"><h2>Networks of flat towns</h2><p>Flat and gently sloping towns whose built-up edges come within ${D.gap} m of each other, with at least one flat town. Trips between them are short and level, so one connected set of protected routes across the town boundaries would serve all of them; council and county lines often run through the middle. Click a network to see it on the map.</p></div>
-  <div class="tw"><table><thead><tr><th>#</th><th>Network</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody class="net">${
+  <div class="tw"><table><thead><tr><th>#</th><th>Network</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody class="net">${
     ns.map((n,i)=>`<tr data-i="${D.networks.indexOf(n)}"><td class="n">${i+1}</td>
-      <td><b>${esc(n.name)}</b><small>${n.towns.length} towns · ${n.areas.map(esc).join(' and ')}${n.borders.length?` · borders ${n.borders.slice(0,3).map(j=>esc(D.byId[j].name)+(D.byId[j].tier==='hilly'?' (hilly)':'')).join(', ')}`:''}</small><div>${n.towns.map(chip).join('')}</div></td>
+      <td><b>${esc(n.name)}</b><small>${n.towns.length} towns · ${n.areas.map(esc).join(' and ')}${n.borders.length?` · borders ${n.borders.slice(0,3).map(j=>esc(D.byId[j].name)+(D.byId[j].tier==='hilly'?' (hilly)':'')).join(', ')}`:''}</small><div>${tags(n)}</div><div>${n.towns.map(chip).join('')}</div></td>
       <td class="n">${p1(n.slope)}%</td>
       <td class="n"><b>${p1(n.cycle21)}%</b><small>${nf(n.cyclists)} people</small></td>
+      ${socCell(n)}
       <td class="n"><b class="up">${inc(n.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(n.dutch)}%</b><small>${inc(n.cycle21,n.dutch)}</small></td>
       <td class="n">${nf(n.missing)}<small>of ${nf(n.travel)} commuters</small><span class="bar" style="width:${(n.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
@@ -329,7 +364,6 @@ fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.js
     <div class="fact"><b style="color:var(--low)">${p1(nowShare)}% → ${p1(d.bench.share)}%</b><span>cycle to work in those flat towns now, against Hull and York: ${inc(nowShare,d.bench.share)}, or ${nf(Math.round(miss/100)*100)} more people. Go Dutch would be ${p1(dutchShare)}% (${inc(nowShare,dutchShare)}).</span></div>
     <div class="fact"><b>${p1(chg('flat'))} pts</b><span>average change in the share cycling to work in flat towns from 2011 to 2021, against ${p1(chg('hilly'))} in hilly towns. Hull ${p1(h.cycle21-h.cycle11)}, York ${p1(yk.cycle21-yk.cycle11)}.</span></div>`;
   document.getElementById('legend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat towns missing the most cyclists</span><span><i style="background:var(--other)"></i>Other towns</span>`;
-  document.getElementById('mlegend').innerHTML=`<span><i class="sq" style="background:var(--bench)"></i>Hull and York</span><span><i class="sq" style="background:var(--low)"></i>Flat (routes ${d.flat_max}% or less)</span><span><i class="sq" style="background:var(--gentle)"></i>Gently sloping (to ${d.gentle_max}%)</span><span><i class="sq" style="background:var(--other)"></i>Hilly</span><span><i class="ln"></i>Touching towns in a network</span>`;
   overview();networksTable();
   draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(draw,150)});
   table('flat','Flat like Hull and York, but few cycle',`Routes averaging ${d.flat_max}% gradient or less, ranked by how many more people would cycle to work at Hull and York's ${d.bench.share}%. The increases are relative to the share cycling now: +100% means twice as many. Orange 2011 figures mark towns where cycling has fallen since.`,d.flat_low);
