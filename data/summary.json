@@ -721,6 +721,13 @@
    "n": 584
   },
   {
+   "area": "rutland",
+   "area_name": "Rutland",
+   "coll": 0,
+   "pop": 0,
+   "n": 14
+  },
+  {
    "area": "sheffield",
    "area_name": "Sheffield",
    "coll": 32,
@@ -796,6 +803,10 @@
   {
    "id": "leicestershire",
    "name": "Leicester & Leicestershire"
+  },
+  {
+   "id": "rutland",
+   "name": "Rutland"
   }
  ],
  "busy": 150
