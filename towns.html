@@ -92,9 +92,9 @@ tbody.net tr:hover td,tbody.net tr.on td{background:var(--band)}
 .chip.flat{border-color:var(--low)}.chip.gentle{border-color:var(--gentle)}
 .tname .nw{color:var(--accent)}
 /* one-hue blue ramp for car ownership and deprivation: light to dark on light, dark to light on dark */
-:root{--cb2:#256abf;--cb1:#86b6ef;--cmid:#b4b2ac;--cr1:#f0a3a2;--cr2:#c83a3a}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cb2:#6da7ec;--cb1:#2a5a94;--cmid:#5a5955;--cr1:#8f3a3a;--cr2:#e66767}}
-:root[data-theme="dark"]{--cb2:#6da7ec;--cb1:#2a5a94;--cmid:#5a5955;--cr1:#8f3a3a;--cr2:#e66767}
+:root{--c1:#e58e64;--c2:#da6b42;--c3:#c44f30;--c4:#9f3724;--c5:#6e211a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#8e3626;--c2:#b0462c;--c3:#cf6240;--c4:#e48764;--c5:#f1ae8f}}
+:root[data-theme="dark"]{--c1:#8e3626;--c2:#b0462c;--c3:#cf6240;--c4:#e48764;--c5:#f1ae8f}
 :root{--q1:#b7d3f6;--q2:#6da7ec;--q3:#3987e5;--q4:#256abf;--q5:#104281}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}}
 :root[data-theme="dark"]{--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}
@@ -156,7 +156,7 @@ td.n small{text-align:right}
   </section>
   <section id="networks"></section>
   <section>
-    <div class="sh"><h2>Hilliness against cycling to work</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red towns have more collisions for each person who cycles to work.</p></div>
+    <div class="sh"><h2>Hilliness against cycling to work</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: the darker the colour, the more collisions for each person who cycles to work.</p></div>
     <div class="mbar"><div class="seg" id="hcol" role="group" aria-label="Colour towns by"><button type="button" data-k="flat" aria-pressed="true">Flat towns</button><button type="button" data-k="coll" aria-pressed="false">Collisions vs England &amp; Wales</button></div><div class="legend" id="legend"></div></div>
     <div class="chart" id="chart"></div>
   </section>
@@ -184,14 +184,15 @@ const nf=n=>n.toLocaleString('en-GB');
 const p1=v=>(Math.abs(v)<0.05?0:v).toFixed(1);
 let D;
 // hilliness chart colours: the flat towns missing most cyclists, or each town's cycle collision rate against England
-// and Wales (blue below, red above, grey within 10%; faint where under 10 collisions, too few to compare)
+// and Wales on one ordered warm scale, stronger as the rate rises, so a town level with England and Wales still reads
+// as a concern (faint grey where under 10 collisions, too few to compare)
 let HCOL='flat';
 const collCol=t=>{if(t.coll<10)return 'var(--other)';const d=t.coll_rate/D.coll_ew-1;
-  return d<=-.25?'var(--cb2)':d<=-.1?'var(--cb1)':d<.1?'var(--cmid)':d<.25?'var(--cr1)':'var(--cr2)'};
+  return d<=-.25?'var(--c1)':d<=-.1?'var(--c2)':d<.1?'var(--c3)':d<.25?'var(--c4)':'var(--c5)'};
 function hLegend(){
   const sw=(c,t)=>`<span><i style="background:${c}"></i>${t}</span>`,curve=`<span><i class="ln"></i>Fitted curve across all towns (R² ${D.curve.r2})</span>`;
   document.getElementById('legend').innerHTML=HCOL==='coll'
-    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--cb2)','25%+ below')+sw('var(--cb1)','10–25% below')+sw('var(--cmid)','about the same')+sw('var(--cr1)','10–25% above')+sw('var(--cr2)','25%+ above')+curve
+    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--c1)','25%+ below')+sw('var(--c2)','10–25% below')+sw('var(--c3)','about the same')+sw('var(--c4)','10–25% above')+sw('var(--c5)','25%+ above')+sw('var(--other)','under 10 collisions')+curve
     :sw('var(--bench)','Hull and York')+sw('var(--low)','Flat towns missing the most cyclists')+sw('var(--other)','Other towns')+curve;
 }
 function draw(){
