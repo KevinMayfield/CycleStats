@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A proposed long-distance ride from Derby to York along the Trent, Ermine Street, the Humber and the Ouse: the waterways and roads of the Danelaw.">
+<title>The Danelaw Way</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* Layout: hero with the headline figures, a full-width route map, height profile, ride options, stage cards,
+   gaps to fix, then the Danelaw story along the route */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df; --grid:#eceee9;
+  --accent:#0f6b5c; --soft:#e2f0ec;
+  /* riding conditions, best to worst: traffic-free path, quiet road or track (track dashed), B/C road, A road */
+  --path:#1b8a6b; --quiet:#2f6fd6; --main:#d99a1e; --busy:#c8372d; --site:#3a2f6b;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
+  --accent:#4cc3a8; --soft:#183a33;
+  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
+  --accent:#4cc3a8; --soft:#183a33;
+  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;margin:6px 0 10px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:66ch;font-size:15px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.fact b{display:block;font:700 32px/1 var(--display);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:12.5px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1;margin:0 0 4px}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:100ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 18px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:22px;height:4px;border-radius:2px;display:inline-block}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--quiet) 0 5px,transparent 5px 9px)!important}
+.legend i.dot{width:10px;height:10px;border-radius:50%}
+#map{height:min(720px,78vh);min-height:420px}
+.leaflet-container{font-family:var(--body);background:var(--bg)}
+.leaflet-tooltip.tt{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:12px;max-width:280px;white-space:normal}
+.leaflet-tooltip.tt:before{display:none}
+.leaflet-bar a{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.leaflet-control-attribution{font-size:10px}
+#map.dark .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85)}
+#map .leaflet-tile-pane{opacity:.8}
+.mk{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--site);color:var(--panel);font:700 11px/1 var(--mono);box-shadow:0 0 0 2px var(--panel),0 1px 4px rgba(0,0,0,.35)}
+.mk.off{background:var(--panel);color:var(--site);box-shadow:0 0 0 2px var(--site)}
+.mk.st{background:var(--ink);color:var(--panel);border-radius:4px}
+.mk.gap{background:var(--busy);color:#fff}
+.prof{padding:6px 12px 10px}
+.prof svg{display:block;width:100%;height:auto}
+.prof text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.prof .area{fill:var(--soft)}.prof .ln{fill:none;stroke:var(--accent);stroke-width:1.5}
+.prof .sd{stroke:var(--line);stroke-dasharray:3 3}
+.prof .sl{font-family:var(--body);font-size:11px;fill:var(--ink);font-weight:600}
+.opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px}
+.opt{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit}
+.opt:hover,.opt[aria-pressed="true"]{border-color:var(--accent)}
+.opt b{display:block;font:700 26px/1 var(--display);margin:4px 0}
+.opt .t{font-weight:600}.opt small{display:block;color:var(--muted);font-size:12px}
+.stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:14px}
+.stage{border:1px solid var(--line);border-radius:8px;padding:14px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;display:grid;gap:6px}
+.stage:hover,.stage[aria-pressed="true"]{border-color:var(--accent)}
+.stage .n{font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.stage h3{font:700 19px/1.15 var(--display);margin:0}
+.stage .via{color:var(--muted);font-size:12px}
+.stage .nums{display:flex;gap:14px;font-family:var(--mono);font-size:12px;flex-wrap:wrap}
+.stage .nums b{font-size:15px;font-weight:500;color:var(--ink)}
+.mix{display:flex;height:9px;border-radius:3px;overflow:hidden;gap:2px;background:var(--panel)}
+.mix i{display:block;height:100%}
+.mixl{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.tw{overflow-x:auto;padding:4px 12px 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font:600 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--muted);font-size:11.5px}
+tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
+.story{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0}
+.site{padding:14px 18px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);cursor:pointer}
+.site:hover{background:var(--bg)}
+.site h3{margin:0 0 4px;font:700 18px/1.2 var(--display);display:flex;align-items:center;gap:8px}
+.site p{margin:0;font-size:13px;color:var(--muted)}
+.site .off{font:500 10.5px/1 var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:2px 5px;text-transform:uppercase;letter-spacing:.04em}
+.notes{color:var(--muted);font-size:12px;max-width:100ch;display:grid;gap:6px}
+.notes a{color:inherit}
+.err{color:var(--busy)}
+@media (max-width:980px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.opts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · a proposed long-distance ride · Derby to York</div>
+      <h1>The Danelaw Way</h1>
+      <p class="lede">A ride along the waterways and roads of the Danelaw, the part of England under Danish rule from the late 9th century: down the Trent past the Great Army's winter camps, along the Fossdyke into Lincoln, up Ermine Street to the Humber, then the Ouse to Viking York. It is England's answer to Denmark's <a href="https://denmark.letapeseries.com/">DGI Hærvejsløbet</a>, which follows the old Army Road through Jutland on routes of up to 300 km. This one is about as long and far flatter.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="towns.html">Where Dutch infrastructure should work</a></nav>
+  </header>
+  <div class="facts" id="facts"></div>
+  <section>
+    <div class="sh"><h2>The route</h2><p>Coloured by riding conditions, worked out every 25 m from OpenStreetMap. Numbered squares mark stage starts, purple circles the Danelaw sites (hollow ones are off the route), and red marks the stretches on A roads that most need fixing. Hover for details; select a stage, ride or site below to zoom to it.</p></div>
+    <div class="legend" id="legend"></div>
+    <div id="map" role="img" aria-label="Map of the Danelaw Way from Derby to York"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Height</h2><p>Metres above sea level along the route. The whole ride climbs about as much as a single hill in the Peak District.</p></div>
+    <div class="prof" id="prof"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides that each start and finish at a railway town.</p></div>
+    <div class="opts" id="opts"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Stages</h2><p>Five stages of 46 to 78 km. The bar shows each stage's riding conditions; signed routes are the National Cycle Network and other waymarked cycle routes it follows.</p></div>
+    <div class="stages" id="stages"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Gaps to fix</h2><p>Stretches of 300 m or more where the route has to use an A road, with the police-reported cycle collisions on each (2021–25). These are where a protected path or a crossing would make the Way safe for everyone, not just confident riders.</p></div>
+    <div class="tw" id="gaps"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>The Danelaw along the route</h2><p>In order from Derby. Select a place to see it on the map.</p></div>
+    <div class="story" id="story"></div>
+  </section>
+  <div class="notes">
+    <div><b>Route</b> is a proposal, routed with <a href="https://brouter.de/">BRouter</a>'s touring profile (which prefers cycle routes and quiet roads) through waypoints that keep it by the Trent, the Fossdyke, Ermine Street, the Humber and the Ouse. It needs riding and checking on the ground, especially farm tracks and towpaths after wet weather.</div>
+    <div><b>Riding conditions</b> are measured every 25 m against OpenStreetMap: <i>traffic-free</i> is within 12 m of a cycleway or a path designated for bikes; <i>quiet road</i> a residential, unclassified or service road; <i>track or lane</i> no named road or cycle path within 12 m (unnamed lanes, farm tracks, towpaths); <i>B or C road</i> a secondary or tertiary road; <i>A road</i> a primary or trunk road. <b>Collisions</b> are police-reported injury collisions involving a bicycle within 30 m of the route (DfT STATS19, 2021–25). <b>Height</b> comes from BRouter's elevation data.</div>
+    <div><b>History</b> is summarised from standard accounts of the Viking Age in England (the Anglo-Saxon Chronicle and recent archaeology at Repton and Torksey). Place-name meanings are traditional derivations. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const nf=n=>Math.round(n).toLocaleString('en-GB');
+const CLS={path:['Traffic-free path','--path',4.5,null],quiet:['Quiet road','--quiet',4,null],track:['Track, towpath or unnamed lane','--quiet',4,'6 6'],main:['B or C road','--main',4,null],busy:['A road','--busy',6,null]};
+const ORDER=['path','quiet','track','main','busy'];
+function isDark(){const th=document.documentElement.dataset.theme;return th?th==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+let D,map,stageLayers=[];
+function pct(v,t){return Math.round(v/t*100)}
+function mixBar(mix,km){return `<div class="mix" role="img" aria-label="${ORDER.filter(c=>mix[c]).map(c=>`${CLS[c][0]} ${pct(mix[c],km)}%`).join(', ')}">${ORDER.filter(c=>mix[c]).map(c=>`<i style="width:${(mix[c]/km*100).toFixed(1)}%;background:${c==='track'?`repeating-linear-gradient(90deg,var(--quiet) 0 5px,var(--panel) 5px 8px)`:`var(${CLS[c][1]})`}" title="${CLS[c][0]}: ${mix[c]} km"></i>`).join('')}</div>`}
+function drawMap(){
+  map=L.map('map',{zoomSnap:.25,scrollWheelZoom:false});
+  document.getElementById('map').classList.toggle('dark',isDark());
+  const all=L.latLngBounds(D.segments.flatMap(s=>s.pts));map.fitBounds(all.pad(.04),{animate:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · routing BRouter · collisions DfT'}).addTo(map);
+  // outlines under every class, then the coloured line
+  D.segments.forEach(s=>L.polyline(s.pts,{color:css('--panel'),weight:9,opacity:.9,lineCap:'round',interactive:false}).addTo(map));
+  D.stages.forEach(()=>stageLayers.push(L.featureGroup().addTo(map)));
+  D.segments.forEach(s=>{const c=CLS[s.cls];
+    L.polyline(s.pts,{color:css(c[1]),weight:c[2],opacity:.95,dashArray:c[3],lineCap:c[3]?'butt':'round'})
+      .bindTooltip(`<b>Stage ${s.stage}: ${esc(D.stages[s.stage-1].name)}</b><br>${c[0]}`,{sticky:true,className:'tt'}).addTo(stageLayers[s.stage-1])});
+  D.collisions.forEach(([la,lo,sev])=>L.circleMarker([la,lo],{radius:sev<=2?4:2.5,color:css('--panel'),weight:1,fillColor:sev<=2?css('--busy'):css('--muted'),fillOpacity:.85,interactive:false}).addTo(map));
+  D.stages.forEach(st=>{const first=D.segments.find(s=>s.stage===st.n).pts[0];
+    L.marker(first,{zIndexOffset:900,icon:L.divIcon({className:'',html:`<span class="mk st">${st.n}</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
+      .bindTooltip(`<b>Stage ${st.n}: ${esc(st.name)}</b><br>${st.km} km · ${st.ascent} m climbing`,{className:'tt'}).on('click',()=>zoomStage(st.n)).addTo(map)});
+  D.gaps.forEach((g,i)=>L.marker([g.lat,g.lon],{zIndexOffset:800,icon:L.divIcon({className:'',html:`<span class="mk gap">!</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
+    .bindTooltip(`<b>${esc(g.road)}${g.ref&&g.ref!==g.road?` (${esc(g.ref)})`:''}</b> near ${esc(g.near)}<br>${g.km} km on an A road${g.speed?`, ${esc(g.speed)}`:''}<br>${g.collisions} cycle collisions`,{className:'tt'}).addTo(map));
+  D.sites.forEach((s,i)=>{s.marker=L.marker([s.lat,s.lon],{zIndexOffset:1000,icon:L.divIcon({className:'',html:`<span class="mk${s.on?'':' off'}">ᚱ</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
+    .bindTooltip(`<b>${esc(s.name)}</b>${s.on?'':' (off the route)'}<br>${esc(s.text)}`,{className:'tt'}).addTo(map)});
+}
+function zoomStage(...ns){
+  const b=L.latLngBounds(D.segments.filter(s=>ns.includes(s.stage)).flatMap(s=>s.pts));
+  map.flyToBounds(b.pad(.08),{duration:.7});document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function profile(){
+  const el=document.getElementById('prof'),W=Math.max(320,el.clientWidth-24),H=170,m={l:40,r:12,t:22,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const P=D.profile,xmax=D.km,ymax=Math.max(50,Math.ceil(Math.max(...P.map(p=>p[1]))/25)*25);
+  const x=v=>m.l+v/xmax*iw,y=v=>m.t+ih-Math.max(0,v)/ymax*ih;
+  let path=P.map((p,i)=>`${i?'L':'M'}${x(p[0]).toFixed(1)} ${y(p[1]).toFixed(1)}`).join('');
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Height profile, highest point about ${Math.max(...P.map(p=>p[1]))} m">`;
+  for(let v=0;v<=ymax;v+=ymax/2) s+=`<line class="sd" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${v} m</text>`;
+  s+=`<path class="area" d="${path}L${x(P[P.length-1][0])} ${y(0)}L${x(0)} ${y(0)}Z"/><path class="ln" d="${path}"/>`;
+  let acc=0;D.stages.forEach(st=>{s+=`<line class="sd" x1="${x(acc)}" x2="${x(acc)}" y1="${m.t-14}" y2="${m.t+ih}"/><text class="sl" x="${x(acc)+4}" y="${m.t-6}">${st.n}</text>`;acc+=st.km});
+  for(let v=0;v<=xmax;v+=50) s+=`<text x="${x(v)}" y="${H-6}" text-anchor="middle">${v} km</text>`;
+  el.innerHTML=s+'</svg>';
+}
+fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
+  D=d;const tf=(d.mix.path||0);
+  document.getElementById('facts').innerHTML=`
+    <div class="fact"><b>${nf(d.km)} km</b><span>Derby to York in five stages</span></div>
+    <div class="fact"><b>${nf(d.ascent)} m</b><span>of climbing in total. Hærvejsløbet's 300 km route climbs about 2,500 m.</span></div>
+    <div class="fact"><b>${pct(tf,d.km)}%</b><span>on traffic-free paths, and ${pct((d.mix.quiet||0)+(d.mix.track||0),d.km)}% on quiet roads, lanes and tracks</span></div>
+    <div class="fact"><b>${d.signed}%</b><span>on signed cycle routes: NCN 6 by the Trent, NCN 64 to Lincoln, the White Rose route to York</span></div>
+    <div class="fact"><b>${pct(d.mix.busy||0,d.km)}%</b><span>on A roads, in ${d.gaps.length} short gaps. ${d.collisions.length} police-reported cycle collisions within 30 m of the route, 2021–25.</span></div>`;
+  document.getElementById('legend').innerHTML=ORDER.map(c=>`<span><i class="${c==='track'?'dash':''}" style="background:var(${CLS[c][1]})"></i>${CLS[c][0]}</span>`).join('')+
+    `<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span><span><i class="dot" style="background:var(--busy)"></i>Cycle collision, serious or fatal</span><span><i class="dot" style="background:var(--muted)"></i>Cycle collision, slight</span>`;
+  // ride options: whole-stage combinations, like Hærvejsløbet's set of distances
+  const sum=(a,b)=>d.stages.slice(a-1,b).reduce((t,s)=>t+s.km,0),asc=(a,b)=>d.stages.slice(a-1,b).reduce((t,s)=>t+s.ascent,0);
+  const OPTS=[['The Danelaw Way','Derby to York',1,5],['Five Boroughs','Derby to Lincoln',1,2],['Ermine Street to Jorvik','Lincoln to York',3,5],['Humber and Ouse','Barton-upon-Humber to York',4,5],['Trent Valley','Derby to Newark',1,1]];
+  document.getElementById('opts').innerHTML=OPTS.map(([n,t,a,b])=>`<button class="opt" data-a="${a}" data-b="${b}" aria-pressed="false"><span class="t">${n}</span><b>${nf(sum(a,b))} km</b><small>${t} · ${nf(asc(a,b))} m climbing · ${a===b?'stage '+a:'stages '+a+'–'+b}</small></button>`).join('');
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===o));const a=+o.dataset.a,b=+o.dataset.b;zoomStage(...Array.from({length:b-a+1},(_,i)=>a+i))});
+  document.getElementById('stages').innerHTML=d.stages.map(st=>`<button class="stage" data-n="${st.n}" aria-pressed="false"><span class="n">Stage ${st.n}</span><h3>${esc(st.name)}</h3><div class="via">${esc(st.note)}. Via ${st.via.slice(1,-1).map(esc).join(', ')}.</div>
+    <div class="nums"><span><b>${st.km}</b> km</span><span><b>${st.ascent}</b> m up</span><span><b>${st.signed}%</b> signed</span><span><b>${st.collisions}</b> collisions</span></div>
+    ${mixBar(st.mix,st.km)}<div class="mixl">${ORDER.filter(c=>st.mix[c]).map(c=>`<span>${CLS[c][0].split(',')[0]} ${pct(st.mix[c],st.km)}%</span>`).join('')}</div>
+    <div class="via">${st.routes.length?'Follows '+st.routes.map(r=>`${esc(r.name)} (${r.km} km)`).join(', '):'Few signed routes'}</div></button>`).join('');
+  document.querySelectorAll('.stage').forEach(b=>b.onclick=()=>{document.querySelectorAll('.stage').forEach(x=>x.setAttribute('aria-pressed',x===b));zoomStage(+b.dataset.n)});
+  document.getElementById('gaps').innerHTML=`<table><thead><tr><th>Road</th><th>Near</th><th class="n">Stage</th><th class="n">At</th><th class="n">Length</th><th class="n">Speed limit</th><th class="n">Collisions</th></tr></thead><tbody>${
+    d.gaps.map((g,i)=>`<tr class="go" data-i="${i}"><td><b>${esc(g.road)}</b>${g.ref&&g.ref!==g.road?` <small style="display:inline">${esc(g.ref)}</small>`:''}</td><td>${esc(g.near)}</td><td class="n">${g.stage}</td><td class="n">${g.at_km} km</td><td class="n">${g.km} km</td><td class="n">${esc(g.speed||'')}</td><td class="n">${g.collisions}</td></tr>`).join('')}</tbody></table>`;
+  document.querySelectorAll('#gaps tr.go').forEach(tr=>tr.onclick=()=>{const g=d.gaps[+tr.dataset.i];map.flyTo([g.lat,g.lon],15,{duration:.7});document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'})});
+  document.getElementById('story').innerHTML=d.sites.map((s,i)=>`<div class="site" data-i="${i}" tabindex="0" role="button"><h3><span class="mk${s.on?'':' off'}" aria-hidden="true">ᚱ</span>${esc(s.name)}${s.on?'':' <span class="off">off route</span>'}</h3><p>${esc(s.text)}</p></div>`).join('');
+  drawMap();profile();
+  document.querySelectorAll('.site').forEach(el=>{const go=()=>{const s=d.sites[+el.dataset.i];map.flyTo([s.lat,s.lon],12,{duration:.7});s.marker.openTooltip();document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'})};el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(profile,150)});
+}).catch(e=>{document.getElementById('facts').innerHTML=`<p class="err">Could not load the route (${esc(e.message)}). Reload the page to try again.</p>`});
+</script>
+</body>
+</html>

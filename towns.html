@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Towns as flat as Hull and York where far fewer people cycle to work: route hilliness against Census 2021 cycling for every town in the CycleStats areas.">
-<title>Flat but Not Cycling</title>
+<title>Where Dutch Infrastructure Should Work?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -92,11 +92,10 @@ tbody.net tr:hover td,tbody.net tr.on td{background:var(--band)}
 .chip.flat{border-color:var(--low)}.chip.gentle{border-color:var(--gentle)}
 .tname .nw{color:var(--accent)}
 /* one-hue blue ramp for car ownership and deprivation: light to dark on light, dark to light on dark */
-/* collisions vs England & Wales: diverging, green well below, neutral grey about the same, red above.
-   The strong ends are the most saturated in both themes, so a stronger colour always means further from the norm. */
-:root{--c1:#1b8a6b;--c2:#66b39a;--c3:#c4c8c4;--c4:#e8907a;--c5:#c8372d}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#2fa483;--c2:#2f6e5c;--c3:#4d5451;--c4:#8c4336;--c5:#e0564a}}
-:root[data-theme="dark"]{--c1:#2fa483;--c2:#2f6e5c;--c3:#4d5451;--c4:#8c4336;--c5:#e0564a}
+/* collisions vs England & Wales: red, amber, green. Green 10%+ below, amber within 10%, red 10%+ above */
+:root{--rag-g:#1b8a6b;--rag-a:#d99a1e;--rag-r:#c8372d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--rag-g:#2fa483;--rag-a:#c99628;--rag-r:#e0564a}}
+:root[data-theme="dark"]{--rag-g:#2fa483;--rag-a:#c99628;--rag-r:#e0564a}
 :root{--q1:#b7d3f6;--q2:#6da7ec;--q3:#3987e5;--q4:#256abf;--q5:#104281}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}}
 :root[data-theme="dark"]{--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}
@@ -145,10 +144,10 @@ td.n small{text-align:right}
   <header>
     <div>
       <div class="eyebrow">CycleStats · every town in the 17 areas</div>
-      <h1>Flat but Not Cycling</h1>
+      <h1>Where Dutch Infrastructure Should Work?</h1>
       <p class="lede">Hull and York are flat and among the highest-cycling places in England. Many towns here are just as flat, yet far fewer people cycle to work. Hills don't explain the gap; that points to roads, routes and how safe cycling feels.</p>
     </div>
-    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a></nav>
+    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="danelaw.html">Danelaw Way</a></nav>
   </header>
   <div class="facts" id="facts"></div>
   <section>
@@ -186,15 +185,15 @@ const nf=n=>n.toLocaleString('en-GB');
 const p1=v=>(Math.abs(v)<0.05?0:v).toFixed(1);
 let D;
 // chart colours: the flat towns missing most cyclists, or each town's cycle collision rate against England and Wales
-// on a diverging scale: green below, neutral about the same, red above (faint grey where under 10 collisions, too few
+// as red, amber, green: green 10%+ below, amber within 10%, red 10%+ above (hollow where under 10 collisions, too few
 // to compare)
 let HCOL='flat';
 const collCol=t=>{if(t.coll<10)return 'var(--other)';const d=t.coll_rate/D.coll_ew-1;
-  return d<=-.25?'var(--c1)':d<=-.1?'var(--c2)':d<.1?'var(--c3)':d<.25?'var(--c4)':'var(--c5)'};
+  return d<=-.1?'var(--rag-g)':d<.1?'var(--rag-a)':'var(--rag-r)'};
 function hLegend(){
   const sw=(c,t)=>`<span><i style="background:${c}"></i>${t}</span>`,curve=`<span><i class="ln"></i>Fitted curve across all towns (R² ${D.curve.r2})</span>`;
   document.getElementById('legend').innerHTML=HCOL==='coll'
-    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--c1)','25%+ below')+sw('var(--c2)','10–25% below')+sw('var(--c3)','about the same')+sw('var(--c4)','10–25% above')+sw('var(--c5)','25%+ above')+`<span><i style="background:none;border:1.2px solid var(--muted)"></i>under 10 collisions</span>`+curve
+    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--rag-g)','10%+ below')+sw('var(--rag-a)','within 10%')+sw('var(--rag-r)','10%+ above')+`<span><i style="background:none;border:1.2px solid var(--muted)"></i>under 10 collisions</span>`+curve
     :sw('var(--bench)','Hull and York')+sw('var(--low)','Flat towns missing the most cyclists')+sw('var(--other)','Other towns')+curve;
 }
 function draw(){
