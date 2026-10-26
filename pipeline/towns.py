@@ -103,6 +103,20 @@ for r in rows:
     r['tier'] = 'bench' if r['name'] in BENCH else 'flat' if r['slope'] <= FLAT else 'gentle' if r['slope'] <= GENTLE else 'hilly'
     r['flat'] = r['tier'] == 'flat'
     r['missing'] = max(0, round(r['travel'] * (b_share - r['cycle21']) / 100))
+# cycling falls away as routes get hillier, and the fall is a curve, not a line: fit log(share cycling) against route
+# gradient (weighted by people travelling to work), so share = a * exp(b * gradient)
+def fit_curve(ts):
+    W = [t['travel'] for t in ts]; X = [t['slope'] for t in ts]; Y = [math.log(t['cycle21']) for t in ts]
+    sw = sum(W); mx = sum(x * w for x, w in zip(X, W)) / sw; my = sum(y * w for y, w in zip(Y, W)) / sw
+    b = sum(w * (x - mx) * (y - my) for x, y, w in zip(X, Y, W)) / sum(w * (x - mx) ** 2 for x, w in zip(X, W))
+    a = math.exp(my - b * mx)
+    obs = [t['cycle21'] for t in ts]; m = sum(obs) / len(obs)
+    r2 = 1 - sum((o - a * math.exp(b * t['slope'])) ** 2 for o, t in zip(obs, ts)) / sum((o - m) ** 2 for o in obs)
+    return dict(a=round(a, 3), b=round(b, 4), halves=round(math.log(2) / -b, 2), r2=round(r2, 2))
+
+
+curve = fit_curve([r for r in rows if r['cycle21'] > 0])
+for r in rows: r['expected'] = round(curve['a'] * math.exp(curve['b'] * r['slope']), 1)
 flat_low = sorted([r for r in rows if r['flat'] and r['name'] not in BENCH], key=lambda r: -r['missing'])
 # --- suggested roads per town: stretches measured by priorities.py, placed in the town most of their length runs
 # through, ranked half on unprotected harm and half on Go Dutch potential within the town ---
@@ -265,13 +279,14 @@ out = dict(towns=sorted(rows, key=lambda r: -r['travel']), outlines=outlines, be
            flat_low=[r['id'] for r in flat_low], gentle_low=[r['id'] for r in gentle], flat_max=FLAT, gentle_max=GENTLE,
            min_travel=MIN_TRAVEL, networks=networks, gap=GAP,
            nocar_high=NOCAR_HIGH, deprived_high=DEPRIVED_HIGH,
-           coll_years=sorted(years), coll_ew=EW_RATE)
+           coll_years=sorted(years), coll_ew=EW_RATE, curve=curve)
 json.dump(out, open(os.path.join(DATA, 'towns.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f"{len(rows)} towns; benchmark Hull+York {b_share:.1f}% cycling, slope up to {b_slope}%")
 for r in bench: print('  bench', r['name'], r['cycle21'], r['slope'], r['travel'])
 print('flat towns ranked by people missing from cycling:')
 for r in flat_low[:25]:
     print(f"  {r['name'][:26]:26} {r['area_name'][:22]:22} slope={r['slope']:4} cycle21={r['cycle21']:4}% (2011 {r['cycle11']}%) dutch={r['dutch']}% travel={r['travel']:6} missing={r['missing']:5} dep={r['deprived']}% nocar={r['nocar']}%")
+print(f"curve: cycling = {curve['a']} * exp({curve['b']} * gradient), halves every {curve['halves']} points, R2 {curve['r2']}")
 print(f'England and Wales: {EW_RATE} cycle collisions a year per 100 cycle commuters')
 print('networks of touching flat and gentle towns:')
 for n in networks:
