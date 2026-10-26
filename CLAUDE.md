@@ -40,3 +40,24 @@ These are town averages, so they cannot show whether the people who cycle are th
 
 Next steps if revisited: compare LSOAs within towns (cycling share against no-car share and IMD decile) rather than
 town averages; add the band table to `towns.html`.
+
+## How far people travel to work (26 Oct 2026, not in the pipeline)
+
+Census 2021 TS058 (distance to work by LSOA, Nomis NM_2075_1) was downloaded by hand to `raw/imd/ttwdist2021.csv`,
+and the Census 2021 home-to-work flow tables by MSOA to `raw/od/` (ODWP01EW all, ODWP09EW by social grade, ODWP14EW
+by car or van availability, from nomisweb.co.uk/sources/census_2021_od). Commuters exclude people working mainly from home.
+
+- Across the flat and gently sloping towns, deprived and car-less neighbourhoods have shorter commutes: 58% under
+  5 km in IMD deciles 1–2 against 42% in deciles 8–10; 61% where 40%+ of households have no car against 42% under 15%.
+- Long Eaton is the exception: about half of commuters in every group travel 5–20 km (deprived 47%, least deprived
+  54%), against 29% in Middlesbrough's deprived neighbourhoods and 32% in Hull's. Only 44% of its deprived
+  neighbourhoods' commuters work within 5 km.
+- Long Eaton (Erewash MSOAs 010, 011, 012, 014, 015) to Castle Donington (North West Leicestershire 001, which takes in
+  East Midlands Airport and the logistics parks, about 9–10 km): 8.3% of DE (semi-skilled and unskilled) workers, the
+  third biggest destination for that group, against 1.6% of AB workers. 7.7% of workers from households with no car go
+  there, against 3.3% with two cars. That backs up the earlier point: lower-paid work for Long Eaton is 5–6 miles away in
+  Castle Donington, and the people doing it are the least likely to have a car.
+
+Next steps if revisited: add TS058 to `fetch_data.py` and per-town distance bands to `towns.py`; map the main
+destinations of each flat town's lower social grade workers; check whether a protected route exists from Long Eaton
+to Castle Donington (Trent crossing at Sawley, A6/A50).
