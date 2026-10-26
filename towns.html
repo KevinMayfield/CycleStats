@@ -92,9 +92,11 @@ tbody.net tr:hover td,tbody.net tr.on td{background:var(--band)}
 .chip.flat{border-color:var(--low)}.chip.gentle{border-color:var(--gentle)}
 .tname .nw{color:var(--accent)}
 /* one-hue blue ramp for car ownership and deprivation: light to dark on light, dark to light on dark */
-:root{--c1:#e58e64;--c2:#da6b42;--c3:#c44f30;--c4:#9f3724;--c5:#6e211a}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#8e3626;--c2:#b0462c;--c3:#cf6240;--c4:#e48764;--c5:#f1ae8f}}
-:root[data-theme="dark"]{--c1:#8e3626;--c2:#b0462c;--c3:#cf6240;--c4:#e48764;--c5:#f1ae8f}
+/* collisions vs England & Wales: diverging, green well below, neutral grey about the same, red above.
+   The strong ends are the most saturated in both themes, so a stronger colour always means further from the norm. */
+:root{--c1:#1b8a6b;--c2:#66b39a;--c3:#c4c8c4;--c4:#e8907a;--c5:#c8372d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#2fa483;--c2:#2f6e5c;--c3:#4d5451;--c4:#8c4336;--c5:#e0564a}}
+:root[data-theme="dark"]{--c1:#2fa483;--c2:#2f6e5c;--c3:#4d5451;--c4:#8c4336;--c5:#e0564a}
 :root{--q1:#b7d3f6;--q2:#6da7ec;--q3:#3987e5;--q4:#256abf;--q5:#104281}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}}
 :root[data-theme="dark"]{--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#b7d3f6}
@@ -156,7 +158,7 @@ td.n small{text-align:right}
   </section>
   <section id="networks"></section>
   <section>
-    <div class="sh"><h2>Hilliness against cycling to work</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: the darker the colour, the more collisions for each person who cycles to work.</p></div>
+    <div class="sh"><h2>Factors affecting cycling</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red where there are more collisions for each person who cycles to work, green where there are fewer.</p></div>
     <div class="mbar"><div class="seg" id="hcol" role="group" aria-label="Colour towns by"><button type="button" data-k="flat" aria-pressed="true">Flat towns</button><button type="button" data-k="coll" aria-pressed="false">Collisions vs England &amp; Wales</button></div><div class="legend" id="legend"></div></div>
     <div class="chart" id="chart"></div>
   </section>
@@ -172,7 +174,7 @@ td.n small{text-align:right}
     <div><b>Hilliness</b> is the Propensity to Cycle Tool's average gradient of commute routes under 10 km from each neighbourhood, weighted by commuters. It measures the routes people would actually ride, not the landscape around a town.</div>
     <div><b>Cycling</b> is people who cycle to work as a share of people who travel to work (Census 2021, excluding those working mainly from home, which was high during the pandemic). The 2011 figure is the Census 2011 share of all commuters, from PCT, so the two are close but not identical measures.</div>
     <div><b>No car</b> is the share of households with no car or van (Census 2021), averaged over each town's neighbourhoods weighted by people travelling to work. <b>Deprived</b> is the share of its neighbourhoods in England's most deprived fifth on the Indices of Deprivation 2025 (a fifth by definition across England). Towns and networks are tagged <b>Low car ownership</b> where a quarter or more of households have no car, and <b>Deprived</b> where over a third of neighbourhoods are in the most deprived fifth.</div>
-    <div><b>Collisions vs England &amp; Wales</b> (colour the hilliness chart by it, or hover a town) compares places, not risks to a rider. It is police-reported injury collisions involving a pedal cycle in the town's neighbourhoods (STATS19, 2021–25), a year, for every 100 people who cycle to work there (Census 2021), set against the same figure for England and Wales. The collisions include all cycling (shopping, school, leisure, visitors) while the Census counts only commuters, and many more people cycle than cycle to work, so it is <b>not</b> a cyclist's chance of a crash, which is far lower. A high figure can mean a lot of cycling that isn't commuting (Guisborough, on the edge of the North York Moors) as well as dangerous roads. Towns with fewer than 10 collisions are not compared. <b>Serious</b> is the share where someone was killed or seriously injured, and <b>40 mph+</b> the share on roads with a limit of 40 mph or more; these two do not depend on how many people cycle.</div>
+    <div><b>Collisions vs England &amp; Wales</b> (colour the Factors affecting cycling chart by it, or hover a town) compares places, not risks to a rider. It is police-reported injury collisions involving a pedal cycle in the town's neighbourhoods (STATS19, 2021–25), a year, for every 100 people who cycle to work there (Census 2021), set against the same figure for England and Wales. The collisions include all cycling (shopping, school, leisure, visitors) while the Census counts only commuters, and many more people cycle than cycle to work, so it is <b>not</b> a cyclist's chance of a crash, which is far lower. A high figure can mean a lot of cycling that isn't commuting (Guisborough, on the edge of the North York Moors) as well as dangerous roads. Towns with fewer than 10 collisions are not compared. <b>Serious</b> is the share where someone was killed or seriously injured, and <b>40 mph+</b> the share on roads with a limit of 40 mph or more; these two do not depend on how many people cycle.</div>
     <div><b>Missing cyclists</b> is how many more people would cycle to work if the town matched Hull and York combined. <b>Go Dutch</b> is PCT's estimate of the share who would cycle with Dutch levels of cycling, given each town's trip lengths and hills. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
   </div>
 </div>
@@ -183,16 +185,16 @@ const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim
 const nf=n=>n.toLocaleString('en-GB');
 const p1=v=>(Math.abs(v)<0.05?0:v).toFixed(1);
 let D;
-// hilliness chart colours: the flat towns missing most cyclists, or each town's cycle collision rate against England
-// and Wales on one ordered warm scale, stronger as the rate rises, so a town level with England and Wales still reads
-// as a concern (faint grey where under 10 collisions, too few to compare)
+// chart colours: the flat towns missing most cyclists, or each town's cycle collision rate against England and Wales
+// on a diverging scale: green below, neutral about the same, red above (faint grey where under 10 collisions, too few
+// to compare)
 let HCOL='flat';
 const collCol=t=>{if(t.coll<10)return 'var(--other)';const d=t.coll_rate/D.coll_ew-1;
   return d<=-.25?'var(--c1)':d<=-.1?'var(--c2)':d<.1?'var(--c3)':d<.25?'var(--c4)':'var(--c5)'};
 function hLegend(){
   const sw=(c,t)=>`<span><i style="background:${c}"></i>${t}</span>`,curve=`<span><i class="ln"></i>Fitted curve across all towns (R² ${D.curve.r2})</span>`;
   document.getElementById('legend').innerHTML=HCOL==='coll'
-    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--c1)','25%+ below')+sw('var(--c2)','10–25% below')+sw('var(--c3)','about the same')+sw('var(--c4)','10–25% above')+sw('var(--c5)','25%+ above')+sw('var(--other)','under 10 collisions')+curve
+    ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--c1)','25%+ below')+sw('var(--c2)','10–25% below')+sw('var(--c3)','about the same')+sw('var(--c4)','10–25% above')+sw('var(--c5)','25%+ above')+`<span><i style="background:none;border:1.2px solid var(--muted)"></i>under 10 collisions</span>`+curve
     :sw('var(--bench)','Hull and York')+sw('var(--low)','Flat towns missing the most cyclists')+sw('var(--other)','Other towns')+curve;
 }
 function draw(){
@@ -216,7 +218,8 @@ function draw(){
   s+=`<path d="${Array.from({length:61},(_,i)=>{const v=i/60*xmax;return (i?'L':'M')+x(v).toFixed(1)+' '+y(fy(v)).toFixed(1)}).join('')}" style="fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:6 5;opacity:.7"/>`;
   s+=`<text x="${x(xmax*.45)}" y="${y(fy(xmax*.45)+3)}" style="fill:var(--ink)">Fitted curve: cycling halves every ${cv.halves} pts of gradient</text>`;
   const order=[...D.towns].sort((a,b)=>(a.tier==='bench')-(b.tier==='bench')||D.lowIds.has(a.id)-D.lowIds.has(b.id)||b.travel-a.travel);
-  order.forEach(t=>{s+=`<circle cx="${x(t.slope).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${rad(t).toFixed(1)}" style="fill:${col(t)}" fill-opacity="${op(t)}"/>`});
+  // in the collisions view, towns with under 10 collisions are hollow rings so they can't be read as "about the same"
+  order.forEach(t=>{const few=coll&&t.coll<10;s+=`<circle cx="${x(t.slope).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${rad(t).toFixed(1)}" style="fill:${few?'none':col(t)};${few?'stroke:var(--muted);stroke-width:1.2':''}" fill-opacity="${op(t)}"/>`});
   // direct labels: the benchmarks and the five flat towns missing most cyclists
   const lab=[...D.bench.towns.map(b=>D.byId[b.id]),...D.flat_low.slice(0,5).map(i=>D.byId[i])];
   // place each label right of its dot, else left, else above or below, avoiding labels already placed
