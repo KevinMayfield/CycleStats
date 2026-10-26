@@ -220,6 +220,7 @@ def fetch_pct(areas):
 
 BUA = ('https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/'
        'LSOA21_BUA22_LAD22_RGN22_EW_LU_v2/FeatureServer/0/query')
+BUA_SHAPES = 'https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/BUA_2022_GB/FeatureServer/0/query'
 
 
 def fetch_towns(areas):
@@ -240,6 +241,19 @@ def fetch_towns(areas):
         with open(path, 'w', newline='') as f:
             csv.writer(f).writerows([['lsoa', 'bua', 'bua_name', 'lad_name', 'rgn']] + rows)
         print('  lsoa to built-up area', len(rows))
+    path = os.path.join(d, 'bua22.geojson')
+    if not have(path):
+        # built-up area outlines (generalised to ~20 m) for the towns map and for finding towns that touch
+        codes = sorted({r['bua'] for r in csv.DictReader(open(os.path.join(d, 'lsoa_bua.csv'))) if r['bua']})
+        feats = []
+        for i in range(0, len(codes), 100):
+            q = urllib.parse.urlencode(dict(where='BUA22CD IN (' + ','.join(f"'{c}'" for c in codes[i:i + 100]) + ')',
+                                            outFields='BUA22CD,BUA22NM', outSR=4326, geometryPrecision=5,
+                                            maxAllowableOffset=0.0002, f='geojson'))
+            feats += json.load(get(BUA_SHAPES, data=q.encode()))['features']   # POST: the code list is too long for a URL
+        with open(path, 'w') as f:
+            json.dump({'type': 'FeatureCollection', 'features': feats}, f)
+        print('  built-up area outlines', len(feats))
     path = os.path.join(d, 'ttw2021.csv')
     if not have(path):
         # Census 2021 TS061: 0 = all in employment, 1 = work mainly from home, 9 = bicycle

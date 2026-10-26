@@ -113,6 +113,12 @@ def simp(g, tol):
     return [[round(p[0], 5), round(p[1], 5)] for p, k_ in zip(g, keep) if k_]
 
 
+def simp_ring(g, tol):
+    """simp for a closed ring: its first and last points are the same, so simplify each half on its own"""
+    h = len(g) // 2
+    return simp(g[:h + 1], tol) + simp(g[h:], tol)[1:]
+
+
 town_ids = {r['id'] for r in rows}
 roads = collections.defaultdict(dict)
 for aid in AREAS:
@@ -147,18 +153,91 @@ for r in rows:
     r['roads'] = sorted(cand, key=lambda x: -x['score'])[:8]   # the page shows five, then three more
 
 gentle = sorted([r for r in rows if r['tier'] == 'gentle'], key=lambda r: -r['missing'])
+# --- town outlines and networks: ONS built-up area polygons; towns whose built-up edges come within GAP metres of each
+# other touch. Flat and gentle towns that touch form a network: short, level trips between them that one connected
+# set of routes could serve ---
+GAP = 250
+shapes = {}
+for f in json.load(open(os.path.join(RAW, 'imd', 'bua22.geojson')))['features']:
+    g = f['geometry']; polys = g['coordinates'] if g['type'] == 'MultiPolygon' else [g['coordinates']]
+    shapes[f['properties']['BUA22CD']] = [[[la, lo] for lo, la in p[0]] for p in polys]   # outer rings only
+K0 = math.cos(math.radians(53)) * 111320
+xy = lambda q: (q[1] * K0, q[0] * 110574)
+fine = {r['id']: [[xy(q) for q in simp_ring(ring, 30)] for ring in shapes.get(r['id'], [])] for r in rows}
+pts_cell = collections.defaultdict(set)
+for k, rings in fine.items():
+    for ring in rings:
+        for x, y in ring: pts_cell[(int(x // GAP), int(y // GAP))].add(k)
+
+
+def seg_d(p, a, b):
+    dx, dy = b[0] - a[0], b[1] - a[1]; L = dx * dx + dy * dy
+    t = 0 if L == 0 else max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L))
+    return math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy)
+
+
+def touch(a, b):
+    """a vertex of one outline within GAP of an edge of the other, either way round"""
+    for u, v in ((a, b), (b, a)):
+        for ru in fine[u]:
+            for p in ru:
+                if not any(v in pts_cell.get((int(p[0] // GAP) + i, int(p[1] // GAP) + j), ()) for i in (-1, 0, 1) for j in (-1, 0, 1)):
+                    continue                    # no vertex of the other town nearby
+                if any(seg_d(p, rv[i], rv[i + 1]) <= GAP for rv in fine[v] for i in range(len(rv) - 1)): return True
+    return False
+
+
+near = collections.defaultdict(set)
+for k, rings in fine.items():
+    cand = {o for ring in rings for x, y in ring for i in (-1, 0, 1) for j in (-1, 0, 1)
+            for o in pts_cell.get((int(x // GAP) + i, int(y // GAP) + j), ()) if o > k}
+    for o in cand:
+        if touch(k, o): near[k].add(o); near[o].add(k)
+by_id = {r['id']: r for r in rows}
+for r in rows:
+    r['near'] = sorted(near[r['id']], key=lambda i: -by_id[i]['travel'])
+    # overview map outline: ~100 m detail is plenty at county scale
+    r['shape'] = [[[round(a, 4), round(b, 4)] for a, b in s] for s in (simp_ring(ring, 100) for ring in shapes.get(r['id'], [])) if len(s) >= 4]
+# networks: flat and gentle towns (not Hull or York) joined by touching, with at least one flat town
+member = lambda r: r['tier'] in ('flat', 'gentle')
+networks, done = [], set()
+for r in sorted(rows, key=lambda r: -r['travel']):
+    if r['id'] in done or not member(r): continue
+    comp, todo = [], [r['id']]
+    while todo:
+        i = todo.pop()
+        if i in done: continue
+        done.add(i); comp.append(i); todo += [o for o in near[i] if member(by_id[o]) and o not in done]
+    ts = sorted((by_id[i] for i in comp), key=lambda t: -t['travel'])
+    if len(ts) < 2 or not any(t['flat'] for t in ts): continue
+    travel = sum(t['travel'] for t in ts); cyc = sum(t['cyclists'] for t in ts)
+    networks.append(dict(towns=[t['id'] for t in ts], travel=travel, cyclists=cyc, cycle21=round(100 * cyc / travel, 1),
+                         dutch=round(sum(t['dutch'] * t['travel'] for t in ts) / travel, 1), missing=sum(t['missing'] for t in ts),
+                         slope=round(sum(t['slope'] * t['travel'] for t in ts) / travel, 2),
+                         links=sorted({tuple(sorted((a, b))) for a in comp for b in near[a] if b in comp}),
+                         borders=sorted({o for a in comp for o in near[a] if o not in comp}, key=lambda i: -by_id[i]['travel']),
+                         areas=sorted({t['area_name'] for t in ts})))
+networks.sort(key=lambda n: -n['missing'])
+for n in networks:
+    # named after its largest town, or the two largest when they are close in size
+    a, b = (by_id[i]['name'] for i in n['towns'][:2])
+    n['name'] = a if by_id[n['towns'][0]]['travel'] > 2 * by_id[n['towns'][1]]['travel'] else f'{a} & {b}'
 # area outlines for the overview map, simplified to ~300 m
 outlines = []
 for aid in AREAS:
     path = os.path.join(DATA, aid + '.json')
     if os.path.exists(path):
-        outlines.append(dict(id=aid, name=AREAS[aid]['name'], rings=[simp(r, 300) for r in json.load(open(path))['boundary']]))
+        outlines.append(dict(id=aid, name=AREAS[aid]['name'], rings=[simp_ring(r, 300) for r in json.load(open(path))['boundary']]))
 out = dict(towns=sorted(rows, key=lambda r: -r['travel']), outlines=outlines, bench=dict(share=round(b_share, 1), slope=b_slope, towns=bench),
            flat_low=[r['id'] for r in flat_low], gentle_low=[r['id'] for r in gentle], flat_max=FLAT, gentle_max=GENTLE,
-           min_travel=MIN_TRAVEL)
+           min_travel=MIN_TRAVEL, networks=networks, gap=GAP)
 json.dump(out, open(os.path.join(DATA, 'towns.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f"{len(rows)} towns; benchmark Hull+York {b_share:.1f}% cycling, slope up to {b_slope}%")
 for r in bench: print('  bench', r['name'], r['cycle21'], r['slope'], r['travel'])
 print('flat towns ranked by people missing from cycling:')
 for r in flat_low[:25]:
     print(f"  {r['name'][:26]:26} {r['area_name'][:22]:22} slope={r['slope']:4} cycle21={r['cycle21']:4}% (2011 {r['cycle11']}%) dutch={r['dutch']}% travel={r['travel']:6} missing={r['missing']:5} dep={r['deprived']}% nocar={r['nocar']}%")
+print('networks of touching flat and gentle towns:')
+for n in networks:
+    print(f"  {n['name'][:30]:30} {len(n['towns'])} towns travel={n['travel']:6} cycle21={n['cycle21']}% missing={n['missing']:5}: "
+          + ', '.join(by_id[i]['name'] for i in n['towns']) + (' | borders ' + ', '.join(by_id[i]['name'] for i in n['borders']) if n['borders'] else ''))
