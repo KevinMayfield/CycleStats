@@ -20,6 +20,9 @@ AREAS = json.load(open(os.path.join(HERE, 'areas.json')))
 PARTIAL = 0.25
 MIN_TRAVEL = 3000          # people travelling to work: roughly a town of 10,000 or more
 BENCH = ('Kingston upon Hull', 'York')
+# flagged on the page: at least one household in four with no car (Census 2021), and over a third of neighbourhoods in
+# England's most deprived fifth (IMD 2025), against a fifth nationally
+NOCAR_HIGH, DEPRIVED_HIGH = 25, 35
 
 # LSOAs in each built area, with the centre of each neighbourhood for the map
 area_of, centre, imd = {}, {}, {}
@@ -214,6 +217,8 @@ for r in sorted(rows, key=lambda r: -r['travel']):
     networks.append(dict(towns=[t['id'] for t in ts], travel=travel, cyclists=cyc, cycle21=round(100 * cyc / travel, 1),
                          dutch=round(sum(t['dutch'] * t['travel'] for t in ts) / travel, 1), missing=sum(t['missing'] for t in ts),
                          slope=round(sum(t['slope'] * t['travel'] for t in ts) / travel, 2),
+                         nocar=round(sum(t['nocar'] * t['travel'] for t in ts) / travel),
+                         deprived=round(sum(t['deprived'] * t['lsoas'] for t in ts) / sum(t['lsoas'] for t in ts)),
                          links=sorted({tuple(sorted((a, b))) for a in comp for b in near[a] if b in comp}),
                          borders=sorted({o for a in comp for o in near[a] if o not in comp}, key=lambda i: -by_id[i]['travel']),
                          areas=sorted({t['area_name'] for t in ts})))
@@ -230,7 +235,8 @@ for aid in AREAS:
         outlines.append(dict(id=aid, name=AREAS[aid]['name'], rings=[simp_ring(r, 300) for r in json.load(open(path))['boundary']]))
 out = dict(towns=sorted(rows, key=lambda r: -r['travel']), outlines=outlines, bench=dict(share=round(b_share, 1), slope=b_slope, towns=bench),
            flat_low=[r['id'] for r in flat_low], gentle_low=[r['id'] for r in gentle], flat_max=FLAT, gentle_max=GENTLE,
-           min_travel=MIN_TRAVEL, networks=networks, gap=GAP)
+           min_travel=MIN_TRAVEL, networks=networks, gap=GAP,
+           nocar_high=NOCAR_HIGH, deprived_high=DEPRIVED_HIGH)
 json.dump(out, open(os.path.join(DATA, 'towns.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f"{len(rows)} towns; benchmark Hull+York {b_share:.1f}% cycling, slope up to {b_slope}%")
 for r in bench: print('  bench', r['name'], r['cycle21'], r['slope'], r['travel'])
