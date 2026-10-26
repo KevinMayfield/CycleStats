@@ -91,6 +91,10 @@ def coll_rates(r):
 
 
 for r in rows: coll_rates(r)
+# the same rate for England and Wales, to compare towns against: every collision involving a bicycle outside Scotland
+# (police force code 99 in the collision index) against every cycle commuter in England and Wales
+ew_coll = sum(1 for i in cyc_veh if i[4:6] != '99')
+EW_RATE = round(100 * ew_coll / sum(w.get('9', 0) for w in ttw.values()) / YEARS, 2)
 bench = [r for r in rows if r['name'] in BENCH]
 b_share = sum(r['cyclists'] for r in bench) / sum(r['travel'] for r in bench) * 100
 b_slope = max(r['slope'] for r in bench)
@@ -261,13 +265,14 @@ out = dict(towns=sorted(rows, key=lambda r: -r['travel']), outlines=outlines, be
            flat_low=[r['id'] for r in flat_low], gentle_low=[r['id'] for r in gentle], flat_max=FLAT, gentle_max=GENTLE,
            min_travel=MIN_TRAVEL, networks=networks, gap=GAP,
            nocar_high=NOCAR_HIGH, deprived_high=DEPRIVED_HIGH,
-           coll_years=sorted(years))
+           coll_years=sorted(years), coll_ew=EW_RATE)
 json.dump(out, open(os.path.join(DATA, 'towns.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f"{len(rows)} towns; benchmark Hull+York {b_share:.1f}% cycling, slope up to {b_slope}%")
 for r in bench: print('  bench', r['name'], r['cycle21'], r['slope'], r['travel'])
 print('flat towns ranked by people missing from cycling:')
 for r in flat_low[:25]:
     print(f"  {r['name'][:26]:26} {r['area_name'][:22]:22} slope={r['slope']:4} cycle21={r['cycle21']:4}% (2011 {r['cycle11']}%) dutch={r['dutch']}% travel={r['travel']:6} missing={r['missing']:5} dep={r['deprived']}% nocar={r['nocar']}%")
+print(f'England and Wales: {EW_RATE} cycle collisions a year per 100 cycle commuters')
 print('networks of touching flat and gentle towns:')
 for n in networks:
     print(f"  {n['name'][:30]:30} {len(n['towns'])} towns travel={n['travel']:6} cycle21={n['cycle21']}% missing={n['missing']:5}: "
