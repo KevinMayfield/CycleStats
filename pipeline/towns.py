@@ -36,6 +36,14 @@ for aid in AREAS:
 bua = {r['lsoa']: (r['bua'], r['bua_name'], r['lad_name']) for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'lsoa_bua.csv')))}
 ttw = collections.defaultdict(dict)
 for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'ttw2021.csv'))): ttw[r['lsoa']][r['method']] = int(r['people'])
+# cycle collisions (STATS19) by the neighbourhood they happened in: all, killed or seriously injured, on 40 mph+ roads
+cyc_veh = {r['collision_index'] for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'cycle_veh.csv')))}
+coll, years = collections.defaultdict(collections.Counter), set()
+for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'collisions.csv'))):
+    if r['collision_index'] not in cyc_veh: continue
+    c = coll[r['lsoa_of_accident_location']]; years.add(r['collision_year'])
+    c['n'] += 1; c['ksi'] += r['collision_severity'] in ('1', '2')
+    c['fast'] += r['speed_limit'].isdigit() and int(r['speed_limit']) >= 40
 pct = {}
 for region in {c['pct_region'] for c in AREAS.values()}:
     for r in csv.DictReader(open(os.path.join(RAW, 'pct', f'{region}_z.csv'))):
@@ -50,6 +58,7 @@ for code, aid in area_of.items():
     w = ttw.get(code, {})
     travel = w.get('0', 0) - w.get('1', 0)
     t['travel'] += travel; t['cycle21'] += w.get('9', 0); t['lsoas'] += 1
+    for k in ('n', 'ksi', 'fast'): t['coll_' + k] += coll[code][k]
     la, lo = centre[code]; t['lat'] += la; t['lon'] += lo
     dec, nocar = imd[code]; t['deprived'] += dec <= 2; t['nocar_w'] += (nocar or 0) * travel
     p = pct.get(code)                       # PCT uses 2011 LSOAs; most codes are unchanged in 2021
@@ -67,8 +76,21 @@ for k, t in towns.items():
                      travel=int(t['travel']), cyclists=int(t['cycle21']), cycle21=round(100 * t['cycle21'] / t['travel'], 1),
                      cycle11=round(100 * t['cycle11'] / t['pct_all'], 1), dutch=round(100 * t['dutch'] / t['pct_all'], 1),
                      slope=round(t['slope_w'] / t['pct_all'], 2), short=round(t['short_w'] / t['pct_all']),
-                     deprived=round(100 * t['deprived'] / t['lsoas']), nocar=round(t['nocar_w'] / t['travel'])))
+                     deprived=round(100 * t['deprived'] / t['lsoas']), nocar=round(t['nocar_w'] / t['travel']),
+                     coll=int(t['coll_n']), coll_ksi=int(t['coll_ksi']), coll_fast=int(t['coll_fast'])))
 for r in rows: r['area_name'] = AREAS[r['area']]['name']
+YEARS = len(years)
+
+
+def coll_rates(r):
+    """cycle collisions a year per 100 people who cycle to work (all cycling, not only commuting, so a rough guide),
+    and the shares killed or seriously injured and on roads of 40 mph or more"""
+    r['coll_rate'] = round(100 * r['coll'] / r['cyclists'] / YEARS, 1) if r['cyclists'] else None
+    r['ksi_pct'] = round(100 * r['coll_ksi'] / r['coll']) if r['coll'] else None
+    r['fast_pct'] = round(100 * r['coll_fast'] / r['coll']) if r['coll'] else None
+
+
+for r in rows: coll_rates(r)
 bench = [r for r in rows if r['name'] in BENCH]
 b_share = sum(r['cyclists'] for r in bench) / sum(r['travel'] for r in bench) * 100
 b_slope = max(r['slope'] for r in bench)
@@ -219,9 +241,11 @@ for r in sorted(rows, key=lambda r: -r['travel']):
                          slope=round(sum(t['slope'] * t['travel'] for t in ts) / travel, 2),
                          nocar=round(sum(t['nocar'] * t['travel'] for t in ts) / travel),
                          deprived=round(sum(t['deprived'] * t['lsoas'] for t in ts) / sum(t['lsoas'] for t in ts)),
+                         coll=sum(t['coll'] for t in ts), coll_ksi=sum(t['coll_ksi'] for t in ts), coll_fast=sum(t['coll_fast'] for t in ts),
                          links=sorted({tuple(sorted((a, b))) for a in comp for b in near[a] if b in comp}),
                          borders=sorted({o for a in comp for o in near[a] if o not in comp}, key=lambda i: -by_id[i]['travel']),
                          areas=sorted({t['area_name'] for t in ts})))
+for n in networks: coll_rates(n)
 networks.sort(key=lambda n: -n['missing'])
 for n in networks:
     # named after its largest town, or the two largest when they are close in size
@@ -236,7 +260,8 @@ for aid in AREAS:
 out = dict(towns=sorted(rows, key=lambda r: -r['travel']), outlines=outlines, bench=dict(share=round(b_share, 1), slope=b_slope, towns=bench),
            flat_low=[r['id'] for r in flat_low], gentle_low=[r['id'] for r in gentle], flat_max=FLAT, gentle_max=GENTLE,
            min_travel=MIN_TRAVEL, networks=networks, gap=GAP,
-           nocar_high=NOCAR_HIGH, deprived_high=DEPRIVED_HIGH)
+           nocar_high=NOCAR_HIGH, deprived_high=DEPRIVED_HIGH,
+           coll_years=sorted(years))
 json.dump(out, open(os.path.join(DATA, 'towns.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f"{len(rows)} towns; benchmark Hull+York {b_share:.1f}% cycling, slope up to {b_slope}%")
 for r in bench: print('  bench', r['name'], r['cycle21'], r['slope'], r['travel'])

@@ -169,6 +169,7 @@ td.n small{text-align:right}
     <div><b>Hilliness</b> is the Propensity to Cycle Tool's average gradient of commute routes under 10 km from each neighbourhood, weighted by commuters. It measures the routes people would actually ride, not the landscape around a town.</div>
     <div><b>Cycling</b> is people who cycle to work as a share of people who travel to work (Census 2021, excluding those working mainly from home, which was high during the pandemic). The 2011 figure is the Census 2011 share of all commuters, from PCT, so the two are close but not identical measures.</div>
     <div><b>No car</b> is the share of households with no car or van (Census 2021), averaged over each town's neighbourhoods weighted by people travelling to work. <b>Deprived</b> is the share of its neighbourhoods in England's most deprived fifth on the Indices of Deprivation 2025 (a fifth by definition across England). Towns and networks are tagged <b>Low car ownership</b> where a quarter or more of households have no car, and <b>Deprived</b> where over a third of neighbourhoods are in the most deprived fifth.</div>
+    <div><b>Cycle collisions</b> are police-reported injury collisions involving a pedal cycle (STATS19, 2021–25) in the town's neighbourhoods, per year for every 100 people who cycle to work (Census 2021). They include all cycling, not only commuting, so the rate is a rough guide to risk; towns with fewer than 10 collisions are not rated. <b>Serious</b> is the share where someone was killed or seriously injured; <b>40 mph+</b> the share on roads with a limit of 40 mph or more.</div>
     <div><b>Missing cyclists</b> is how many more people would cycle to work if the town matched Hull and York combined. <b>Go Dutch</b> is PCT's estimate of the share who would cycle with Dutch levels of cycling, given each town's trip lengths and hills. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
   </div>
 </div>
@@ -210,7 +211,7 @@ function draw(){
   const tip=document.getElementById('tip');
   el.querySelectorAll('circle.hit').forEach(c=>{
     c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
-      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div><div class="k">No car ${t.nocar}% of households · ${t.deprived}% deprived</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div><div class="k">No car ${t.nocar}% of households · ${t.deprived}% deprived</div><div class="k">${collTxt(t)}</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
       tip.hidden=false;const r=el.getBoundingClientRect(),b=c.getBoundingClientRect();
       let lx=b.left-r.left+b.width/2+12,ly=b.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
@@ -251,7 +252,7 @@ function drawSoc(){
   const tip=document.getElementById('soctip');
   el.querySelectorAll('circle.hit').forEach(c=>{
     c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
-      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)} · ${tierTxt[t.tier]}</span><div class="k">Cycling ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%</div><div class="k">${t.deprived}% of neighbourhoods deprived · ${t.nocar}% no car</div><div class="k">${nf(t.travel)} travel to work</div>`;
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)} · ${tierTxt[t.tier]}</span><div class="k">Cycling ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%</div><div class="k">${t.deprived}% of neighbourhoods deprived · ${t.nocar}% no car</div><div class="k">${collTxt(t)}</div><div class="k">${nf(t.travel)} travel to work</div>`;
       tip.hidden=false;const r=el.getBoundingClientRect(),bb=c.getBoundingClientRect();
       let lx=bb.left-r.left+bb.width/2+12,ly=bb.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
@@ -263,16 +264,17 @@ function drawSoc(){
 const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
 function table(id,title,sub,ids){
   const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing)),b=D.bench.share;
-  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
+  document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Cycle collisions</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
     rows.map((t,i)=>`<tbody class="town"><tr class="main" data-id="${t.id}"><td class="n">${i+1}</td>
       <td><button class="tog" aria-expanded="false" aria-controls="det-${t.id}"><span class="chev" aria-hidden="true">▶</span><span class="tname">${esc(t.name)}<small>${esc(t.area_name)} · ${t.roads&&t.roads.length?Math.min(5,t.roads.length)+' roads to improve':'no roads ranked'}${D.netOf[t.id]?` · <span class="nw">${esc(D.netOf[t.id].name)} network</span>`:''}</small>${tags(t)}</span></button></td>
       <td class="n">${p1(t.slope)}%</td>
       <td class="n"><b>${p1(t.cycle21)}%</b><small class="${t.cycle21<t.cycle11?'down':''}">2011: ${p1(t.cycle11)}%</small></td>
       ${socCell(t)}
+      ${collCell(t)}
       <td class="n"><b class="up">${inc(t.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(t.dutch)}%</b><small>${inc(t.cycle21,t.dutch)}</small></td>
       <td class="n">${nf(t.missing)}<small>of ${nf(t.travel)} commuters</small><span class="bar" style="width:${(t.missing/mx*100).toFixed(0)}%"></span></td></tr>
-      <tr class="det" id="det-${t.id}" hidden><td colspan="8"></td></tr></tbody>`).join('')}</table></div>`;
+      <tr class="det" id="det-${t.id}" hidden><td colspan="9"></td></tr></tbody>`).join('')}</table></div>`;
   document.querySelectorAll(`#${id} tr.main`).forEach(tr=>tr.addEventListener('click',e=>{if(!e.target.closest('a'))toggle(tr)}));
 }
 function toggle(tr){
@@ -339,7 +341,7 @@ function overview(){
   [...D.towns].sort((a,b)=>(a.tier==='hilly')<(b.tier==='hilly')?1:-1).forEach(t=>{
     if(!t.shape||!t.shape.length) return;
     const n=D.netOf[t.id];
-    const tip=`<b>${esc(t.name)}</b><br>${tierTxt[t.tier]} · routes average ${p1(t.slope)}%<br>Cycling to work ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%${t.missing?`<br>${nf(t.missing)} more at Hull/York levels`:''}<br>${t.nocar}% of households have no car · ${t.deprived}% of neighbourhoods in England's most deprived fifth${n?`<br><b>${esc(n.name)} network</b> (${n.towns.length} towns)`:''}`;
+    const tip=`<b>${esc(t.name)}</b><br>${tierTxt[t.tier]} · routes average ${p1(t.slope)}%<br>Cycling to work ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%${t.missing?`<br>${nf(t.missing)} more at Hull/York levels`:''}<br>${t.nocar}% of households have no car · ${t.deprived}% of neighbourhoods in England's most deprived fifth<br>${collTxt(t)}${n?`<br><b>${esc(n.name)} network</b> (${n.towns.length} towns)`:''}`;
     shapes[t.id]=L.polygon(t.shape,{weight:n?2:1,opacity:.9})
       .bindTooltip(tip,{sticky:true,className:'tt'}).on('click',()=>openTown(t.id)).addTo(all);
     shapes[t.id].town=t;
@@ -371,6 +373,11 @@ function shade(k){
 }
 // tags for towns where cars are scarce or neighbourhoods deprived
 const tags=t=>(t.nocar>=D.nocar_high?`<span class="tag">Low car ownership</span>`:'')+(t.deprived>=D.deprived_high?`<span class="tag">Deprived</span>`:'');
+// cycle collisions a year per 100 cycle commuters, with the shares killed or seriously injured and on 40 mph+ roads;
+// fewer than 10 collisions in five years is too few for a rate
+const collCell=t=>t.coll<10?`<td class="n"><b>${t.coll}</b><small>in ${D.coll_years.length} years, too few to rate</small></td>`
+  :`<td class="n"><b>${p1(t.coll_rate)}</b><small>a year per 100 cyclists</small><small>${t.ksi_pct}% serious · ${t.fast_pct}% on 40 mph+</small></td>`;
+const collTxt=t=>t.coll<10?`${t.coll} cycle collisions in ${D.coll_years.length} years`:`${p1(t.coll_rate)} cycle collisions a year per 100 cyclists · ${t.ksi_pct}% killed or seriously injured · ${t.fast_pct}% on 40 mph+ roads`;
 const socCell=t=>`<td class="n"><b class="${t.nocar>=D.nocar_high?'hi':''}">${t.nocar}%</b><small>${t.deprived}% deprived</small></td>`;
 function openTown(id){
   const tr=document.querySelector(`tr.main[data-id="${CSS.escape(id)}"]`);if(!tr) return;
@@ -381,12 +388,13 @@ function networksTable(){
   const ns=D.networks.filter(n=>n.missing>0),mx=Math.max(...ns.map(n=>n.missing)),b=D.bench.share;
   const chip=i=>{const t=D.byId[i];return `<span class="chip ${t.tier}">${esc(t.name)}</span>`};
   document.getElementById('networks').innerHTML=`<div class="sh"><h2>Networks of flat towns</h2><p>Flat and gently sloping towns whose built-up edges come within ${D.gap} m of each other, with at least one flat town. Trips between them are short and level, so one connected set of protected routes across the town boundaries would serve all of them; council and county lines often run through the middle. Click a network to see it on the map.</p></div>
-  <div class="tw"><table><thead><tr><th>#</th><th>Network</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody class="net">${
+  <div class="tw"><table><thead><tr><th>#</th><th>Network</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Cycle collisions</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody class="net">${
     ns.map((n,i)=>`<tr data-i="${D.networks.indexOf(n)}"><td class="n">${i+1}</td>
       <td><b>${esc(n.name)}</b><small>${n.towns.length} towns · ${n.areas.map(esc).join(' and ')}${n.borders.length?` · borders ${n.borders.slice(0,3).map(j=>esc(D.byId[j].name)+(D.byId[j].tier==='hilly'?' (hilly)':'')).join(', ')}`:''}</small><div>${tags(n)}</div><div>${n.towns.map(chip).join('')}</div></td>
       <td class="n">${p1(n.slope)}%</td>
       <td class="n"><b>${p1(n.cycle21)}%</b><small>${nf(n.cyclists)} people</small></td>
       ${socCell(n)}
+      ${collCell(n)}
       <td class="n"><b class="up">${inc(n.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(n.dutch)}%</b><small>${inc(n.cycle21,n.dutch)}</small></td>
       <td class="n">${nf(n.missing)}<small>of ${nf(n.travel)} commuters</small><span class="bar" style="width:${(n.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
