@@ -438,5 +438,28 @@
     "counters": "dft",
     "rename": {},
     "pct_region": "leicestershire"
+  },
+  "rutland": {
+    "name": "Rutland",
+    "eyebrow": "Rutland county",
+    "in": "inside Rutland",
+    "boundary_label": "Rutland boundary",
+    "gss": "E06000017",
+    "centre": [
+      52.65,
+      -0.63
+    ],
+    "stats19_lad": [
+      "E06000017"
+    ],
+    "dft_la": [
+      98
+    ],
+    "rivers": "Welland|Gwash|Chater|Eye Brook",
+    "water_label": "Rutland Water and the Welland",
+    "places": "town|village",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "leicestershire"
   }
 }
