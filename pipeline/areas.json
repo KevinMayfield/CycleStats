@@ -410,5 +410,33 @@
     "rivers": "Tees|Esk|Leven",
     "water_label": "River Tees & becks",
     "pct_region": "north-east"
+  },
+  "leicestershire": {
+    "name": "Leicester & Leicestershire",
+    "eyebrow": "Leicester city and Leicestershire county",
+    "in": "inside Leicester & Leicestershire",
+    "boundary_label": "Leicester & Leicestershire boundaries",
+    "gss": [
+      "E10000018",
+      "E06000016"
+    ],
+    "centre": [
+      52.65,
+      -1.15
+    ],
+    "stats19_lad": [
+      "E10000018",
+      "E06000016"
+    ],
+    "dft_la": [
+      60,
+      153
+    ],
+    "rivers": "Soar|Wreake|Sence|Anker|Swift|Welland|Mease",
+    "water_label": "Rivers Soar, Wreake & Sence",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "leicestershire"
   }
 }

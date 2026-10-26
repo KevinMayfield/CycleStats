@@ -1,6 +1,6 @@
 # CycleStats: Cycling Top 10s
 
-An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire and Derbyshire: sixteen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
@@ -18,6 +18,7 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 | **Lincolnshire** | Lincolnshire county council area (Lincoln, Boston, Grantham, Skegness) |
 | **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
 | **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
+| **Leicester & Leicestershire** | Leicester city and Leicestershire county (Loughborough, Hinckley, Coalville, Melton Mowbray, Market Harborough) |
 | **North Yorkshire** | North Yorkshire council area (Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
 | **Middlesbrough & Redcar** | Middlesbrough and Redcar & Cleveland |
 
@@ -69,7 +70,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 | 6 | `deprivation.py` | Writes `data/<area>-imd.json` (LSOA outlines with IMD, housing condition and no-car figures), counts cycle collisions by deprivation decile using the LSOA in each STATS19 record, and tags each listed road with the decile at its midpoint |
 | 7 | `priorities.py` | For every stretch with collisions or a DfT count: harm, share protected (a dedicated cycle track beside the road, `foot=no`, or lanes physically separated by bollards, kerbs or wands) or partial (painted lane, or a pavement shared with walkers or split by a painted line, credited as a quarter of a track), speed limit, PCT commuters and pupils now and Go Dutch, and the share of cyclist casualties who were women or children |
 
-`area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/priorities.json` for `priorities.html` (Where to build: top 10 corridors for safety, for more cycling, and for both, scored as described on the page) and `data/summary.json` for `summary.html`. `towns.py` writes `data/towns.json` for `towns.html` (Flat but not cycling: every ONS built-up area compared on PCT route gradient and Census 2021 cycling to work, against Hull and York, with up to eight roads to improve per town (each town opens to a table of its roads and an OpenStreetMap street map with them numbered): road stretches from `priorities.py` placed in the town most of their length runs through, skipping those 80%+ protected, ranked half on unprotected harm and half on Go Dutch potential, and an overview map). summary.json holds: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
+`area.py` holds the shared settings and geometry each step uses. After every area is built, `summary.py` writes `data/priorities.json` for `priorities.html` (Where to build: top 10 corridors for safety, for more cycling, and for both, scored as described on the page) and `data/summary.json` for `summary.html`. `towns.py` writes `data/towns.json` for `towns.html` (Flat but not cycling: every ONS built-up area compared on PCT route gradient and Census 2021 cycling to work, against Hull and York, with up to eight roads to improve per town (each town opens to a table of its roads and an OpenStreetMap street map with them numbered): road stretches from `priorities.py` placed in the town most of their length runs through, skipping those 80%+ protected, ranked half on unprotected harm and half on Go Dutch potential; an overview map of every town's ONS built-up area outline shaded by hilliness; and networks: flat and gently sloping towns whose built-up edges come within 250 m of each other, such as Beeston, Stapleford, Sandiacre and Long Eaton across the Nottinghamshire–Derbyshire line). summary.json holds: the 10 busiest counts, most collisions, highest risk per rider, and safe & busy roads (150+ bikes a day) across all areas, each labelled with its nearest suburb and town.
 
 ## Method notes and limits
 
@@ -78,7 +79,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **DfT bike counts** on most roads come from a single-day manual count, often carried forward from an earlier year. They undercount weekend and leisure riding. Where a road has no count point on it, the nearest count point on the same road number within 3 km is used, and the page says so.
 - **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
-- **Nottingham & Nottinghamshire** and **Derby & Derbyshire** each combine a city (unitary) council with its county, so their DfT count points come from both highway authorities.
+- **Nottingham & Nottinghamshire**, **Derby & Derbyshire** and **Leicester & Leicestershire** each combine a city (unitary) council with its county, so their DfT count points come from both highway authorities.
 - **North Yorkshire** became one council in 2023; collisions recorded under the former county and district codes are included.
 - **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
 - **Deprivation** deciles are national: decile 1 is the most deprived 10% of neighbourhoods in England. A collision's neighbourhood says where it happened, not where the cyclist lives.
@@ -90,5 +91,5 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - [DfT road safety data (STATS19)](https://www.data.gov.uk/dataset/cb7ae6f0-4be6-4935-9277-47e5ce24a11f/road-accidents-safety-data) and [DfT road traffic statistics](https://roadtraffic.dft.gov.uk/), Open Government Licence v3.0.
 - [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025), MHCLG; [Census 2021 TS045 car or van availability](https://www.nomisweb.co.uk/); [LSOA 2021 boundaries](https://geoportal.statistics.gov.uk/), ONS. All Open Government Licence v3.0; boundaries contain OS data © Crown copyright and database right.
 - [Propensity to Cycle Tool](https://www.pct.bike/) route networks (commute and school, Go Dutch and gender-equality scenarios), npct/pct-outputs-regional-notR, Open Government Licence / CC BY 4.0.
-- [Census 2021 TS061 method of travel to work](https://www.nomisweb.co.uk/) and [LSOA (2021) to built-up area (2022) lookup](https://geoportal.statistics.gov.uk/), ONS, Open Government Licence v3.0.
+- [Census 2021 TS061 method of travel to work](https://www.nomisweb.co.uk/), [LSOA (2021) to built-up area (2022) lookup](https://geoportal.statistics.gov.uk/) and [built-up area (2022) boundaries](https://geoportal.statistics.gov.uk/), ONS, Open Government Licence v3.0.
 - [Leeds Annual Cycle Growth](https://datamillnorth.org/dataset/e1dmk), Leeds City Council via Data Mill North, Open Government Licence v3.0.
