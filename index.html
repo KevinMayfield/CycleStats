@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Cycle routes, cycle paths, collision hotspots, risk per rider and bike counts on one interactive map.">
-<title>Cycling Top 10s</title>
+<title>CycleStats area maps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -42,7 +42,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .pick select{font:600 14px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 28px 6px 10px;min-width:0;max-width:100%}
 .sumlink{color:var(--accent);font-weight:600;white-space:nowrap}
 .pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-bottom:1px solid var(--line)}
 .tab{flex:1 0 auto;white-space:nowrap;font:600 14px/1.1 var(--display);letter-spacing:.01em;padding:11px 7px 10px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .tab[data-k="danger"][aria-selected="true"],.tab[data-k="risk"][aria-selected="true"]{border-bottom-color:var(--danger)}
@@ -115,10 +115,10 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 <div class="app">
   <aside class="side">
     <div class="head">
-      <div class="eyebrow" id="eyebrow">Cycling top 10s</div>
-      <h1 id="title">Cycling Top&nbsp;10s</h1>
-      <p class="lede">The longest signed cycle routes, the longest cycle paths, and the roads where most cyclists were hurt (2021–2025).</p>
-      <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="summary.html">All-area summary</a> <a class="sumlink" href="priorities.html">Where to build</a> <a class="sumlink" href="towns.html">Where Dutch infrastructure should work</a> <a class="sumlink" href="danelaw.html">Danelaw Cycle Network</a></div>
+      <div class="eyebrow" id="eyebrow">CycleStats area maps</div>
+      <h1 id="title">CycleStats</h1>
+      <p class="lede">Signed cycle routes and paths, the roads where cyclists were hurt (2021–2025), and the towns where better cycling would do most for use, safety and health.</p>
+      <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="summary.html">All-area summary</a> <a class="sumlink" href="priorities.html">Where to build</a> <a class="sumlink" href="towns.html">Where Dutch infrastructure should work</a> <a class="sumlink" href="health.html">Health and active travel</a> <a class="sumlink" href="danelaw.html">Danelaw Cycle Network</a></div>
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes</button>
@@ -127,6 +127,8 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
       <button class="tab" role="tab" id="tab-risk" data-k="risk" aria-selected="false">Risk/rider</button>
       <button class="tab" role="tab" id="tab-safe" data-k="safe" aria-selected="false">Safe &amp; busy</button>
       <button class="tab" role="tab" id="tab-counts" data-k="counts" aria-selected="false">Bike counts</button>
+      <button class="tab" role="tab" id="tab-towns" data-k="towns" aria-selected="false">Towns</button>
+      <button class="tab" role="tab" id="tab-health" data-k="health" aria-selected="false">Health</button>
     </div>
     <div class="list" id="list" role="tabpanel"></div>
     <div class="foot">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors (ODbL). Collisions: DfT STATS19 road safety data 2021–2025 (OGL v3). Lengths are measured <span id="in">inside the area</span> only. Bike counts: DfT road traffic statistics, and for Leeds, Leeds City Council via Data Mill North. <a href="https://github.com/KevinMayfield/CycleStats">Source and method on GitHub</a>.</div>
@@ -148,7 +150,9 @@ const BLURB={
   danger:'Named roads ranked by injury collisions involving a bicycle, weighted fatal ×10, serious ×3, slight ×1. Dots show every recorded cycle collision '+M.in+'. Police-reported collisions only, so off-road paths are not covered. Busy roads rank high partly because more people cycle on them: see Risk per rider.',
   risk:'The same collisions divided by how much cycling happens there: collisions per million km cycled, using DfT traffic count bikes per day (2021–25 average) × road length. Only roads with 5+ collisions and a DfT cycle count are ranked. Diamonds mark the count points. Counts are often single-day manual counts carried forward, so treat the order as indicative.',
   safe:'Well-used roads ('+(M.safe_min||150)+'+ bikes a day on DfT counts) with the fewest cycle collisions per million km cycled, 2021–25. Low collision numbers swing easily, so read this as a shortlist. Off-road paths like the canal towpath have no DfT counts and police data does not cover them, so they cannot be ranked here. For off-road usage see Bike counts.',
-  counts:M.counts_blurb
+  counts:M.counts_blurb,
+  towns:'Flat and gently sloping towns '+M.in+', ranked by how many more people would cycle to work if they matched Hull and York. These are the places Dutch-style routes are most likely to work. <a href="towns.html">Where Dutch infrastructure should work</a> has each town’s suggested roads.',
+  health:'The same towns ranked by where more cycling would do most for health: a health need index (inactivity, overweight, diabetes, child obesity and health deprivation against England, 100 = England) times the room for cycling to grow. <a href="health.html">Health and active travel</a> explains the method.'
 };
 const map=L.map('map',{zoomSnap:.25,preferCanvas:true,attributionControl:true}).setView([53.8,-1.5],11);
 // fitBounds needs a sized map: defer it while the map is hidden or not laid out yet
@@ -179,8 +183,8 @@ function lbls(){map.getZoom()>=12.5?subs.addTo(map):subs.remove()}
 map.on('zoomend',lbls);
 // layers per tab
 const fmt=(n,d=1)=>n.toFixed(d);
-const groups={routes:L.featureGroup(),paths:L.featureGroup(),danger:L.featureGroup(),risk:L.featureGroup(),safe:L.featureGroup(),counts:L.featureGroup()};
-const feats={routes:[],paths:[],danger:[],risk:[],safe:[],counts:[]};
+const groups={routes:L.featureGroup(),paths:L.featureGroup(),danger:L.featureGroup(),risk:L.featureGroup(),safe:L.featureGroup(),counts:L.featureGroup(),towns:L.featureGroup(),health:L.featureGroup()};
+const feats={routes:[],paths:[],danger:[],risk:[],safe:[],counts:[],towns:[],health:[]};
 ['routes','paths'].forEach(k=>{
   DATA[k].forEach((r,i)=>{
     const fg=L.featureGroup();
@@ -240,6 +244,7 @@ let cur='routes',sel=null;
 function render(k){
   list.className='list '+k;
   if(k==='counts') return renderCounts();
+  if(k==='towns'||k==='health') return renderTownTab(k);
   const hurt=k==='danger'||k==='risk'||k==='safe',val=r=>k==='danger'?r.score:k==='risk'?r.rate:k==='safe'?r.aadf:r.km;
   const rows=DATA[k],mx=Math.max(...rows.map(val));
   let h=`<p class="blurb">${BLURB[k]}</p>`+((k==='danger'||k==='risk')&&M.dep?depStat():'');
@@ -324,6 +329,69 @@ function renderCounts(){
     ?`<div class="r"><span class="dot" style="background:var(--offroad)"></span>Off-road path counter</div><div class="r"><span class="dot" style="background:var(--count)"></span>On-road track or lane counter</div>`
     :`<div class="r"><span class="dot" style="background:var(--count)"></span>DfT traffic count point</div>`)+`<div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`+nbhLegend();
 }
+// --- Towns and Health tabs: this area's flat and gently sloping towns, from data/towns.json and data/health.json ---
+// terrain colours are the validated categorical slots used on the health page; health need uses the red/amber/green
+// convention of the towns page (worse than England by 10% or more, within 10%, better)
+const TIERC={flat:'#2a78d6',gentle:'#eb6834',bench:'#1baf7a'},TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
+const ICB_OF={leeds:'West Yorkshire',bradford:'West Yorkshire','kirklees-calderdale':'West Yorkshire',wakefield:'West Yorkshire',
+  sheffield:'South Yorkshire',rotherham:'South Yorkshire','doncaster-barnsley':'South Yorkshire',
+  hull:'Humber and North Yorkshire','east-riding':'Humber and North Yorkshire','grimsby-scunthorpe':'Humber and North Yorkshire',york:'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
+  lincolnshire:'Lincolnshire',nottinghamshire:'Nottingham and Nottinghamshire',derbyshire:'Derby and Derbyshire',
+  leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','middlesbrough-redcar':'North East and North Cumbria'};
+const MEAS={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived areas'};
+const ragC=r=>r>=110?css('--danger'):r<=90?css('--safe'):css('--amber');
+const p1=v=>v==null?'–':(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB');
+let EX=null;
+const exLoad=Promise.all(['towns','health'].map(f=>fetch(`data/${f}.json`).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()})))
+  .then(([T,H])=>{
+    const byId=Object.fromEntries(T.towns.map(t=>[t.id,t]));
+    const here=t=>t.area===M.id;
+    // Hull and York are the benchmark the other towns are measured against, so they are not in the towns page's lists
+    const tl=[...T.flat_low,...T.gentle_low].map(i=>byId[i]).filter(t=>t&&here(t)).concat(T.towns.filter(t=>here(t)&&t.tier==='bench'));
+    const hl=H.towns.filter(t=>here(t)&&t.tier!=='hilly'&&t.score!=null).sort((a,b)=>b.score-a.score);
+    EX={T,H,byId,tl,hl,icb:(H.icbs||[]).find(x=>x.name==='NHS '+ICB_OF[M.id]),hilly:T.towns.filter(t=>here(t)&&t.tier==='hilly').length};
+    const shape=(t,col,tip,k,i)=>{const fg=L.featureGroup((byId[t.id]?.shape||[]).map(r=>L.polygon(r,{color:col,weight:1.5,opacity:.9,fillColor:col,fillOpacity:.55})));
+      fg.bindTooltip(tip,{sticky:true,className:'tt'});fg.on('click',()=>select(k,i,false));fg.addTo(groups[k]);feats[k].push(fg)};
+    // build both layers off the map (adding outlines to a layer already on the map before it has settled fails), then
+    // put back whichever tab is showing
+    ['towns','health'].forEach(g=>groups[g].remove());
+    tl.forEach((t,i)=>shape(t,TIERC[t.tier],`<b>${t.name}</b><br>${TIERN[t.tier]} · ${p1(t.cycle21)}% cycle to work now, ${p1(t.dutch)}% Go Dutch`,'towns',i));
+    hl.forEach((t,i)=>shape(t,ragC(t.need),`<b>${t.name}</b><br>Health need ${t.need} (England 100) · ${p1(t.cycle)}% cycle to work`,'health',i));
+    if(groups[cur]&&(cur==='towns'||cur==='health')) groups[cur].addTo(map);
+  });
+exLoad.catch(e=>{if(cur==='towns'||cur==='health')list.innerHTML=`<p class="err">Could not load the town data (${e.message}).</p>`});
+function renderTownTab(k){
+  if(!EX){list.innerHTML=`<p class="blurb">${BLURB[k]}</p><p class="blurb">Loading the towns…</p>`;legend.innerHTML='';
+    exLoad.then(()=>{if(cur===k){render(k);const b=groups[k].getBounds();if(b.isValid())fit(b,{padding:[24,24]})}});return}
+  const rows=k==='towns'?EX.tl:EX.hl,T=EX.T,H=EX.H;
+  let h=`<p class="blurb">${BLURB[k]}</p>`;
+  if(k==='health'&&EX.icb){const x=EX.icb,m=v=>'£'+(v/1e6).toFixed(1)+'m';
+    h+=`<p class="depstat" style="background:var(--accent-soft)"><b style="color:var(--accent)">${x.name}</b>: cycling to work is already worth <b style="color:var(--accent)">${m(x.now_value)}</b> a year in health, and would be worth <b style="color:var(--accent)">${m(x.value)}</b> more at Go Dutch levels (about ${x.deaths.toFixed(0)} premature deaths avoided a year). On its roads, about ${p1(x.killed)} cyclists are killed and ${nf(x.serious)} seriously injured a year: ${p1(x.ksi_rate)} per 1,000 people who cycle to work${x.note?` (${x.note})`:''}.</p>`}
+  if(!rows.length) h+=`<p class="blurb"><b>No flat or gently sloping towns of about 10,000 people or more ${M.in}${EX.hilly?`: all ${EX.hilly} towns here are hilly`:''}.</b></p>`;
+  const mx=Math.max(1,...rows.map(t=>k==='towns'?t.missing:t.score));
+  rows.forEach((t,i)=>{
+    let col,sub,chips,fig,v;
+    if(k==='towns'){
+      col=TIERC[t.tier];v=t.missing;
+      sub=`${TIERN[t.tier]} · routes average ${t.slope}% gradient · ${nf(t.travel)} travel to work`;
+      const d=t.coll>=10?Math.round((t.coll_rate/T.coll_ew-1)*100):null;
+      chips=`<div class="use">${p1(t.cycle21)}% cycle to work now <em>(${nf(t.cyclists)} people)</em> · Go Dutch ${p1(t.dutch)}%</div><div class="chips">${d==null?`<span class="chip">${t.coll} collisions in 5 years</span>`:`<span class="chip" style="background:${d>=10?'var(--danger-soft)':d<=-10?'var(--safe-soft)':'var(--bg)'};color:${d>=10?'var(--danger)':d<=-10?'var(--safe)':'var(--muted)'}">Collisions ${Math.abs(d)<10?'about England & Wales':Math.abs(d)+'% '+(d>0?'above':'below')+' England & Wales'}</span>`}${t.nocar>=T.nocar_high?`<span class="chip dp">${t.nocar}% no car</span>`:''}${t.deprived>=T.deprived_high?`<span class="chip dp">Deprived</span>`:''}</div>`;
+      fig=`${nf(t.missing)}<small>MORE CYCLISTS</small>`;
+      if(t.tier==='bench'){sub=`Hull & York benchmark: the level the other flat towns are measured against · routes average ${t.slope}% gradient`;fig=`${p1(t.cycle21)}%<small>CYCLE NOW</small>`;v=mx}
+    }else{
+      col=ragC(t.need);v=t.score;
+      sub=`Health need ${t.need} (England 100) · ${TIERN[t.tier]}`;
+      chips=`<div class="use">${p1(t.cycle)}% cycle to work now · Go Dutch ${p1(t.dutch)}% · £${nf(t.value/1000)}k a year in health</div><div class="chips">${Object.keys(MEAS).filter(m=>t.ratios[m]>=110).map(m=>`<span class="chip" style="background:var(--danger-soft);color:var(--danger)">${MEAS[m]} ${p1(t[m])}%</span>`).join('')||'<span class="chip">No measure 10% worse than England</span>'}</div>`;
+      fig=`${p1(t.score)}<small>HEALTH GAIN</small>`;
+    }
+    h+=`<button class="item" id="it-${k}-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${t.name}</div><div class="sub">${sub}</div>${chips}<div class="bar"><i style="width:${(v/mx*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${fig}</span></button>`;
+  });
+  list.innerHTML=h;
+  list.querySelectorAll('.item').forEach(b=>b.onclick=()=>select(k,+b.dataset.i,true));
+  legend.innerHTML=(k==='towns'
+    ?['flat','gentle','bench'].filter(x=>rows.some(t=>t.tier===x)).map(x=>`<div class="r"><span class="dot" style="background:${TIERC[x]};border-radius:2px"></span>${TIERN[x]} town</div>`).join('')+`<div class="r" style="color:var(--muted)">Ranked by extra cyclists at Hull &amp; York levels</div>`
+    :`<div class="lh">Health need against England</div><div class="r"><span class="dot" style="background:var(--danger);border-radius:2px"></span>10% or more worse</div><div class="r"><span class="dot" style="background:var(--amber);border-radius:2px"></span>Within 10%</div><div class="r"><span class="dot" style="background:var(--safe);border-radius:2px"></span>10% or more better</div>`)+nbhLegend();
+}
 function setTab(k){
   cur=k;sel=null;
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.k===k));
@@ -331,7 +399,7 @@ function setTab(k){
   render(k);
   try{localStorage.setItem('leedsTab',k)}catch(e){}
   if(location.hash.slice(1)!==k) history.replaceState(null,'','#'+k);
-  const b=k==='counts'?groups.counts.getBounds():L.latLngBounds(DATA[k].flatMap(d=>d.geom.flat()));
+  const b=k==='counts'||k==='towns'||k==='health'?groups[k].getBounds():L.latLngBounds(DATA[k].flatMap(d=>d.geom.flat()));
   fit(b.isValid()?b:L.latLngBounds(DATA.boundary.flat()),{padding:[24,24]});
 }
 function select(k,i,zoom){
@@ -339,6 +407,7 @@ function select(k,i,zoom){
   sel=sel===i&&zoom?null:i;
   const hurt=k==='danger'||k==='risk'||k==='safe';
   if(k==='counts') feats.counts.forEach((fg,j)=>fg.eachLayer(l=>l.setStyle({fillOpacity:sel==null||sel===j?.85:.2})));
+  else if(k==='towns'||k==='health') feats[k].forEach((fg,j)=>fg.eachLayer(l=>l.setStyle({fillOpacity:sel==null||sel===j?.55:.12,opacity:sel==null||sel===j?.9:.3,weight:sel===j?3:1.5})));
   else feats[k].forEach((fg,j)=>fg.eachLayer(l=>{if(l.options.opacity>.01)l.setStyle({opacity:sel==null||sel===j?.92:.18,weight:(sel===j?(hurt?8:6):(hurt?6:k==='routes'?3.6:4))})}));
   if(sel!=null) feats[k][sel].bringToFront();
   list.querySelectorAll('.item').forEach(b=>b.classList.toggle('on',+b.dataset.i===sel));
@@ -369,9 +438,9 @@ fetch('data/areas.json').then(r=>r.json()).then(list=>{
   return fetch(`data/${AREA}.json`);
 }).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
   document.getElementById('eyebrow').textContent=d.meta.eyebrow+' · data to Oct 2026';
-  document.getElementById('title').innerHTML=d.meta.name+' Cycling Top&nbsp;10s';
+  document.getElementById('title').textContent=d.meta.name;
   document.getElementById('in').textContent=d.meta.in;
-  document.title=d.meta.name+' Cycling Top 10s';
+  document.title=d.meta.name+' · CycleStats';
   run(d);
 })
   .catch(e=>{document.getElementById('list').innerHTML='<p class="err">Could not load the map data ('+e.message+'). Reload the page to try again.</p>'});
