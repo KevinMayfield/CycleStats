@@ -417,8 +417,8 @@ const exLoad=Promise.all(['towns','health'].map(f=>fetch(`data/${f}.json`).then(
     rows.forEach((t,i)=>{
       const fg=L.featureGroup((t.shape||byId[t.id]?.shape||[]).map(r=>L.polygon(r,{weight:1.5,opacity:.9,fillOpacity:.55})));
       const hh=t._h;
-      fg.bindTooltip(`<b>${t.name}</b><br>${TIERN[t.tier]} · ${p1(t.cycle21)}% cycle to work now, ${p1(t.dutch)}% Go Dutch${hh?`<br>Health need ${hh.need} (England 100)`:''}${t.tier!=='bench'?'<br><span style="opacity:.75">Click for where to build</span>':''}`,{sticky:true,className:'tt'});
-      fg.on('click',()=>t.tier!=='bench'?location.href=whereTo(t):select('towns',i,false));fg.addTo(groups.towns);feats.towns.push(fg);
+      fg.bindTooltip(`<b>${t.name}</b><br>${TIERN[t.tier]} · ${p1(t.cycle21)}% cycle to work now, ${p1(t.dutch)}% Go Dutch${hh?`<br>Health need ${hh.need} (England 100)`:''}<br><span style="opacity:.75">Click for where to build</span>`,{sticky:true,className:'tt'});
+      fg.on('click',()=>location.href=whereTo(t));fg.addTo(groups.towns);feats.towns.push(fg);
     });
     townColours();
     if(cur==='towns') groups.towns.addTo(map);
@@ -451,14 +451,14 @@ function renderTownTab(k){
       +(t.nocar>=T.nocar_high?`<span class="chip dp">${t.nocar}% no car</span>`:'')+(t.deprived>=T.deprived_high?`<span class="chip dp">Deprived</span>`:'')+`</div>`;
     let fig=hs?(hh?`${p1(hh.score)}<small>HEALTH GAIN</small>`:'–'):`${nf(t.missing)}<small>MORE CYCLISTS</small>`,v=Math.max(0,score(t));
     if(bench){sub=`Hull & York benchmark: the level the other flat towns are measured against · routes average ${t.slope}% gradient`;if(!hs){fig=`${p1(t.cycle21)}%<small>CYCLE NOW</small>`;v=mx}}
-    else chips+=`<div class="go">Where to build in ${t.name} →</div>`;
-    const tag=bench?'button':'a',attr=bench?'':` href="${whereTo(t)}"`;
+    chips+=`<div class="go">Where to build in ${t.name==='Kingston upon Hull'?'Hull':t.name} →</div>`;
+    const tag='a',attr=` href="${whereTo(t)}"`;
     h+=`<${tag} class="item" id="it-${k}-${i}" data-i="${i}"${attr}><span class="rank" style="background:${col}">${j+1}</span><span style="min-width:0"><div class="nm">${t.name}</div><div class="sub">${sub}</div>${chips}<div class="bar"><i style="width:${(v/mx*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${fig}</span></${tag}>`;
   });
   list.innerHTML=h;
   list.querySelectorAll('.tsort button').forEach(b=>b.onclick=()=>{TSORT=b.dataset.s;try{localStorage.setItem('townSort',TSORT)}catch(e){}
     townColours();render('towns');if(sel!=null)select('towns',sel,false)});
-  // town links go straight to where to build; Hull and York select on the map, and hovering a link shows the town
+  // every town links straight to where to build (Hull and York included); hovering a link shows the town on the map
   list.querySelectorAll('button.item').forEach(b=>b.onclick=()=>select(k,+b.dataset.i,true));
   list.querySelectorAll('a.item').forEach(a=>a.onmouseenter=()=>select(k,+a.dataset.i,false));
   legend.innerHTML=(hs
