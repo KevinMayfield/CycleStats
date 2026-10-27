@@ -1,5 +1,7 @@
 # CycleStats: Cycling Top 10s
 
+**[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
+
 An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
