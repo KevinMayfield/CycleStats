@@ -129,16 +129,16 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     <div class="opts" id="opts"></div>
   </section>
   <section>
+    <div class="sh"><h2>The Danelaw along the routes</h2><p>From Leicester and Derby north to York, with the variants and the places just off the route. Select a place to see it on the map.</p></div>
+    <div class="story" id="story"></div>
+  </section>
+  <section>
     <div class="sh"><h2>Stages</h2><p>Each bar shows the stage's riding conditions: green and blue away from traffic, amber and red on B/C and A roads where a proper path is needed.</p></div>
     <div id="stages"></div>
   </section>
   <section>
     <div class="sh"><h2>Paths to build</h2><p>Where the route has to use a road with traffic: A-road stretches of 300 m or more and B or C road stretches of 1 km or more, longest first, with the police-reported cycle collisions on each (2021–25). These are where a proper traffic-free path should be built, so nobody has to ride beside busy traffic.</p></div>
     <div class="tw" id="todo"></div>
-  </section>
-  <section>
-    <div class="sh"><h2>The Danelaw along the routes</h2><p>From Leicester and Derby north to York, with the variants and the places just off the route. Select a place to see it on the map.</p></div>
-    <div class="story" id="story"></div>
   </section>
   <div class="notes">
     <div><b>Routes</b> are proposals, routed with <a href="https://brouter.de/">BRouter</a>'s touring profile through hand-picked villages on one bank of each river, so they follow the river without crossing back and forth or wandering off along signed routes between villages. They need riding and checking on the ground, especially farm tracks and towpaths after wet weather.</div>
@@ -194,7 +194,7 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   document.getElementById('legend').innerHTML=ORDER.map(c=>`<span><i style="background:${CLS[c][3]?`repeating-linear-gradient(90deg,var(${CLS[c][1]}) 0 7px,transparent 7px 12px)`:`var(${CLS[c][1]})`}"></i>${CLS[c][0]}</span>`).join('')+`<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`;
   // ride options: the whole Way, its halves, and each variant
   const part=(r,a,b)=>r.stages.slice(a-1,b).reduce((t,s)=>t+s.km,0);
-  const OPTS=[['The Danelaw Way','Repton to Stamford Bridge','main',1,M.stages.length],['Trent Valley','Repton to Gainsborough','main',1,4],['Gainsborough to Jorvik','Gainsborough to York and Stamford Bridge by Howden','main',5,M.stages.length],
+  const OPTS=[['The Danelaw Way','Repton to Stamford Bridge','main',1,M.stages.length],['Trent Valley and the Boroughs of Derby and Nottingham','Repton to Gainsborough','main',1,4],['Gainsborough to Jorvik','Gainsborough to York and Stamford Bridge by Howden','main',5,M.stages.length],
     ...V.map(r=>[r.name,`${r.sub}, joining the Way at ${r.joins}`,r.id,1,r.stages.length])];
   // height profile of each ride, all drawn on one vertical scale so flat rides look flat next to hilly ones
   const prof=(r,a,b)=>r.stages.slice(a-1,b).flatMap(s=>s.profile||[]);
