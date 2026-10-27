@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 CACHE = os.path.join(RAW, 'danelaw')
 UA = {'User-Agent': 'CycleStats/1.0 (https://github.com/KevinMayfield/CycleStats)'}
-AREAS = ['middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'grimsby-scunthorpe', 'east-riding', 'hull',
+AREAS = ['sheffield', 'rotherham', 'middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'grimsby-scunthorpe', 'east-riding', 'hull',
          'north-yorkshire', 'york', 'leeds', 'wakefield', 'doncaster-barnsley']
 
 # routes, stages and legs. Points are (name, lat, lon); link legs may add via points after the end point.
@@ -112,11 +112,22 @@ ROUTES = [
         dict(name='Castleford to the Ouse', note='Past Knottingley and Snaith to the Ouse at Airmyn', pts=[
             ('Castleford', 53.7255, -1.3560), ('Knottingley', 53.7080, -1.2470), ('Snaith', 53.6920, -1.0280), ('Rawcliffe', 53.6910, -0.9630),
             ('Airmyn', 53.7190, -0.9010)]),
-        dict(name='Airmyn to Hull', note='By Howden, then east along the north bank of the Humber by Gilberdyke, Brough and Hessle', pts=[
+        dict(name='Airmyn to Hessle', note='By Howden, then east along the north bank of the Humber by Gilberdyke, Brough and North Ferriby', pts=[
             ('Airmyn', 53.7190, -0.9010), ('Howden', 53.7450, -0.8680), ('Gilberdyke', 53.7480, -0.7340),
-            ('Brough', 53.7290, -0.5720), ('North Ferriby', 53.7210, -0.5040), ('Hessle', 53.7230, -0.4380), ('Hull', 53.7440, -0.3360)]),
+            ('Brough', 53.7290, -0.5720), ('North Ferriby', 53.7210, -0.5040), ('Hessle', 53.7230, -0.4380)]),
+        dict(name='Hessle to Hull', note='Into Hull along the Humber', pts=[
+            ('Hessle', 53.7230, -0.4380), ('Hull', 53.7440, -0.3360)]),
     ]),
-    dict(id='don', name='Don variant', sub='Doncaster to Goole down the Don by Bentley, Stainforth and Thorne', joins='Goole', stages=[
+    dict(id='humber', name='Humber Bridge link', sub='Barton-upon-Humber over the Humber Bridge to Hessle, for Hull', joins='Barton-upon-Humber and Hessle', card=False, stages=[
+        dict(name='Barton to Hessle', note='Over the Humber Bridge', pts=[
+            ('Barton-upon-Humber', 53.6840, -0.4390), ('Humber Bridge', 53.7110, -0.4500), ('Hessle', 53.7230, -0.4380)]),
+    ]),
+    dict(id='don', name='Don variant', sub='Sheffield to Goole down the Don by Rotherham, Mexborough, Doncaster and Thorne', joins='Goole', stages=[
+        dict(name='Sheffield to Mexborough', note='Down the Don from Sheffield by the Five Weirs and Meadowhall to Rotherham, then the Trans Pennine Trail by Kilnhurst and Swinton', pts=[
+            ('Sheffield', 53.3810, -1.4700), ('Attercliffe', 53.3960, -1.4300), ('Meadowhall', 53.4140, -1.4130), ('Rotherham', 53.4310, -1.3570),
+            ('Kilnhurst', 53.4710, -1.3045), ('Swinton', 53.4870, -1.3130), ('Mexborough', 53.4920, -1.2850)]),
+        dict(name='Mexborough to Doncaster', note='Through the Don gorge by Conisbrough and Sprotbrough', pts=[
+            ('Mexborough', 53.4920, -1.2850), ('Conisbrough', 53.4830, -1.2280), ('Sprotbrough', 53.5170, -1.1880), ('Doncaster', 53.5228, -1.1330)]),
         dict(name='Doncaster to Thorne', note='Down the Don and the Don Navigation by Bentley, Kirk Sandall, Barnby Dun and Stainforth', pts=[
             ('Doncaster', 53.5228, -1.1330), ('Bentley', 53.5440, -1.1500), ('Kirk Sandall', 53.5600, -1.0750), ('Barnby Dun', 53.5730, -1.0700),
             ('Stainforth', 53.5960, -1.0230), ('Thorne', 53.6110, -0.9590)]),
@@ -234,6 +245,7 @@ ROMAN = [
     dict(name='Segelocum (Littleborough)', lat=53.3330, lon=-0.7590, on='main', text='Where the Roman road from Lincoln to Doncaster and York crossed the Trent, opposite Marton on the Way.'),
     dict(name='Caistor', lat=53.4960, lon=-0.3150, on='lincoln', text='A small Roman walled town on the edge of the Wolds; pieces of its wall survive near the church.'),
     dict(name='Danum (Doncaster)', lat=53.5240, lon=-1.1370, on='gnr', text='A Roman fort guarding the crossing of the Don on the road north to York, under the town centre by the Minster.'),
+    dict(name='Templeborough (Rotherham)', lat=53.4180, lon=-1.3880, on='don', text='A Roman fort beside the Don between Sheffield and Rotherham. Its site now lies under the Magna science centre and the old steelworks.'),
     dict(name='Lagentium (Castleford)', lat=53.7260, lon=-1.3560, on='aire', text='A Roman fort and settlement where the road north crossed the Aire.'),
     dict(name='Petuaria (Brough)', lat=53.7290, lon=-0.5750, on='aire', text='A Roman town at the Humber crossing. An inscription found here records a magistrate\'s gift of a new stage for its theatre.'),
     dict(name='Calcaria (Tadcaster)', lat=53.8840, lon=-1.2650, on='tadcaster', text='The Roman settlement where the road from York to the west crossed the Wharfe.'),
@@ -252,7 +264,8 @@ USE = dict(
     holland=('destination', 'A destination ride by Rutland Water, Stamford and the Fens to the Wash, with Spalding and Boston for shorter trips'),
     coast=('destination', 'A flat destination ride along the seaside towns, for a wider set of people: older riders on e-bikes among them'),
     skegness=('destination', 'A flat destination ride from the Trent to the sea for day trips and holidays, linking Lincoln, Woodhall Spa and Coningsby on the way'),
-    don=('work', 'Getting to work: Doncaster, Bentley, Stainforth and Thorne to Goole along the flat Don valley'),
+    humber=('work', 'Getting to work across the Humber: Barton and north Lincolnshire to Hessle and Hull'),
+    don=('work', 'Getting to work along the Don valley: Sheffield, Rotherham, Mexborough and Doncaster, then Bentley, Stainforth and Thorne to Goole'),
     beverley=('work', 'Getting to work between Hull, Beverley and York, by the most direct line that avoids the high Wolds'),
     wolds=('destination', 'A destination ride from York over the Wolds by Pocklington, on to the sea at Bridlington'),
     driffield=('work', 'Getting to work between Beverley, Driffield and Bridlington, and with the Beverley route a flat line from Hull to the sea'),
