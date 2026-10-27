@@ -89,7 +89,7 @@ ol{list-style:none;margin:0;padding:6px}
       <h1>Where to Build</h1>
       <p class="lede">The road corridors where well-engineered, protected cycle infrastructure would most cut cycle casualties and grow cycling. Each corridor is scored on the harm recorded there, how little of it is protected now, and how many more people would cycle on it under the Propensity to Cycle Tool's "Go Dutch" scenario.</p>
     </div>
-    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="summary.html">All-area summary</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
   </header>
   <div class="facts" id="facts"></div>
   <section class="s-both" id="both"></section>
@@ -113,7 +113,7 @@ function row(c,i,mode,mx){
   const chips=[c.women!=null?`<span class="chip w">Women ${c.women}% of casualties</span>`:'',c.children!=null&&c.casualties?`<span class="chip">Children ${c.children}%</span>`:'',
     c.imd!=null&&c.imd<=2?`<span class="chip">Most deprived ${c.imd*10}%</span>`:'',c.nocar!=null&&c.nocar>=35?`<span class="chip">${Math.round(c.nocar)}% no car</span>`:''].join('');
   const bars=mode==='both'?`<div class="bars"><span>Safety</span><i class="bs" style="width:${Math.min(100,c.safety/mx.s*100).toFixed(0)}%"></i><span>Use</span><i class="bu" style="width:${Math.min(100,c.uplift/mx.u*100).toFixed(0)}%"></i></div>`:'';
-  return `<li><a class="row" href="index.html?area=${c.area}#danger"><span class="rank">${i+1}</span><span style="min-width:0">
+  return `<li><a class="row" href="area.html?area=${c.area}#danger"><span class="rank">${i+1}</span><span style="min-width:0">
     <div class="nm">${esc(c.name)}${c.ref?` <span class="ref">${esc(c.ref)}</span>`:''}</div>
     <div class="loc"><b>${esc(c.town)}</b> · ${esc(c.area_name)}</div>
     <div class="ln"><strong>${c.n}</strong> collisions, <strong>${c.ksi}</strong> killed or seriously injured · ${c.km.toFixed(1)} km${c.speed?` · ${c.speed} mph`:''}</div>
@@ -134,7 +134,7 @@ fetch('data/priorities.json').then(r=>{if(!r.ok)throw new Error(r.status);return
   document.getElementById('safety').innerHTML=`<div class="sh"><h2>Top 10 for safety</h2><p>Most harm each year on stretches that are at least half unprotected.</p></div><ol>${D.safety.map((c,i)=>row(c,i,'safety')).join('')}</ol>`;
   document.getElementById('use').innerHTML=`<div class="sh"><h2>Top 10 for more cycling</h2><p>Largest gap between commuters and pupils cycling now and the Go Dutch estimate, on unprotected stretches. The figure is the extra people a day.</p></div><ol>${D.use.map((c,i)=>row(c,i,'use')).join('')}</ol>`;
   document.getElementById('areas').innerHTML=`<div class="sh"><h2>Best three in each area</h2><p>The highest combined scores within each area, for local comparison.</p></div><div class="atw"><table class="at"><thead><tr><th>Area</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>${
-    D.areas.filter(a=>D.per_area[a.id]).map(a=>`<tr><td><a href="index.html?area=${a.id}#danger">${esc(a.name)}</a></td>${[0,1,2].map(i=>{const c=D.per_area[a.id][i];
+    D.areas.filter(a=>D.per_area[a.id]).map(a=>`<tr><td><a href="area.html?area=${a.id}#danger">${esc(a.name)}</a></td>${[0,1,2].map(i=>{const c=D.per_area[a.id][i];
       return `<td>${c?`${esc(c.name)}<small>${esc(c.town)} · ${c.n} collisions · ${c.pct_now}→${c.pct_dutch} commuters</small>`:''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
 }).catch(e=>{document.getElementById('both').innerHTML=`<p class="err" style="padding:16px">Could not load the rankings (${esc(e.message)}). Reload the page to try again.</p>`});
 </script>

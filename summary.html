@@ -82,7 +82,7 @@ ol{list-style:none;margin:0;padding:6px}
       <h1>Cycling Top 10s: All Areas</h1>
       <p class="lede">The busiest counts, the roads with the most cycle collisions, the highest risk per rider and the safest well-used roads, ranked across every area. Select a row to open that area's map.</p>
     </div>
-    <div style="display:grid;gap:10px;justify-items:end"><a href="priorities.html" style="font:600 14px/1 var(--body);color:var(--accent)">Where to build: top 10 corridors for protected cycle routes →</a><a href="towns.html" style="font:600 14px/1 var(--body);color:var(--accent)">Where Dutch infrastructure should work: towns as flat as Hull and York →</a><a href="danelaw.html" style="font:600 14px/1 var(--body);color:var(--accent)">Danelaw Cycle Network: flat, safe routes linking the towns from Derby to York and the coast →</a><a href="health.html" style="font:600 14px/1 var(--body);color:var(--accent)">Health and active travel: where more cycling would do most for health →</a><a href="https://github.com/KevinMayfield/CycleStats/blob/main/FINDINGS.md" style="font:600 14px/1 var(--body);color:var(--accent)">What the data says: a summary of the findings →</a><nav class="areas" id="areas" aria-label="Area maps"></nav></div>
+    <div style="display:grid;gap:10px;justify-items:end"><a href="index.html" style="font:600 14px/1 var(--body);color:var(--accent)">Overview: the Danelaw Cycle Network and the flat towns on one map →</a><a href="priorities.html" style="font:600 14px/1 var(--body);color:var(--accent)">Where to build: top 10 corridors for protected cycle routes →</a><a href="towns.html" style="font:600 14px/1 var(--body);color:var(--accent)">Where Dutch infrastructure should work: towns as flat as Hull and York →</a><a href="danelaw.html" style="font:600 14px/1 var(--body);color:var(--accent)">Danelaw Cycle Network: flat, safe routes linking the towns from Derby to York and the coast →</a><a href="health.html" style="font:600 14px/1 var(--body);color:var(--accent)">Health and active travel: where more cycling would do most for health →</a><a href="https://github.com/KevinMayfield/CycleStats/blob/main/FINDINGS.md" style="font:600 14px/1 var(--body);color:var(--accent)">What the data says: a summary of the findings →</a><nav class="areas" id="areas" aria-label="Area maps"></nav></div>
   </header>
   <div class="grid" id="grid"></div>
   <section class="s-dep" id="dep" hidden></section>
@@ -107,12 +107,12 @@ const SECTIONS=[
    fig:c=>[c.aadf,'BIKES/DAY'],val:c=>c.aadf,ex:c=>`${c.n} collision${c.n===1?'':'s'} · ${c.rate.toFixed(1)} per M km`},
 ];
 fetch('data/summary.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(S=>{
-  document.getElementById('areas').innerHTML=S.areas.map(a=>`<a href="index.html?area=${a.id}">${esc(a.name)}</a>`).join('');
+  document.getElementById('areas').innerHTML=S.areas.map(a=>`<a href="area.html?area=${a.id}">${esc(a.name)}</a>`).join('');
   document.getElementById('grid').innerHTML=SECTIONS.map(sec=>{
     const rows=S[sec.key],mx=Math.max(...rows.map(sec.val));
     return `<section class="${sec.cls}"><div class="sh"><h2>${sec.title}</h2><p>${sec.sub}</p></div><ol>${rows.map((c,i)=>{
       const [f,u]=sec.fig(c);
-      return `<li><a class="row" href="index.html?area=${c.area}#${sec.tab}"><span class="rank">${i+1}</span><span style="min-width:0">
+      return `<li><a class="row" href="area.html?area=${c.area}#${sec.tab}"><span class="rank">${i+1}</span><span style="min-width:0">
         <div class="nm">${esc(c.name)}${c.ref&&!c.name.includes(c.ref)?` <span class="ref">${esc(c.ref)}</span>`:''}</div>
         <div class="loc"><b>${esc(c.town)}</b> · ${esc(c.area_name)}</div>
         <div class="ex">${esc(sec.ex(c))}</div>
@@ -124,7 +124,7 @@ fetch('data/summary.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     el.innerHTML=`<div class="sh"><h2>Collisions and deprivation</h2><p>Share of cycle collisions in each area's most deprived fifth of neighbourhoods, against the share of residents who live there. Areas where collisions are most over-represented come first.</p></div>
       <div class="key"><span style="--k:var(--dep)">Cycle collisions</span><span style="--k:var(--line)">Residents</span></div>
       <div class="dtw"><table class="dt"><thead><tr><th>Area</th><th class="num">Collisions</th><th class="num">Residents</th><th></th><th class="num">Collisions counted</th></tr></thead><tbody>${
-      S.deprivation.map(d=>`<tr><td><a href="index.html?area=${d.area}#danger">${esc(d.area_name)}</a></td><td class="num">${d.coll}%</td><td class="num">${d.pop}%</td>
+      S.deprivation.map(d=>`<tr><td><a href="area.html?area=${d.area}#danger">${esc(d.area_name)}</a></td><td class="num">${d.coll}%</td><td class="num">${d.pop}%</td>
         <td><div class="pair"><i class="c" style="width:${d.coll}%"></i><i class="p" style="width:${d.pop}%"></i></div></td><td class="num">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
   }
 }).catch(e=>{document.getElementById('grid').innerHTML=`<p class="err">Could not load the summary (${esc(e.message)}). Reload the page to try again.</p>`});

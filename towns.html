@@ -147,7 +147,7 @@ td.n small{text-align:right}
       <h1>Where Dutch Infrastructure Should Work?</h1>
       <p class="lede">Hull and York are flat and among the highest-cycling places in England. Many towns here are just as flat, yet far fewer people cycle to work. Hills don't explain the gap; that points to roads, routes and how safe cycling feels.</p>
     </div>
-    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
   </header>
   <div class="facts" id="facts"></div>
   <section>
@@ -286,9 +286,12 @@ function drawSoc(){
 // percentage increase from the current share to a target share
 const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
 function table(id,title,sub,ids){
-  const rows=ids.map(i=>D.byId[i]).filter(t=>t.missing>0).slice(0,15),mx=Math.max(...rows.map(t=>t.missing)),b=D.bench.share;
+  // the top 15, plus the town a link asks for (towns.html#<code>, from the area maps) wherever it ranks
+  const all=ids.map(i=>D.byId[i]),rows=all.filter(t=>t.missing>0).slice(0,15),want=all.find(t=>t.id===location.hash.slice(1));
+  if(want&&!rows.includes(want)) rows.push(want);
+  const mx=Math.max(1,...rows.map(t=>t.missing)),b=D.bench.share;
   document.getElementById(id).innerHTML=`<div class="sh"><h2>${title}</h2><p>${sub}</p></div><div class="tw"><table><thead><tr><th>#</th><th>Town</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead>${
-    rows.map((t,i)=>`<tbody class="town"><tr class="main" data-id="${t.id}"><td class="n">${i+1}</td>
+    rows.map(t=>`<tbody class="town"><tr class="main" data-id="${t.id}"><td class="n">${all.indexOf(t)+1}</td>
       <td><button class="tog" aria-expanded="false" aria-controls="det-${t.id}"><span class="chev" aria-hidden="true">▶</span><span class="tname">${esc(t.name)}<small>${esc(t.area_name)} · ${t.roads&&t.roads.length?Math.min(5,t.roads.length)+' roads to improve':'no roads ranked'}${D.netOf[t.id]?` · <span class="nw">${esc(D.netOf[t.id].name)} network</span>`:''}</small>${tags(t)}</span></button></td>
       <td class="n">${p1(t.slope)}%</td>
       <td class="n"><b>${p1(t.cycle21)}%</b><small class="${t.cycle21<t.cycle11?'down':''}">2011: ${p1(t.cycle11)}%</small></td>
@@ -308,7 +311,7 @@ function toggle(tr){
 const protTxt=r=>r.protected>=.3?`${Math.round(r.protected*100)}% protected`:r.protected>=.05?`${Math.round(r.protected*100)}% protected`:r.lane>=.1?'Painted lane or shared path only':'None';
 const protNote=r=>r.protected>=.3?'complete the route':r.lane>=.1&&r.protected<.05?'no physical protection':'';
 function panel(t){
-  const area=`<a href="index.html?area=${t.area}&nbh=car">Open the ${esc(t.area_name)} map</a>`;
+  const area=`<a href="area.html?area=${t.area}&nbh=car">Open the ${esc(t.area_name)} map</a>`;
   if(!t.roads||!t.roads.length) return `<div class="panel" style="grid-template-columns:1fr"><p class="pnote">No road in ${esc(t.name)} has enough cycle collisions or cycling potential to rank. ${area}.</p></div>`;
   const row=(r,i)=>`<tr class="r" data-i="${i}"><td><span class="num${i>=5?' also':''}">${i+1}</span></td><td><b>${esc(r.name)}</b>${r.ref?` <span class="k">${esc(r.ref)}</span>`:''}<small>${r.km.toFixed(1)} km${r.speed?` · ${r.speed} mph`:''}</small></td>
     <td class="n">${r.n}<small>${r.ksi} serious</small></td><td>${protTxt(r)}<small>${protNote(r)}</small></td>
