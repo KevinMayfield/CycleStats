@@ -404,7 +404,9 @@ const TIERC=k=>css({flat:'--t-flat',gentle:'--t-gentle',bench:'--t-bench'}[k]),T
 const ICB_OF={'west-yorkshire':'West Yorkshire','south-yorkshire':'South Yorkshire',
   'east-riding':'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
   lincolnshire:['Lincolnshire','Humber and North Yorkshire'],'east-midlands':['Nottingham and Nottinghamshire','Derby and Derbyshire'],
-  leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','middlesbrough-redcar':'North East and North Cumbria'};
+  leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','tees-valley':'North East and North Cumbria','north-east':'North East and North Cumbria',
+  cumbria:['North East and North Cumbria','Lancashire and South Cumbria'],lancashire:'Lancashire and South Cumbria',
+  'greater-manchester':'Greater Manchester','liverpool-city-region':'Cheshire and Merseyside','cheshire-warrington':'Cheshire and Merseyside'};
 const MEAS={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived areas'};
 const ragC=r=>r>=110?css('--danger'):r<=90?css('--safe'):css('--amber');
 const p1=v=>v==null?'–':(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB');
@@ -513,10 +515,12 @@ if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
 // merged areas, for old links and remembered areas: the Notts-Derby corridor, Nottingham & Nottinghamshire and Derby &
 // Derbyshire went into the East Midlands Combined County Authority; Leeds, Bradford, Kirklees & Calderdale and Wakefield into
 // West Yorkshire; Sheffield, Rotherham and Doncaster & Barnsley into South Yorkshire; Grimsby, Immingham & Scunthorpe into
-// Lincolnshire; Hull into Hull & East Riding and York into York & North Yorkshire (Oct 2026)
+// Lincolnshire; Hull into Hull & East Riding and York into York & North Yorkshire; Middlesbrough & Redcar into the Tees Valley
+// (Oct 2026)
 AREA={'notts-derby':'east-midlands',nottinghamshire:'east-midlands',derbyshire:'east-midlands',
   leeds:'west-yorkshire',bradford:'west-yorkshire','kirklees-calderdale':'west-yorkshire',wakefield:'west-yorkshire',
-  sheffield:'south-yorkshire',rotherham:'south-yorkshire','doncaster-barnsley':'south-yorkshire','grimsby-scunthorpe':'lincolnshire',hull:'east-riding',york:'north-yorkshire'}[AREA]||AREA;
+  sheffield:'south-yorkshire',rotherham:'south-yorkshire','doncaster-barnsley':'south-yorkshire','grimsby-scunthorpe':'lincolnshire',hull:'east-riding',york:'north-yorkshire',
+  'middlesbrough-redcar':'tees-valley'}[AREA]||AREA;
 fetch('data/areas.json').then(r=>r.json()).then(list=>{
   if(!list.some(a=>a.id===AREA)) AREA=list[0].id;
   try{localStorage.setItem('area',AREA)}catch(e){}

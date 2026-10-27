@@ -13,6 +13,18 @@
    "lon": -1.09300698
   },
   {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Wilmslow Road (A6010)",
+   "town": "Manchester",
+   "avg": 1656,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 57603",
+   "period": "2021–2025",
+   "lat": 53.45156846,
+   "lon": -2.22233599
+  },
+  {
    "area": "north-yorkshire",
    "area_name": "York & North Yorkshire",
    "name": "Monkgate (A1036)",
@@ -23,6 +35,30 @@
    "period": "2021–2025",
    "lat": 53.96406252,
    "lon": -1.07606354
+  },
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Portland Street (A5103)",
+   "town": "Manchester",
+   "avg": 1311,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 18202",
+   "period": "2021–2025",
+   "lat": 53.47850235,
+   "lon": -2.23850781
+  },
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Portland Street (A6)",
+   "town": "Manchester",
+   "avg": 1169,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 77003",
+   "period": "2021–2025",
+   "lat": 53.48039619,
+   "lon": -2.23532399
   },
   {
    "area": "east-riding",
@@ -49,6 +85,18 @@
    "lon": -0.31236626
   },
   {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Peter Street (A34)",
+   "town": "Manchester",
+   "avg": 1060,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 96067",
+   "period": "2024–2025",
+   "lat": 53.47755603,
+   "lon": -2.24428843
+  },
+  {
    "area": "leicestershire",
    "area_name": "Leicester & Leicestershire",
    "name": "London Road (A6)",
@@ -61,67 +109,36 @@
    "lon": -1.12469453
   },
   {
-   "area": "north-yorkshire",
-   "area_name": "York & North Yorkshire",
-   "name": "Clifton Bridge (A1176)",
-   "town": "York",
-   "avg": 982,
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Oxford Street (A34)",
+   "town": "Manchester",
+   "avg": 1015,
    "kind": "Road (DfT count point)",
-   "src": "DfT count point 89041",
+   "src": "DfT count point 38034",
    "period": "2021–2025",
-   "lat": 53.96808349,
-   "lon": -1.10262161
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Woodhouse Lane (A660)",
-   "town": "Leeds",
-   "avg": 955,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 97318",
-   "period": "2025",
-   "lat": 53.81048322,
-   "lon": -1.55607128
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "Holderness Road (A165)",
-   "town": "Hull",
-   "avg": 955,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 28714",
-   "period": "2021–2025",
-   "lat": 53.75067189,
-   "lon": -0.31813103
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "Anlaby Road (A1105)",
-   "town": "Hull",
-   "avg": 945,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 94168",
-   "period": "2022–2025",
-   "lat": 53.74334102,
-   "lon": -0.36391537
-  },
-  {
-   "area": "north-yorkshire",
-   "area_name": "York & North Yorkshire",
-   "name": "Boroughbridge Road (A59)",
-   "town": "York",
-   "avg": 885,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 28735",
-   "period": "2021–2025",
-   "lat": 53.96343744,
-   "lon": -1.11729292
+   "lat": 53.4766958,
+   "lon": -2.24298775
   }
  ],
  "collisions": [
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Wilmslow Road",
+   "ref": "B5093",
+   "town": "Manchester",
+   "km": 7.34,
+   "n": 62,
+   "fatal": 0,
+   "serious": 15,
+   "ksi": 15,
+   "aadf": 185,
+   "rate": 25.0,
+   "match": "same road, 1.3 km away",
+   "lat": 53.4426356,
+   "lon": -2.2185445
+  },
   {
    "area": "east-riding",
    "area_name": "Hull & East Riding",
@@ -225,6 +242,23 @@
    "lon": -0.37667
   },
   {
+   "area": "liverpool-city-region",
+   "area_name": "Liverpool City Region",
+   "name": "Smithdown Road",
+   "ref": "A562",
+   "town": "Liverpool",
+   "km": 3.57,
+   "n": 26,
+   "fatal": 0,
+   "serious": 4,
+   "ksi": 4,
+   "aadf": 259,
+   "rate": 15.4,
+   "match": "on road",
+   "lat": 53.3896976,
+   "lon": -2.9265239
+  },
+  {
    "area": "west-yorkshire",
    "area_name": "West Yorkshire",
    "name": "Headingley Lane",
@@ -257,43 +291,43 @@
    "match": "on road",
    "lat": 53.8059161,
    "lon": -1.5810828
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "Cottingham Road",
-   "ref": "B1233",
-   "town": "Hull",
-   "km": 2.17,
-   "n": 21,
-   "fatal": 0,
-   "serious": 2,
-   "ksi": 2,
-   "aadf": 635,
-   "rate": 8.4,
-   "match": "on road",
-   "lat": 53.7694535,
-   "lon": -0.3739278
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "Princes Avenue",
-   "ref": null,
-   "town": "Hull",
-   "km": 0.97,
-   "n": 19,
-   "fatal": 0,
-   "serious": 3,
-   "ksi": 3,
-   "aadf": null,
-   "rate": null,
-   "match": "on road",
-   "lat": 53.7517,
-   "lon": -0.36114
   }
  ],
  "risk": [
+  {
+   "area": "north-east",
+   "area_name": "North East",
+   "name": "Prince Edward Road",
+   "ref": "A1300",
+   "town": "South Shields",
+   "km": 1.6,
+   "n": 7,
+   "fatal": 0,
+   "serious": 3,
+   "ksi": 3,
+   "aadf": 27,
+   "rate": 88.8,
+   "match": "same road, 0.6 km away",
+   "lat": 54.97326,
+   "lon": -1.39937
+  },
+  {
+   "area": "cheshire-warrington",
+   "area_name": "Cheshire & Warrington",
+   "name": "Parkgate Road",
+   "ref": "A540",
+   "town": "Chester",
+   "km": 1.09,
+   "n": 5,
+   "fatal": 0,
+   "serious": 0,
+   "ksi": 0,
+   "aadf": 35,
+   "rate": 71.8,
+   "match": "on road",
+   "lat": 53.20496,
+   "lon": -2.90262
+  },
   {
    "area": "north-yorkshire",
    "area_name": "York & North Yorkshire",
@@ -327,6 +361,40 @@
    "match": "on road",
    "lat": 52.96944,
    "lon": -1.14214
+  },
+  {
+   "area": "cheshire-warrington",
+   "area_name": "Cheshire & Warrington",
+   "name": "Orford Green",
+   "ref": "A50",
+   "town": "Warrington",
+   "km": 0.74,
+   "n": 7,
+   "fatal": 0,
+   "serious": 1,
+   "ksi": 1,
+   "aadf": 85,
+   "rate": 61.0,
+   "match": "on road",
+   "lat": 53.40681,
+   "lon": -2.5812
+  },
+  {
+   "area": "liverpool-city-region",
+   "area_name": "Liverpool City Region",
+   "name": "London Road",
+   "ref": "A57",
+   "town": "Liverpool",
+   "km": 0.34,
+   "n": 5,
+   "fatal": 0,
+   "serious": 1,
+   "ksi": 1,
+   "aadf": 146,
+   "rate": 55.2,
+   "match": "on road",
+   "lat": 53.40969,
+   "lon": -2.97081
   },
   {
    "area": "west-yorkshire",
@@ -363,109 +431,83 @@
    "lon": -0.09281
   },
   {
-   "area": "east-midlands",
-   "area_name": "East Midlands Combined County Authority",
-   "name": "Ilkeston Road",
-   "ref": "A609",
-   "town": "Nottingham",
-   "km": 1.3,
+   "area": "lancashire",
+   "area_name": "Lancashire",
+   "name": "King Street",
+   "ref": "A6",
+   "town": "Lancaster",
+   "km": 0.39,
    "n": 8,
    "fatal": 0,
-   "serious": 3,
-   "ksi": 3,
-   "aadf": 86,
-   "rate": 39.2,
-   "match": "on road",
-   "lat": 52.95613,
-   "lon": -1.1665
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Queen's Road",
-   "ref": "A6177",
-   "town": "Bradford",
-   "km": 1.42,
-   "n": 8,
-   "fatal": 0,
-   "serious": 1,
-   "ksi": 1,
-   "aadf": 84,
-   "rate": 36.8,
-   "match": "on road",
-   "lat": 53.81009,
-   "lon": -1.7529
-  },
-  {
-   "area": "east-midlands",
-   "area_name": "East Midlands Combined County Authority",
-   "name": "Upper Parliament Street",
-   "ref": "A6008",
-   "town": "Nottingham",
-   "km": 0.6,
-   "n": 6,
-   "fatal": 0,
-   "serious": 1,
-   "ksi": 1,
-   "aadf": 154,
-   "rate": 35.6,
-   "match": "on road",
-   "lat": 52.95503,
-   "lon": -1.15052
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Armley Road",
-   "ref": "A647",
-   "town": "Leeds",
-   "km": 0.72,
-   "n": 13,
-   "fatal": 0,
-   "serious": 5,
-   "ksi": 5,
-   "aadf": 298,
-   "rate": 33.2,
-   "match": "on road",
-   "lat": 53.79802,
-   "lon": -1.57659
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Leeds Road",
-   "ref": "A647",
-   "town": "Bradford",
-   "km": 4.17,
-   "n": 13,
-   "fatal": 1,
-   "serious": 3,
+   "serious": 4,
    "ksi": 4,
-   "aadf": 59,
-   "rate": 29.0,
+   "aadf": 262,
+   "rate": 42.9,
    "match": "on road",
-   "lat": 53.7931897,
-   "lon": -1.7434332
+   "lat": 54.04733,
+   "lon": -2.80171
   },
   {
-   "area": "south-yorkshire",
-   "area_name": "South Yorkshire",
-   "name": "Trafford Way",
-   "ref": "A630",
-   "town": "Doncaster",
-   "km": 1.08,
-   "n": 5,
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Barton Road",
+   "ref": "A5181",
+   "town": "Stretford",
+   "km": 1.33,
+   "n": 7,
    "fatal": 0,
-   "serious": 2,
-   "ksi": 2,
-   "aadf": 101,
-   "rate": 25.1,
+   "serious": 4,
+   "ksi": 4,
+   "aadf": 69,
+   "rate": 41.8,
    "match": "on road",
-   "lat": 53.52281,
-   "lon": -1.13852
+   "lat": 53.44772,
+   "lon": -2.31519
   }
  ],
  "safe": [
+  {
+   "area": "liverpool-city-region",
+   "area_name": "Liverpool City Region",
+   "name": "Tower Road",
+   "ref": "A554",
+   "town": "Liverpool",
+   "km": 0.73,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 669,
+   "rate": 0.0,
+   "lat": 53.4021,
+   "lon": -3.02149
+  },
+  {
+   "area": "cheshire-warrington",
+   "area_name": "Cheshire & Warrington",
+   "name": "Kingsway South",
+   "ref": "A50",
+   "town": "Warrington",
+   "km": 1.17,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 666,
+   "rate": 0.0,
+   "lat": 53.3848509,
+   "lon": -2.5617891
+  },
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Kingsway",
+   "ref": "A5145",
+   "town": "Stretford",
+   "km": 0.54,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 475,
+   "rate": 0.0,
+   "lat": 53.44629,
+   "lon": -2.30798
+  },
   {
    "area": "south-yorkshire",
    "area_name": "South Yorkshire",
@@ -479,6 +521,48 @@
    "rate": 0.0,
    "lat": 53.37955,
    "lon": -1.46239
+  },
+  {
+   "area": "north-east",
+   "area_name": "North East",
+   "name": "New Road",
+   "ref": "A195",
+   "town": "Newcastle upon Tyne",
+   "km": 1.0,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 366,
+   "rate": 0.0,
+   "lat": 54.93577,
+   "lon": -1.53174
+  },
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "name": "Trafford Road",
+   "ref": "A5063",
+   "town": "Salford",
+   "km": 3.91,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 343,
+   "rate": 0.0,
+   "lat": 53.4682834,
+   "lon": -2.2832941
+  },
+  {
+   "area": "north-east",
+   "area_name": "North East",
+   "name": "Front Street",
+   "ref": null,
+   "town": "Tynemouth",
+   "km": 0.56,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 320,
+   "rate": 0.0,
+   "lat": 55.01773,
+   "lon": -1.42162
   },
   {
    "area": "lincolnshire",
@@ -509,102 +593,18 @@
    "lon": -1.5962
   },
   {
-   "area": "east-midlands",
-   "area_name": "East Midlands Combined County Authority",
-   "name": "Clifton Boulevard",
-   "ref": "A52",
-   "town": "Nottingham",
-   "km": 4.6,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 284,
-   "rate": 0.0,
-   "lat": 52.94008,
-   "lon": -1.18086
-  },
-  {
-   "area": "south-yorkshire",
-   "area_name": "South Yorkshire",
-   "name": "Queens Road",
-   "ref": "A61",
-   "town": "Sheffield",
-   "km": 1.7,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 261,
-   "rate": 0.0,
-   "lat": 53.3678788,
-   "lon": -1.4664336
-  },
-  {
-   "area": "south-yorkshire",
-   "area_name": "South Yorkshire",
-   "name": "Attercliffe Common",
-   "ref": "A6178",
-   "town": "Sheffield",
-   "km": 1.27,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 258,
-   "rate": 0.0,
-   "lat": 53.40288,
-   "lon": -1.41998
-  },
-  {
-   "area": "leicestershire",
-   "area_name": "Leicester & Leicestershire",
-   "name": "Victoria Road East",
-   "ref": "A6030",
-   "town": "Leicester",
-   "km": 1.95,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 230,
-   "rate": 0.0,
-   "lat": 52.64643,
-   "lon": -1.09583
-  },
-  {
-   "area": "east-midlands",
-   "area_name": "East Midlands Combined County Authority",
-   "name": "Eastgate",
-   "ref": "A52",
-   "town": "Derby",
-   "km": 1.22,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 227,
-   "rate": 0.0,
-   "lat": 52.9248245,
-   "lon": -1.4670928
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Coutances Way",
-   "ref": "A65",
-   "town": "Ilkley",
-   "km": 1.87,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 225,
-   "rate": 0.0,
-   "lat": 53.92063,
-   "lon": -1.77182
-  },
-  {
-   "area": "lincolnshire",
-   "area_name": "Lincolnshire",
-   "name": "Moorland Avenue",
+   "area": "liverpool-city-region",
+   "area_name": "Liverpool City Region",
+   "name": "Blundell Road",
    "ref": null,
-   "town": "Bracebridge",
-   "km": 1.27,
+   "town": "Formby",
+   "km": 0.95,
    "n": 0,
    "ksi": 0,
-   "aadf": 222,
+   "aadf": 302,
    "rate": 0.0,
-   "lat": 53.20787,
-   "lon": -0.56658
+   "lat": 53.52149,
+   "lon": -3.05776
   }
  ],
  "deprivation": [
@@ -630,11 +630,32 @@
    "n": 852
   },
   {
+   "area": "liverpool-city-region",
+   "area_name": "Liverpool City Region",
+   "coll": 52,
+   "pop": 42,
+   "n": 2284
+  },
+  {
    "area": "east-midlands",
    "area_name": "East Midlands Combined County Authority",
    "coll": 31,
    "pop": 22,
    "n": 2555
+  },
+  {
+   "area": "tees-valley",
+   "area_name": "Tees Valley",
+   "coll": 50,
+   "pop": 41,
+   "n": 592
+  },
+  {
+   "area": "cheshire-warrington",
+   "area_name": "Cheshire & Warrington",
+   "coll": 21,
+   "pop": 13,
+   "n": 1284
   },
   {
    "area": "west-yorkshire",
@@ -644,11 +665,11 @@
    "n": 2404
   },
   {
-   "area": "middlesbrough-redcar",
-   "area_name": "Middlesbrough & Redcar",
-   "coll": 54,
-   "pop": 48,
-   "n": 234
+   "area": "lancashire",
+   "area_name": "Lancashire",
+   "coll": 36,
+   "pop": 31,
+   "n": 1560
   },
   {
    "area": "north-yorkshire",
@@ -656,6 +677,20 @@
    "coll": 8,
    "pop": 6,
    "n": 1145
+  },
+  {
+   "area": "greater-manchester",
+   "area_name": "Greater Manchester",
+   "coll": 40,
+   "pop": 39,
+   "n": 2390
+  },
+  {
+   "area": "north-east",
+   "area_name": "North East",
+   "coll": 36,
+   "pop": 35,
+   "n": 1581
   },
   {
    "area": "south-yorkshire",
@@ -670,6 +705,13 @@
    "coll": 0,
    "pop": 0,
    "n": 14
+  },
+  {
+   "area": "cumbria",
+   "area_name": "Cumbria",
+   "coll": 16,
+   "pop": 17,
+   "n": 331
   }
  ],
  "areas": [
@@ -698,16 +740,40 @@
    "name": "York & North Yorkshire"
   },
   {
-   "id": "middlesbrough-redcar",
-   "name": "Middlesbrough & Redcar"
-  },
-  {
    "id": "leicestershire",
    "name": "Leicester & Leicestershire"
   },
   {
    "id": "rutland",
    "name": "Rutland"
+  },
+  {
+   "id": "greater-manchester",
+   "name": "Greater Manchester"
+  },
+  {
+   "id": "liverpool-city-region",
+   "name": "Liverpool City Region"
+  },
+  {
+   "id": "lancashire",
+   "name": "Lancashire"
+  },
+  {
+   "id": "cheshire-warrington",
+   "name": "Cheshire & Warrington"
+  },
+  {
+   "id": "cumbria",
+   "name": "Cumbria"
+  },
+  {
+   "id": "north-east",
+   "name": "North East"
+  },
+  {
+   "id": "tees-valley",
+   "name": "Tees Valley"
   }
  ],
  "busy": 150

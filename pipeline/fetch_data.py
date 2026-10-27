@@ -235,8 +235,8 @@ def fetch_towns(areas):
     path = os.path.join(d, 'lsoa_bua.csv')
     if not have(path):
         rows = []
-        # Yorkshire and The Humber, East Midlands, North East
-        for rgn in ('E12000003', 'E12000004', 'E12000001'):
+        # Yorkshire and The Humber, East Midlands, North East, North West
+        for rgn in ('E12000003', 'E12000004', 'E12000001', 'E12000002'):
             while True:
                 q = urllib.parse.urlencode(dict(where=f"RGN22CD='{rgn}'", outFields='LSOA21CD,BUA22CD,BUA22NM,LAD22NM',
                                                 resultOffset=sum(r[4] == rgn for r in rows), resultRecordCount=1000, f='json'))

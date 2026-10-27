@@ -211,34 +211,6 @@
     "water_label": "Rivers Ouse, Swale, Ure, Nidd, Foss & Esk",
     "pct_region": "north-yorkshire"
   },
-  "middlesbrough-redcar": {
-    "centre": [
-      54.56,
-      -1.1
-    ],
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "name": "Middlesbrough & Redcar",
-    "eyebrow": "Middlesbrough and Redcar & Cleveland",
-    "in": "inside Middlesbrough & Redcar",
-    "boundary_label": "Middlesbrough & Redcar & Cleveland boundaries",
-    "gss": [
-      "E06000002",
-      "E06000003"
-    ],
-    "stats19_lad": [
-      "E06000002",
-      "E06000003"
-    ],
-    "dft_la": [
-      170,
-      171
-    ],
-    "rivers": "Tees|Esk|Leven",
-    "water_label": "River Tees & becks",
-    "pct_region": "north-east"
-  },
   "leicestershire": {
     "name": "Leicester & Leicestershire",
     "eyebrow": "Leicester city and Leicestershire county",
@@ -289,5 +261,290 @@
     "counters": "dft",
     "rename": {},
     "pct_region": "leicestershire"
+  },
+  "greater-manchester": {
+    "name": "Greater Manchester",
+    "eyebrow": "Bolton, Bury, Manchester, Oldham, Rochdale, Salford, Stockport, Tameside, Trafford and Wigan",
+    "in": "inside Greater Manchester",
+    "boundary_label": "Greater Manchester boundaries",
+    "gss": [
+      "E08000001",
+      "E08000002",
+      "E08000003",
+      "E08000004",
+      "E08000005",
+      "E08000006",
+      "E08000007",
+      "E08000008",
+      "E08000009",
+      "E08000010"
+    ],
+    "centre": [
+      53.5,
+      -2.3
+    ],
+    "stats19_lad": [
+      "E08000001",
+      "E08000002",
+      "E08000003",
+      "E08000004",
+      "E08000005",
+      "E08000006",
+      "E08000007",
+      "E08000008",
+      "E08000009",
+      "E08000010"
+    ],
+    "dft_la": [
+      160,
+      86,
+      85,
+      162,
+      95,
+      90,
+      56,
+      196,
+      91,
+      75
+    ],
+    "rivers": "Irwell|Mersey|Tame|Goyt|Irk|Medlock|Roch|Croal|Douglas|Bollin|Etherow|Beal|Spodden",
+    "water_label": "Rivers Irwell, Mersey, Tame & Roch",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "greater-manchester"
+  },
+  "liverpool-city-region": {
+    "name": "Liverpool City Region",
+    "eyebrow": "Liverpool, Knowsley, Sefton, St Helens, Wirral and Halton",
+    "in": "inside the Liverpool City Region",
+    "boundary_label": "Liverpool City Region boundaries",
+    "gss": [
+      "E08000011",
+      "E08000012",
+      "E08000013",
+      "E08000014",
+      "E08000015",
+      "E06000006"
+    ],
+    "centre": [
+      53.42,
+      -2.85
+    ],
+    "stats19_lad": [
+      "E08000011",
+      "E08000012",
+      "E08000013",
+      "E08000014",
+      "E08000015",
+      "E06000006"
+    ],
+    "dft_la": [
+      157,
+      161,
+      158,
+      192,
+      84,
+      156
+    ],
+    "rivers": "Mersey|Alt|Dee|Birket|Fender|Sankey Brook|Ditton Brook|Weaver",
+    "water_label": "River Mersey, the Alt & the Dee estuary",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "liverpool-city-region"
+  },
+  "lancashire": {
+    "name": "Lancashire",
+    "eyebrow": "Lancashire county, Blackburn with Darwen and Blackpool (the Lancashire Combined County Authority)",
+    "in": "inside Lancashire",
+    "boundary_label": "Lancashire, Blackburn with Darwen & Blackpool boundaries",
+    "gss": [
+      "E10000017",
+      "E06000008",
+      "E06000009"
+    ],
+    "centre": [
+      53.85,
+      -2.55
+    ],
+    "stats19_lad": [
+      "E10000017",
+      "E06000008",
+      "E06000009",
+      "E07000117",
+      "E07000118",
+      "E07000119",
+      "E07000120",
+      "E07000121",
+      "E07000122",
+      "E07000123",
+      "E07000124",
+      "E07000125",
+      "E07000126",
+      "E07000127",
+      "E07000128"
+    ],
+    "dft_la": [
+      76,
+      198,
+      193
+    ],
+    "rivers": "Ribble|Lune|Wyre|Calder|Darwen|Hodder|Douglas|Yarrow|Brun|Irwell|Keer|Conder|Lostock|Hyndburn",
+    "water_label": "Rivers Ribble, Lune, Wyre & Calder",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "lancashire"
+  },
+  "cheshire-warrington": {
+    "name": "Cheshire & Warrington",
+    "eyebrow": "Cheshire East, Cheshire West and Chester, and Warrington",
+    "in": "inside Cheshire & Warrington",
+    "boundary_label": "Cheshire East, Cheshire West & Chester and Warrington boundaries",
+    "gss": [
+      "E06000049",
+      "E06000050",
+      "E06000007"
+    ],
+    "centre": [
+      53.18,
+      -2.55
+    ],
+    "stats19_lad": [
+      "E06000049",
+      "E06000050",
+      "E06000007"
+    ],
+    "dft_la": [
+      73,
+      148,
+      74
+    ],
+    "rivers": "Mersey|Weaver|Dee|Dane|Bollin|Gowy|Wheelock|Croco|Goyt|Dean",
+    "water_label": "Rivers Dee, Mersey, Weaver & Dane",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "cheshire"
+  },
+  "cumbria": {
+    "name": "Cumbria",
+    "eyebrow": "Cumberland and Westmorland & Furness",
+    "in": "inside Cumbria",
+    "boundary_label": "Cumberland and Westmorland & Furness boundaries",
+    "gss": [
+      "E06000063",
+      "E06000064"
+    ],
+    "centre": [
+      54.5,
+      -2.95
+    ],
+    "stats19_lad": [
+      "E06000063",
+      "E06000064",
+      "E10000006",
+      "E07000026",
+      "E07000027",
+      "E07000028",
+      "E07000029",
+      "E07000030",
+      "E07000031"
+    ],
+    "dft_la": [
+      213,
+      214,
+      77
+    ],
+    "rivers": "Eden|Derwent|Kent|Lune|Esk|Cocker|Ellen|Leven|Duddon|Caldew|Petteril|Irthing|Eamont|Greta|Calder|Ehen|Mint|Sprint|Rothay|Brathay",
+    "water_label": "Rivers Eden, Derwent, Kent & Lune",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "cumbria"
+  },
+  "north-east": {
+    "name": "North East",
+    "eyebrow": "Newcastle, Gateshead, North Tyneside, South Tyneside, Sunderland, County Durham and Northumberland",
+    "in": "inside the North East",
+    "boundary_label": "North East Combined Authority boundaries",
+    "gss": [
+      "E08000021",
+      "E08000022",
+      "E08000023",
+      "E08000024",
+      "E08000037",
+      "E06000047",
+      "E06000057"
+    ],
+    "centre": [
+      55.1,
+      -1.85
+    ],
+    "stats19_lad": [
+      "E08000021",
+      "E08000022",
+      "E08000023",
+      "E08000024",
+      "E08000037",
+      "E06000047",
+      "E06000057"
+    ],
+    "dft_la": [
+      172,
+      173,
+      166,
+      94,
+      101,
+      92,
+      102
+    ],
+    "rivers": "Tyne|North Tyne|South Tyne|Wear|Tees|Derwent|Coquet|Aln|Wansbeck|Blyth|Tweed|Till|Browney|Team|Pont|Rede|Allen|Gaunless|Deerness",
+    "water_label": "Rivers Tyne, Wear, Coquet & Tweed",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": [
+      "north-east",
+      "northumberland"
+    ]
+  },
+  "tees-valley": {
+    "name": "Tees Valley",
+    "eyebrow": "Middlesbrough, Redcar & Cleveland, Stockton-on-Tees, Hartlepool and Darlington",
+    "in": "inside the Tees Valley",
+    "boundary_label": "Tees Valley boundaries",
+    "gss": [
+      "E06000001",
+      "E06000002",
+      "E06000003",
+      "E06000004",
+      "E06000005"
+    ],
+    "centre": [
+      54.58,
+      -1.3
+    ],
+    "stats19_lad": [
+      "E06000001",
+      "E06000002",
+      "E06000003",
+      "E06000004",
+      "E06000005"
+    ],
+    "dft_la": [
+      132,
+      170,
+      171,
+      163,
+      164
+    ],
+    "rivers": "Tees|Leven|Skerne|Esk|Billingham Beck|Greatham Creek|Tame",
+    "water_label": "River Tees & becks",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "north-east"
   }
 }
