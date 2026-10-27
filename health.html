@@ -81,6 +81,9 @@ td small{display:block;color:var(--muted);font-size:11.5px}
 .cyc .bar i.n{background:var(--accent)}
 .split{display:flex;height:10px;border-radius:0 4px 4px 0;overflow:hidden;gap:2px;min-width:160px;margin:3px 0}
 .split i{display:block}.split i.l{background:var(--accent)}.split i.s{background:var(--t-flat)}
+.bar2{position:relative;height:12px;min-width:160px;margin:3px 0}
+.bar2 i{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0}
+.bar2 i.a{background:var(--soft);box-shadow:inset 0 0 0 1px var(--accent)}.bar2 i.p{background:var(--accent);top:3px;bottom:3px}
 .method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px}
 .method p{margin:0}
 .ctl{display:flex;flex-wrap:wrap;gap:6px;padding:10px 18px 0}
@@ -119,6 +122,11 @@ td small{display:block;color:var(--muted);font-size:11.5px}
     <div class="sh"><h2>Road danger: cyclists killed and injured in each NHS area</h2><p>Police-reported cyclist casualties a year where the collision happened (STATS19), set against people who cycle to work (Census 2021) as a rough guide to how much cycling there is. Safer roads are what turn the health gains above into reality: more people will only cycle if it feels safe, and more cycling on today's roads would bring more casualties.</p></div>
     <div class="tw"><table id="cas"></table></div>
     <div class="method" id="casnote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>If the flat and sloping towns were built for cycling: the safety projection</h2><p>What would happen to cycle casualties in the flat and gently sloping towns if cycling to work grew to Hull and York's level, or to Go Dutch? Two effects are measured from this site's own data: safety in numbers (where more people cycle, each rider is safer) and protection (protected routes have fewer collisions per kilometre ridden than ordinary roads). This is a projection from comparisons between towns and roads, not an official forecast.</p></div>
+    <div class="tw"><table id="proj"></table></div>
+    <div class="method" id="projnote"></div>
   </section>
   <section>
     <div class="sh"><h2>How this was worked out</h2></div>
@@ -180,6 +188,21 @@ fetch('data/health.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
     <p><b>Why infrastructure has to come first.</b> Under Go Dutch, cycling to work would grow between ${p1(Math.min(...I.map(x=>x.growth)))} and ${p1(Math.max(...I.map(x=>x.growth)))} times over. If the risk to each rider stayed as it is, casualties would grow with it. To keep them no higher than today, the risk per rider has to fall by ${Math.min(...I.map(x=>x.cut_needed))}–${Math.max(...I.map(x=>x.cut_needed))}%, which is what separated, Dutch-style routes are for: the more people cycle on safe routes, the safer each of them becomes.</p>
     <p><b>Even now, cycling saves more lives than it costs.</b> About ${p1(tot('killed'))} cyclists a year are killed on these boards' roads, all cycling counted. Today's cycling to work alone avoids about ${p1(tot('now_deaths'))} premature deaths a year through better health (Propensity to Cycle Tool), before leisure and school cycling.</p>
     <p>Casualties are police-reported (${esc(yr)}, averaged a year) and placed where the collision happened, so they include visitors and leisure rides; many slight injuries are never reported. People who cycle to work are only a guide to how much cycling there is in each area. Serious injuries are as recorded at the time; police forces using the newer injury-based reporting system record more of them, which makes some boards' figures look higher than others'.</p>`;
+  // safety projection for the flat and gentle towns
+  const S=d.safety;
+  if(S){const t0=S.scenarios[0],pc=(v,c)=>v/c,risk=(k,c)=>Math.round(100*((k/c)/(t0.ksi/t0.cyclists)-1)),sg=v=>(v>0?'+':'')+v+'%';
+    const kmax=Math.max(...S.scenarios.map(s=>s.ksi));
+    document.getElementById('proj').innerHTML=`<thead><tr><th>Cycling to work</th><th class="n">People cycling to work</th><th class="n">Collisions a year: roads as now</th><th class="n">On protected routes</th><th>Killed or seriously injured a year (light: roads as now; dark: protected routes)</th><th class="n">Risk to each rider of being killed or seriously injured</th></tr></thead><tbody>${
+      S.scenarios.map(s=>`<tr><td><b>${esc(s.label)}</b>${s.key==='today'?'<small>2021 Census, collisions 2021–25</small>':''}</td><td class="n">${nf(s.cyclists)}${s.key!=='today'?`<small>×${p1(s.cyclists/t0.cyclists)}</small>`:''}</td>
+        <td class="n">${nf(s.coll)}</td><td class="n">${nf(s.coll_p)}</td>
+        <td><div class="bar2"><i class="a" style="width:${s.ksi/kmax*100}%"></i><i class="p" style="width:${s.ksi_p/kmax*100}%"></i></div><small>${nf(s.ksi)} roads as now · <b>${nf(s.ksi_p)}</b> protected</small></td>
+        <td class="n">${s.key==='today'?'today':sg(risk(s.ksi,s.cyclists))}<small>${s.key==='today'?sg(risk(s.ksi_p,s.cyclists))+' if protected':sg(risk(s.ksi_p,s.cyclists))+' protected'}</small></td></tr>`).join('')}</tbody>`;
+    const B=S.scenarios[1],G=S.scenarios[2];
+    document.getElementById('projnote').innerHTML=`
+      <p><b>More cycling on its own makes each rider safer, but casualties still rise.</b> At Hull and York's level ${nf(B.cyclists-t0.cyclists)} more people would cycle to work in these ${S.towns} towns. On today's roads the risk to each of them of being killed or seriously injured falls by about ${-risk(B.ksi,B.cyclists)}%, but there are more of them, so serious casualties rise from ${nf(t0.ksi)} to about ${nf(B.ksi)} a year.</p>
+      <p><b>With protected routes, growth and safety go together.</b> On protected routes, serious casualties fall to about ${nf(B.ksi_p)} a year at Hull and York's level, fewer than today with ${p1(B.cyclists/t0.cyclists)} times as many riders. Even at Go Dutch, with ${p1(G.cyclists/t0.cyclists)} times as many, they stay around ${nf(G.ksi_p)}. That is the case for building first in flat towns: the success stories come with fewer people hurt, not more.</p>
+      <p><b>How it was worked out.</b> Safety in numbers: across ${S.b_towns} flat and gently sloping towns, holding town size fixed, collisions rise with the ${S.b} power of the number of people cycling to work (killed or seriously injured: ${S.bk}, ${S.bk_towns} towns); so doubling cycling raises collisions only ${p1(2**S.b)} times. Each town's casualties are scaled to its own growth in each scenario. Protection: on the site's road stretches with DfT cycle counts, collisions per million kilometres cycled are ${S.rates.none} with no provision, ${S.rates.lane} with painted lanes and ${S.rates.protected} on protected stretches, so protected routes are taken as ${Math.round(100*(1-S.protect))}% safer per kilometre ridden.</p>
+      <p><b>How firm it is.</b> The collisions figure rests on ${S.b_towns} towns and is fairly solid; the serious-injury figure has fewer towns and smaller counts. The protection effect comes from only ${S.protected_stretches} protected stretches and assumes most of the cycling uses protected routes. Police data misses many slight injuries. Treat these as the likely direction and scale, not exact numbers.</p>`;}
   // method
   const P=d.periods;
   document.getElementById('method').innerHTML=`

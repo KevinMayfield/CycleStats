@@ -23,6 +23,12 @@ cached as raw/health/cycle_collision_lad.csv), against people who cycle to work 
 exposure. Scenarios: every board at the lowest killed-or-seriously-injured rate among them; and how far risk per rider
 must fall for casualties not to rise if commuting grew to Go Dutch.
 
+Safety projection for the flat and gently sloping towns: safety in numbers measured across towns (log collisions a
+year against log people cycling to work, holding town size fixed by log people travelling to work; the same for
+killed or seriously injured), then each town's casualties scaled to the cycling of each scenario. With protected
+routes applies the gap between protected and unprotected stretches per bike-km measured from the site's own road
+stretches (raw/<area>/work/priorities.json with DfT cycle counts).
+
 Downloads (cached in raw/health/): Fingertips CSVs and Census 2021 TS037, fetched with /usr/bin/python3 on Kevin's Mac.
 """
 import collections, csv, io, json, os, urllib.request, zipfile
@@ -69,6 +75,49 @@ def fingertips(ind, area_type):
     rows = [r for r in rows if r['Age'] == age]
     eng = next(float(r['Value']) for r in rows if r['Area Type'] == 'England')
     return {r['Area Code']: float(r['Value']) for r in rows if r['Area Type'] != 'England'}, eng, rows[0]['Time period']
+
+
+def lstsq(X, y):
+    """least squares by the normal equations (small, well-conditioned problems only)"""
+    n = len(X[0]); A = [[sum(r[i] * r[j] for r in X) for j in range(n)] for i in range(n)]; b = [sum(r[i] * v for r, v in zip(X, y)) for i in range(n)]
+    for i in range(n):
+        p = A[i][i]; A[i] = [v / p for v in A[i]]; b[i] /= p
+        for k in range(n):
+            if k != i:
+                f = A[k][i]; A[k] = [u - f * w for u, w in zip(A[k], A[i])]; b[k] -= f * b[i]
+    return b
+
+
+def safety_projection(towns, years, bench_share):
+    """casualties a year in the flat and gentle towns today, at the Hull and York level and at Go Dutch, with and without
+    protected routes"""
+    import math
+    def exponent(key, minn):
+        F = [t for t in towns if t['tier'] in ('flat', 'gentle', 'bench') and t[key] >= minn and t['cyclists'] >= 50]
+        return lstsq([(1, math.log(t['cyclists']), math.log(t['travel'])) for t in F], [math.log(t[key] / years) for t in F])[1], len(F)
+    b, nb = exponent('coll', 5); bk, nk = exponent('coll_ksi', 3)
+    # protected against unprotected stretches, collisions per million bike-km (stretches with DfT cycle counts)
+    grp = collections.defaultdict(lambda: [0.0, 0.0, 0])
+    for a in os.listdir(RAW):
+        p = os.path.join(RAW, a, 'work', 'priorities.json')
+        if not os.path.exists(p): continue
+        for c in json.load(open(p)):
+            if not c.get('aadf'): continue
+            g = 'protected' if c['protected'] >= 0.5 else 'lane' if c['lane'] >= 0.5 else 'none'
+            grp[g][0] += c['n']; grp[g][1] += c['aadf'] * c['km'] * 365 * 5 / 1e6; grp[g][2] += 1
+    rate = {g: v[0] / v[1] for g, v in grp.items() if v[1]}
+    protect = rate['protected'] / rate['none']
+    G = [t for t in towns if t['tier'] in ('flat', 'gentle')]
+    now = sum(t['cyclists'] for t in G)
+    out = []
+    for key, label, share in (('today', 'Today', lambda t: t['cycle21']), ('bench', 'Hull and York levels', lambda t: max(t['cycle21'], bench_share)),
+                              ('dutch', 'Go Dutch', lambda t: max(t['cycle21'], t['dutch']))):
+        grow = lambda t: max(1.0, t['travel'] * share(t) / 100 / t['cyclists']) if t['cyclists'] else 1.0
+        cyc = sum(t['cyclists'] * grow(t) for t in G)
+        coll = sum(t['coll'] / years * grow(t) ** b for t in G); ksi = sum(t['coll_ksi'] / years * grow(t) ** bk for t in G)
+        out.append(dict(key=key, label=label, cyclists=round(cyc), coll=round(coll), ksi=round(ksi), coll_p=round(coll * protect), ksi_p=round(ksi * protect)))
+    return dict(towns=len(G), travel=sum(t['travel'] for t in G), b=round(b, 2), b_towns=nb, bk=round(bk, 2), bk_towns=nk,
+                protect=round(protect, 2), protected_stretches=grp['protected'][2], rates={g: round(v, 1) for g, v in rate.items()}, scenarios=out)
 
 
 def main():
@@ -189,7 +238,10 @@ def main():
     eng = dict(inactive=ft['inactive'][1], overweight=ft['overweight'][1], diabetes=ft['diabetes'][1], child_obese=ft['child_obese'][1],
                health_dep=20.0, bad_health=round(eng_bad, 1))
     periods = {name: ft[name][2] for name in ft}
-    json.dump(dict(towns=out, icbs=icbs, cas_years=sorted(years), england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
+    tj = json.load(open(os.path.join(DATA, 'towns.json')))
+    safety = safety_projection(tj['towns'], len(tj['coll_years']), tj['bench']['share'])
+    print('safety', json.dumps(safety))
+    json.dump(dict(towns=out, icbs=icbs, safety=safety, cas_years=sorted(years), england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
               ensure_ascii=False, separators=(',', ':'))
     print('England', eng, periods)
     for x in icbs: print(f"{x['name']:42} killed {x['killed']}/yr serious {x['serious']} slight {x['slight']} riders {x['riders21']} KSI per 1000 riders {x['ksi_rate']} at best -{x['ksi_at_best']}  growth x{x['growth']} cut {x['cut_needed']}%  today's cycling avoids {x['now_deaths']} deaths")
