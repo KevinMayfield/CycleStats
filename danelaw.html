@@ -114,18 +114,18 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     <div>
       <div class="eyebrow">CycleStats · a proposed long-distance route · Repton to Stamford Bridge</div>
       <h1>The Danelaw Way</h1>
-      <p class="lede">A direct route along the rivers of the Danelaw, the part of England under Danish rule from the late 9th century: from the Great Army's camp at Repton and the Viking cemetery at Heath Wood, through Derby and down the Trent past the Great Army's winter camp at Torksey and Sweyn Forkbeard's base at Gainsborough, across to Howden, then up the Ouse to Viking York and on to the battlefield of 1066 at Stamford Bridge. The Lindsey Ridings bring in Lincoln, Grimsby and the Humber (by the Fossdyke, the edge of the Wolds and the Humber Bridge), variants bring in Leicester down the Soar and Leeds down the Aire, and a coast route runs from Leicester by Stamford, the Welland, the Wash, Skegness and the Lincolnshire coast to the Humber, keeping off the Wolds, and a Skegness route leaves the Trent at Newark for Lincoln, Woodhall Spa and the sea, all on low ground. It follows the rivers rather than wandering between villages, and shows where a proper traffic-free path has to be built so nobody rides beside a busy road. England's answer to Denmark's <a href="https://denmark.letapeseries.com/">DGI Hærvejsløbet</a>, and far flatter.</p>
+      <p class="lede">A direct route along the rivers of the Danelaw, the part of England under Danish rule from the late 9th century: from the Great Army's camp at Repton and the Viking cemetery at Heath Wood, through Derby and down the Trent past the Great Army's winter camp at Torksey and Sweyn Forkbeard's base at Gainsborough, across to Howden, then up the Ouse to Viking York and on to the battlefield of 1066 at Stamford Bridge. The Lindsey Ridings bring in Lincoln, Grimsby and the Humber (by the Fossdyke, the edge of the Wolds and the Humber Bridge), variants bring in Leicester down the Soar and Leeds down the Aire, the Boroughs of Leicester and Stamford plus Holland route runs by the Welland to the Wash, the Lindsey South and North Riding Coastal route carries on by Skegness and the Lincolnshire coast to the Humber, keeping off the Wolds, and a Skegness route leaves the Trent at Newark for Lincoln, Woodhall Spa and the sea, all on low ground. It follows the rivers rather than wandering between villages, and shows where a proper traffic-free path has to be built so nobody rides beside a busy road. England's answer to Denmark's <a href="https://denmark.letapeseries.com/">DGI Hærvejsløbet</a>, and far flatter.</p>
     </div>
     <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="towns.html">Where Dutch infrastructure should work</a></nav>
   </header>
   <div class="facts" id="facts"></div>
   <section>
-    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (L, S, A, C and K for the variants, the coast route and the Skegness route); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Hover for details; select a ride, stage, road or site below to zoom to it.</p></div>
+    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (L, S, A, H, C and K for the variants, Holland, the Lindsey coast and the Skegness route); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Hover for details; select a ride, stage, road or site below to zoom to it.</p></div>
     <div class="legend" id="legend"></div>
     <div id="map" role="img" aria-label="Map of the Danelaw Way and its variants, coloured by what exists along the line today"></div>
   </section>
   <section>
-    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the variants and the coast route bring Lincoln, Grimsby, Leicester, Leeds, Stamford and the Lincolnshire coast into the network. Each ride shows its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
+    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the variants and coastal routes bring Lincoln, Grimsby, Leicester, Leeds, Stamford and the Lincolnshire coast into the network. Each ride shows its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
     <div class="opts" id="opts"></div>
   </section>
   <section>
@@ -153,7 +153,7 @@ const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim
 const nf=n=>Math.round(n).toLocaleString('en-GB');
 const CLS={path:['Traffic-free path','--path',4.5,null],quiet:['Quiet road','--quiet',4,null],track:['Track, towpath or unnamed lane','--quiet',4,'6 6'],main:['B or C road: path needed','--main',4.5,null],busy:['A road: path needed','--busy',6,null]};
 const ORDER=['path','quiet','track','main','busy'];
-const RNAME={main:'Main Way',lincoln:'The Lindsey Ridings',soar:'Soar variant',aire:'Aire variant',coast:'Coast route',skegness:'Skegness route'};
+const RNAME={main:'Main Way',lincoln:'The Lindsey Ridings',soar:'Soar variant',aire:'Aire variant',holland:'Boroughs of Leicester and Stamford plus Holland',coast:'Lindsey South and North Riding Coastal',skegness:'Skegness route'};
 function isDark(){const th=document.documentElement.dataset.theme;return th?th==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
 let D,map;
 const pct=(v,t)=>Math.round((v||0)/t*100);
@@ -171,7 +171,7 @@ function drawMap(){
     L.polyline(s.pts,{color:css(c[1]),weight:c[2],opacity:.95,dashArray:c[3],lineCap:c[3]?'butt':'round'})
       .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${c[0]} · ${s.km} km`,{sticky:true,className:'tt'}).addTo(map)});
   D.routes.forEach(r=>r.stages.forEach(st=>{const first=D.segments.find(s=>s.route===r.id&&s.stage===st.n);if(!first)return;
-    const lab=r.id==='main'?st.n:({lincoln:'L',soar:'S',aire:'A',coast:'C',skegness:'K'}[r.id]||'')+(r.stages.length>1?st.n:'');
+    const lab=r.id==='main'?st.n:({lincoln:'L',soar:'S',aire:'A',holland:'H',coast:'C',skegness:'K'}[r.id]||'')+(r.stages.length>1?st.n:'');
     L.marker(first.pts[0],{zIndexOffset:900,icon:L.divIcon({className:'',html:`<span class="mk st">${lab}</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
       .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${st.km} km · ${pct(ride(st.mix),st.km)}% rideable today`,{className:'tt'}).on('click',()=>zoom(r.id,[st.n])).addTo(map)}));
   D.sites.forEach(s=>{s.marker=L.marker([s.lat,s.lon],{zIndexOffset:1000,icon:L.divIcon({className:'',html:`<span class="mk${s.on?'':' off'}">ᚱ</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
@@ -190,7 +190,7 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <div class="fact"><b>${pct(ride(M.mix),M.km)}%</b><span>of the main Way can be ridden today away from traffic: ${pct(M.mix.path,M.km)}% traffic-free path, ${pct((M.mix.quiet||0)+(M.mix.track||0),M.km)}% quiet roads, lanes and tracks</span></div>
     <div class="fact"><b style="color:var(--busy)">${pct(roads(M.mix),M.km)}%</b><span>of the main Way (${nf(roads(M.mix))} km) is on A, B or C roads, where a proper path should be built. ${nf(onRoads)} km across all the routes.</span></div>
     <div class="fact"><b>${M.signed}%</b><span>of the main Way follows signed cycle routes today</span></div>
-    <div class="fact"><b>${nf(allKm-M.km)} km</b><span>of variants and the coast route: ${V.map(r=>`${esc(r.name)} (${nf(r.km)} km)`).join(', ')}</span></div>`;
+    <div class="fact"><b>${nf(allKm-M.km)} km</b><span>of variants and other routes: ${V.map(r=>`${esc(r.name)} (${nf(r.km)} km)`).join(', ')}</span></div>`;
   document.getElementById('legend').innerHTML=ORDER.map(c=>`<span><i style="background:${CLS[c][3]?`repeating-linear-gradient(90deg,var(${CLS[c][1]}) 0 7px,transparent 7px 12px)`:`var(${CLS[c][1]})`}"></i>${CLS[c][0]}</span>`).join('')+`<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`;
   // ride options: the whole Way, its halves, and each variant
   const part=(r,a,b)=>r.stages.slice(a-1,b).reduce((t,s)=>t+s.km,0);

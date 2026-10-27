@@ -1,6 +1,6 @@
 """The Danelaw Way: a long-distance route from Derby to York along the rivers of the Danelaw, with the Lindsey Ridings
-(Torksey to Howden by Lincoln, Grimsby and the Humber), variants from Leicester down the Soar and from Leeds down the Aire, and a coast route from Leicester by
-Stamford, the Wash, Skegness and the Lincolnshire coast to the Humber. Writes data/danelaw.json for danelaw.html.
+(Torksey to Howden by Lincoln, Grimsby and the Humber), variants from Leicester down the Soar and from Leeds down the Aire, a route from Leicester by
+Stamford and Holland to the Wash, and a coastal route through the South and North Ridings of Lindsey to the Humber. Writes data/danelaw.json for danelaw.html.
 
 Each stage is routed with BRouter's touring profile ('trekking') through hand-picked villages on one bank of the
 river, so it follows the river without crossing back and forth or wandering off along signed routes between
@@ -69,7 +69,7 @@ ROUTES = [
             ('Leicester', 52.6340, -1.1430), ('Birstall', 52.6760, -1.1200), ('Barrow upon Soar', 52.7530, -1.1500), ('Loughborough', 52.7720, -1.2050),
             ('Normanton on Soar', 52.8050, -1.2400), ('Kegworth', 52.8330, -1.2740), ('Long Eaton', 52.8980, -1.2710)]),
     ]),
-    dict(id='coast', name='Coast route', sub='Leicester to Barton-upon-Humber by the Wash and the Lincolnshire coast', joins='Barton-upon-Humber', stages=[
+    dict(id='holland', name='Boroughs of Leicester and Stamford plus Holland', sub='Leicester to Wainfleet by Rutland Water, Stamford, the Welland and the Wash', joins='Leicester (the Soar variant) and Wainfleet (the Lindsey coast)', stages=[
         dict(name='Leicester to Stamford', note='East through Oakham and round Rutland Water to Stamford, the fifth of the Five Boroughs', pts=[
             ('Leicester', 52.6340, -1.1430), ('Houghton on the Hill', 52.6240, -1.0130), ('Oakham', 52.6700, -0.7280), ('Manton', 52.6330, -0.6850),
             ('Edith Weston', 52.6380, -0.6250), ('Empingham', 52.6680, -0.5960), ('Stamford', 52.6530, -0.4800)]),
@@ -79,6 +79,8 @@ ROUTES = [
         dict(name='Round the Wash to Wainfleet', note='By Boston and the sea banks at Freiston Shore', pts=[
             ('Fosdyke', 52.8745, -0.0450), ('Kirton', 52.9250, -0.0650), ('Boston', 52.9760, -0.0250), ('Freiston Shore', 52.9620, 0.0850),
             ('Wrangle', 53.0380, 0.1170), ('Wainfleet', 53.1060, 0.2340)]),
+    ]),
+    dict(id='coast', name='Lindsey South and North Riding Coastal', sub='Wainfleet to Barton-upon-Humber along the Lincolnshire coast and the Humber bank', joins='Barton-upon-Humber', stages=[
         dict(name='Wainfleet to Mablethorpe', note='By Gibraltar Point and Skegness, then north along the coast by Ingoldmells and Sutton on Sea', pts=[
             ('Wainfleet', 53.1060, 0.2340), ('Gibraltar Point', 53.1030, 0.3300), ('Skegness', 53.1440, 0.3390), ('Ingoldmells', 53.1920, 0.3410),
             ('Chapel St Leonards', 53.2240, 0.3360), ('Sutton on Sea', 53.3110, 0.2830), ('Mablethorpe', 53.3410, 0.2610)]),
@@ -120,10 +122,10 @@ SITES = [
     dict(name='Fossdyke', lat=53.2690, lon=-0.6640, on='lincoln', text='A canal joining the Trent at Torksey to the Witham at Lincoln, probably Roman and still navigable.'),
     dict(name='Gainsborough', lat=53.3990, lon=-0.7750, on='main', text='On the Trent north of Torksey. Sweyn Forkbeard, king of Denmark, made it his base when he conquered England in 1013 and died there in 1014.'),
     dict(name='Lincoln', lat=53.2290, lon=-0.5450, on='lincoln', text='One of the Five Boroughs, with a busy Viking-age mint. Lincoln was the chief town of Lindsey, the old kingdom that the Danes divided into three ridings, from the Old Norse þriðjungr, a third: the Lindsey Ridings take their name from them. The Lindsey Ridings leaves north-east for Grimsby and the Humber coast.'),
-    dict(name='Stamford', lat=52.6530, lon=-0.4800, on='coast', text='The fifth of the Five Boroughs, on the Welland, with a Danish fortified borough north of the river. The coast route turns down the Welland here.'),
-    dict(name='Crowland', lat=52.6760, lon=-0.1680, on='coast', text='Crowland Abbey stands in the Fens by the Welland. Later medieval chronicles claimed the Danes burned it in 870, though that account is now thought unreliable.'),
+    dict(name='Stamford', lat=52.6530, lon=-0.4800, on='holland', text='The fifth of the Five Boroughs, on the Welland, with a Danish fortified borough north of the river. The route turns down the Welland here into Holland.'),
+    dict(name='Crowland', lat=52.6760, lon=-0.1680, on='holland', text='Crowland Abbey stands in the Fens by the Welland. Later medieval chronicles claimed the Danes burned it in 870, though that account is now thought unreliable.'),
     dict(name='Bardney Abbey', lat=53.2130, lon=-0.3330, on='skegness', text='A royal monastery of Lindsey and Mercia, the shrine of St Oswald. It was destroyed by the Danes around 870 and not refounded until after the Norman Conquest.'),
-    dict(name='Skegness', lat=53.1440, lon=0.3390, on='coast', text='Where the coast route and the Skegness route meet the sea. Its name is Old Norse: Skeggi\'s ness, the headland of a man called Skeggi.'),
+    dict(name='Skegness', lat=53.1440, lon=0.3390, on='coast', text='Where the Lindsey coastal route and the Skegness route meet the sea. Its name is Old Norse: Skeggi\'s ness, the headland of a man called Skeggi.'),
     dict(name='Lincolnshire Wolds', lat=53.4970, lon=-0.3180, on='lincoln', text='Tealby, Normanby, Grimsby and dozens more: Lincolnshire has more Old Norse -by place names than any other English county, many of them strung along these chalk hills. The Lindsey Ridings cross their western edge at Caistor, close to the Viking Way footpath.'),
     dict(name='Barton-upon-Humber', lat=53.6845, lon=-0.4390, on='lincoln', text='The old ferry town on the south bank of the Humber. St Peter\'s Church has an Anglo-Saxon tower from around the end of the 10th century.'),
     dict(name='Grimsby', lat=53.5670, lon=-0.0810, on='lincoln', text='On the Humber coast: by tradition named after Grim, a Danish fisherman, with the Old Norse -by for farm or village. The Lindsey Ridings reaches the sea here.'),
