@@ -32,9 +32,9 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 
 The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Safety tab says what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
 
-**Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=` and its id from `pipeline/areas.json`, for example `?area=bradford`)
+**Live site:** https://kevinmayfield.github.io/CycleStats/ opens on an overview map (`index.html`): every area, its towns shaded by hilliness and the Danelaw Cycle Network routes. Click an area for its map, a flat or gently sloping town for where to build there (`towns.html#<town code>`), or a route for the Danelaw page. The area maps are `area.html`; link to an area with `?area=` and its id from `pipeline/areas.json`, for example `area.html?area=bradford`. Old `index.html?area=` links forward to `area.html`.
 
-It is a static web app: `index.html` loads Leaflet from cdnjs, `data/areas.json` for the area list and `data/<area>.json` for the chosen area. It draws its own basemap (boundary, main roads, rivers, place names), so it needs no map tile service.
+It is a static web app: `area.html` loads Leaflet from cdnjs, `data/areas.json` for the area list and `data/<area>.json` for the chosen area. It draws its own basemap (boundary, main roads, rivers, place names), so it needs no map tile service.
 
 ## Rebuilding the data
 
