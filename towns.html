@@ -13,16 +13,17 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df; --grid:#eceee9;
   --accent:#0f6b5c; --bench:#0b8a6f; --low:#c25e00; --gentle:#7d5bbf; --other:#aab1ad; --band:#eef4f1;
+  --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --safe:#1d8a4e; --safe-soft:#e3f3e9; --use:#2f6fd6; --use-soft:#e6eefb; --risk:#8e1a14; --dep:#6b2fa0; --dep-soft:#efe6f6;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
-  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --gentle:#9b7fe0; --other:#56605c; --band:#1d2a26; color-scheme:dark}}
+  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --gentle:#9b7fe0; --other:#56605c; --band:#1d2a26; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --use:#7aa7ff; --use-soft:#1c2a44; --risk:#ff8a7a; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --grid:#232a28;
-  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --gentle:#9b7fe0; --other:#56605c; --band:#1d2a26; color-scheme:dark}
+  --accent:#4cc3a8; --bench:#1f9a7e; --low:#cf7414; --gentle:#9b7fe0; --other:#56605c; --band:#1d2a26; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --safe:#5fd08e; --safe-soft:#173326; --use:#7aa7ff; --use-soft:#1c2a44; --risk:#ff8a7a; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -137,35 +138,89 @@ td.n small{text-align:right}
 .notes a{color:inherit}
 .err{color:var(--low)}
 @media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:32px}}
+/* --- Where to build and All areas: from priorities.html and summary.html, scoped to their sections --- */
+.sh p a,.cta a{color:var(--accent)}
+.cta{margin:0;padding:4px 18px 16px;font-weight:600}
+.part{margin-top:34px;padding-top:22px;border-top:2px solid var(--line)}
+.part>.ph{margin-bottom:16px}
+.part>.ph h2{font-size:30px;margin:4px 0 6px}
+.part>.ph p{color:var(--muted);margin:0;max-width:80ch}
+.part .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}
+.part .grid section{margin-bottom:0}
+.part .sh{border-top:4px solid var(--c)}
+.part ol{list-style:none;margin:0;padding:6px}
+.part .row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 10px;border-radius:6px;color:inherit;text-decoration:none}
+.part .row:hover{background:var(--soft)}
+.part .row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.part .rank{font:700 14px/24px var(--display);width:24px;height:24px;border-radius:50%;text-align:center;color:#fff;background:var(--c)}
+.part .nm{font-weight:600;line-height:1.3}
+.part .nm .ref{font-family:var(--mono);font-weight:400;font-size:11.5px;color:var(--muted)}
+.part .loc{font-size:12px;color:var(--muted);margin-top:1px}.part .loc b{font-weight:500;color:var(--ink)}
+.part .ex,.part .ln{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px}
+.part .ln strong{color:var(--ink);font-weight:500}
+.part .fig{font-family:var(--mono);font-size:15px;font-weight:500;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.part .fig small{display:block;color:var(--muted);font-size:10px;font-weight:400;letter-spacing:.04em}
+.part .pbar{height:3px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.part .pbar i{display:block;height:100%;background:var(--c)}
+.part .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.part .chip{font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:3px;background:var(--bg);color:var(--muted)}
+.part .chip.w{background:var(--dep-soft);color:var(--dep)}
+.part .bars{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;margin-top:7px;font-family:var(--mono);font-size:10px;color:var(--muted);max-width:420px}
+.part .bars i{display:block;height:5px;border-radius:2px}
+.part .bars .bs{background:var(--danger)}.part .bars .bu{background:var(--use)}
+.part .both-ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:8px}
+.part .fact.w b{color:var(--dep)}.part .fact.g b{color:var(--use)}
+.part .at,.part .dt{width:100%;border-collapse:collapse;font-size:13px}
+.part .at td,.part .dt td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.part .at td a,.part .dt a{color:inherit;text-decoration:none;font-weight:600}.part .at td a:hover,.part .dt a:hover{color:var(--accent)}
+.part .at small{display:block;color:var(--muted);font-size:11.5px}
+.part .dt td.dn,.part .dt th.dn{text-align:right}.part .dt td.dn{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+.part .pair{display:grid;gap:3px;min-width:140px}.part .pair i{display:block;height:6px;border-radius:2px}
+.part .pair .c{background:var(--dep)}.part .pair .p{background:var(--line)}
+.part .key{display:flex;gap:14px;font-size:12px;color:var(--muted);padding:8px 18px 0}
+.part .key span::before{content:"";display:inline-block;width:12px;height:6px;border-radius:2px;margin-right:5px;vertical-align:middle;background:var(--k)}
+.part .chipnav{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.part .chipnav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.part .chipnav a:hover{border-color:var(--accent);color:var(--accent)}
+.part .notes{margin-top:18px}
+.s-both{--c:var(--accent);--soft:var(--accent-soft)}
+.s-bsafe{--c:var(--danger);--soft:var(--danger-soft)}
+.s-use,.s-pop{--c:var(--use);--soft:var(--use-soft)}
+.s-col{--c:var(--danger);--soft:var(--danger-soft)}
+.s-risk{--c:var(--risk);--soft:var(--danger-soft)}
+.s-safe{--c:var(--safe);--soft:var(--safe-soft)}
+.s-dep{--c:var(--dep);--soft:var(--dep-soft)}
+.s-areas{--c:var(--accent)}
+@media (max-width:900px){.part .grid,.part .both-ol{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div>
-      <div class="eyebrow">CycleStats · every town in the 17 areas</div>
+      <div class="eyebrow">CycleStats · every town in the <span id="nareas">CycleStats</span> areas</div>
       <h1>Where Dutch Infrastructure Should Work?</h1>
       <p class="lede">Hull and York are flat and among the highest-cycling places in England. Many towns here are just as flat, yet far fewer people cycle to work. Hills don't explain the gap; that points to roads, routes and how safe cycling feels.</p>
     </div>
-    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="#where-to-build">Where to build</a><a href="#summary">All-area summary</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
   </header>
+  <section>
+    <div class="sh"><h2>Factors affecting cycling</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red where there are more collisions for each person who cycles to work, green where there are fewer.</p></div>
+    <div class="mbar"><div class="seg" id="hcol" role="group" aria-label="Colour towns by"><button type="button" data-k="flat" aria-pressed="true">Flat towns</button><button type="button" data-k="coll" aria-pressed="false">Collisions vs England &amp; Wales</button></div><div class="legend" id="legend"></div></div>
+    <div class="chart" id="chart"></div>
+  </section>
   <div class="facts" id="facts"></div>
   <section>
     <div class="sh"><h2>Where the flat towns are</h2><p>Every town shaded by how hilly its commute routes are, or for flat and gently sloping towns by the share of households with no car or how deprived its neighbourhoods are. Where few households have a car, a bike is often the cheapest way to reach work, and safe routes matter most. Dashed lines join flat and gently sloping towns whose built-up edges touch: together they make one network, where most short trips stay on level ground and cross from one town into the next. Click a town to open its roads, or a network below to zoom to it.</p></div>
     <div class="mbar"><div class="seg" id="shade" role="group" aria-label="Shade towns by"><button type="button" data-k="tier" aria-pressed="true">Hilliness</button><button type="button" data-k="nocar" aria-pressed="false">No car</button><button type="button" data-k="deprived" aria-pressed="false">Deprivation</button></div><div class="legend" id="mlegend"></div></div>
     <div class="ovmap" id="ovmap" role="img" aria-label="Map of the towns, shaded by hilliness, with networks of touching flat towns joined"></div>
   </section>
-  <section id="networks"></section>
-  <section>
-    <div class="sh"><h2>Factors affecting cycling</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red where there are more collisions for each person who cycles to work, green where there are fewer.</p></div>
-    <div class="mbar"><div class="seg" id="hcol" role="group" aria-label="Colour towns by"><button type="button" data-k="flat" aria-pressed="true">Flat towns</button><button type="button" data-k="coll" aria-pressed="false">Collisions vs England &amp; Wales</button></div><div class="legend" id="legend"></div></div>
-    <div class="chart" id="chart"></div>
-  </section>
   <section>
     <div class="sh"><h2>Deprivation against cycling to work</h2><p>Each dot is a town, coloured by how hilly it is; bigger dots have more people travelling to work. Across: the share of its neighbourhoods in England's most deprived fifth (IMD 2025), or the share of households with no car (Census 2021). Up: the share of people travelling to work who cycle. The dashed line is the trend across the flat and gently sloping towns, leaving out Hull and York.</p></div>
     <div class="mbar"><div class="seg" id="socx" role="group" aria-label="Across"><button type="button" data-k="deprived" aria-pressed="true">Deprived neighbourhoods</button><button type="button" data-k="nocar" aria-pressed="false">No car</button></div><div class="legend" id="soclegend"></div></div>
     <div class="chart" id="socchart"></div>
   </section>
+  <section id="networks"></section>
   <section id="flat"></section>
   <section id="gentle"></section>
   <div class="notes">
@@ -175,6 +230,32 @@ td.n small{text-align:right}
     <div><b>No car</b> is the share of households with no car or van (Census 2021), averaged over each town's neighbourhoods weighted by people travelling to work. <b>Deprived</b> is the share of its neighbourhoods in England's most deprived fifth on the Indices of Deprivation 2025 (a fifth by definition across England). Towns and networks are tagged <b>Low car ownership</b> where a quarter or more of households have no car, and <b>Deprived</b> where over a third of neighbourhoods are in the most deprived fifth.</div>
     <div><b>Collisions vs England &amp; Wales</b> (colour the Factors affecting cycling chart by it, or hover a town) compares places, not risks to a rider. It is police-reported injury collisions involving a pedal cycle in the town's neighbourhoods (STATS19, 2021–25), a year, for every 100 people who cycle to work there (Census 2021), set against the same figure for England and Wales. The collisions include all cycling (shopping, school, leisure, visitors) while the Census counts only commuters, and many more people cycle than cycle to work, so it is <b>not</b> a cyclist's chance of a crash, which is far lower. A high figure can mean a lot of cycling that isn't commuting (Guisborough, on the edge of the North York Moors) as well as dangerous roads. Towns with fewer than 10 collisions are not compared. <b>Serious</b> is the share where someone was killed or seriously injured, and <b>40 mph+</b> the share on roads with a limit of 40 mph or more; these two do not depend on how many people cycle.</div>
     <div><b>Missing cyclists</b> is how many more people would cycle to work if the town matched Hull and York combined. <b>Go Dutch</b> is PCT's estimate of the share who would cycle with Dutch levels of cycling, given each town's trip lengths and hills. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
+  </div>
+  <div class="part" id="where-to-build">
+    <div class="ph"><div class="eyebrow">Background · every area</div><h2>Where to build</h2><p>The road corridors where well-engineered, protected cycle infrastructure would most cut cycle casualties and grow cycling. Each corridor is scored on the harm recorded there, how little of it is protected now, and how many more people would cycle on it under the Propensity to Cycle Tool's "Go Dutch" scenario. Each town above lists its own roads to improve.</p></div>
+    <div class="facts" id="b-facts"></div>
+    <section class="s-both" id="b-both"></section>
+    <div class="grid"><section class="s-bsafe" id="b-safety"></section><section class="s-use" id="b-use"></section></div>
+    <section class="s-areas" id="b-areas"></section>
+    <div class="notes">
+      <div><b>Safety</b> is the harm recorded on the stretch each year (police-reported cycle collisions 2021–25, with a killed or seriously injured casualty counted three times) multiplied by the share of the stretch without protection. Only a protected track counts as protection: a dedicated cycle track beside the road, or lanes separated from traffic by bollards, kerbs or wands. A painted lane, or a pavement shared with walkers or split from them by a painted line, counts as a quarter: these give little protection where side roads cross. OpenStreetMap often maps good kerb-separated tracks (such as parts of Leeds's Cycle Superhighways) the same way as poor pavement paths, so some good tracks are undercounted.</div>
+      <div><b>More cycling</b> is the Propensity to Cycle Tool (PCT) "Go Dutch" estimate of commuters plus school pupils cycling along the stretch, minus those cycling there now. PCT models trips from the 2011 Census and the 2011 school census, so it shows relative potential, not a forecast. Its gender-equality scenario estimates commuting if women cycled as much as men.</div>
+      <div><b>Both</b> ranks stretches with 5+ collisions that are at least half unprotected, by the geometric mean of the two scores (each scaled to the 90th percentile), so a road must score on both to rank highly.</div>
+      <div><b>Women and children</b> are their share of the cyclist casualties within 30 m of the stretch (STATS19). Few women and children among casualties is consistent with few riding there, but casualty records cannot show who cycles.</div>
+      <div><b>Limits:</b> protection comes from OpenStreetMap as mapped today, so schemes built during 2021–25 (for example the A660 Headingley Lane lanes in Leeds) will have collisions from before they opened. Junction design, which drives many collisions, is not assessed.</div>
+    </div>
+  </div>
+  <div class="part" id="summary">
+    <div class="ph"><div class="eyebrow">Every area · 2021–2025</div><h2>Cycling top 10s: all areas</h2><p>The busiest counts, the roads with the most cycle collisions, the highest risk per rider and the safest well-used roads, ranked across every area. Select a row to open that area's map.</p><nav class="chipnav" id="s-areas" aria-label="Area maps"></nav></div>
+    <div class="grid" id="s-grid"></div>
+    <section class="s-dep" id="s-dep" hidden></section>
+    <div class="notes">
+      <div><b>Most popular</b> mixes Leeds City Council automatic counters (12-month averages) with DfT traffic counts, which are mostly single weekday counts on main roads. Some counters record one direction of a one-way lane, and a road can appear twice where it has two count points.</div>
+      <div><b>Collisions</b> are police-reported injury collisions involving a bicycle (DfT STATS19, 2021–2025), matched to the nearest named road. A road is a connected stretch of one name, so long roads collect more.</div>
+      <div><b>Risk per rider</b> = collisions ÷ (bikes per day × length × 365 × 5) × 1,000,000, for roads with 5+ collisions and a DfT cycle count. Where bike counts are low, a few collisions give a high rate, so treat the order as indicative.</div>
+      <div><b>Deprivation</b> uses the English Indices of Deprivation 2025: the most deprived fifth means neighbourhoods (LSOAs) in deciles 1–2 for England as a whole. Collisions are placed in the neighbourhood STATS19 records for them. Each area map has a Neighbourhoods layer showing deprivation, housing condition and households with no car.</div>
+      <div><b>Safe &amp; busy</b> lists roads with 150+ bikes a day and the fewest collisions per km cycled. Off-road paths have no police collision data, so none appear here. <a href="https://github.com/KevinMayfield/CycleStats">Method and sources on GitHub</a>.</div>
+    </div>
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -411,7 +492,7 @@ function openTown(id){
 function networksTable(){
   const ns=D.networks.filter(n=>n.missing>0),mx=Math.max(...ns.map(n=>n.missing)),b=D.bench.share;
   const chip=i=>{const t=D.byId[i];return `<span class="chip ${t.tier}">${esc(t.name)}</span>`};
-  document.getElementById('networks').innerHTML=`<div class="sh"><h2>Networks of flat towns</h2><p>Flat and gently sloping towns whose built-up edges come within ${D.gap} m of each other, with at least one flat town. Trips between them are short and level, so one connected set of protected routes across the town boundaries would serve all of them; council and county lines often run through the middle. Click a network to see it on the map.</p></div>
+  document.getElementById('networks').innerHTML=`<div class="sh"><h2>Networks of flat towns</h2><p>Flat and gently sloping towns whose built-up edges come within ${D.gap} m of each other, with at least one flat town. Trips between them are short and level, so one connected set of protected routes across the town boundaries would serve all of them; council and county lines often run through the middle. Click a network to see it on the map. The <a href="danelaw.html">Danelaw Cycle Network</a> joins these towns up: flat routes along the rivers from town to town, on one map.</p></div>
   <div class="tw"><table><thead><tr><th>#</th><th>Network</th><th class="n">Gradient</th><th class="n">Cycling now</th><th class="n">No car</th><th class="n">Matching Hull &amp; York (${p1(b)}%)</th><th class="n">Go Dutch</th><th class="n">Extra cyclists at Hull &amp; York levels</th></tr></thead><tbody class="net">${
     ns.map((n,i)=>`<tr data-i="${D.networks.indexOf(n)}"><td class="n">${i+1}</td>
       <td><b>${esc(n.name)}</b><small>${n.towns.length} towns · ${n.areas.map(esc).join(' and ')}${n.borders.length?` · borders ${n.borders.slice(0,3).map(j=>esc(D.byId[j].name)+(D.byId[j].tier==='hilly'?' (hilly)':'')).join(', ')}`:''}</small><div>${tags(n)}</div><div>${n.towns.map(chip).join('')}</div></td>
@@ -420,7 +501,7 @@ function networksTable(){
       ${socCell(n)}
       <td class="n"><b class="up">${inc(n.cycle21,b)}</b><small>to ${p1(b)}%</small></td>
       <td class="n"><b class="up">${p1(n.dutch)}%</b><small>${inc(n.cycle21,n.dutch)}</small></td>
-      <td class="n">${nf(n.missing)}<small>of ${nf(n.travel)} commuters</small><span class="bar" style="width:${(n.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div>`;
+      <td class="n">${nf(n.missing)}<small>of ${nf(n.travel)} commuters</small><span class="bar" style="width:${(n.missing/mx*100).toFixed(0)}%"></span></td></tr>`).join('')}</tbody></table></div><p class="cta"><a href="danelaw.html">See how the Danelaw Cycle Network connects these towns →</a></p>`;
   document.querySelectorAll('#networks tbody.net tr').forEach(tr=>tr.addEventListener('click',()=>{
     const n=D.networks[+tr.dataset.i],ls=n.towns.map(i=>OV.shapes[i]).filter(Boolean);
     document.querySelectorAll('#networks tr.on').forEach(x=>x.classList.remove('on'));tr.classList.add('on');
@@ -432,6 +513,7 @@ function networksTable(){
 }
 fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
   D=d;D.byId=Object.fromEntries(d.towns.map(t=>[t.id,t]));D.lowIds=new Set(d.flat_low.slice(0,15));
+  document.getElementById('nareas').textContent=d.outlines.length;
   D.netOf={};d.networks.forEach(n=>n.towns.forEach(i=>D.netOf[i]=n));
   const flat=d.flat_low.map(i=>D.byId[i]),miss=flat.reduce((a,t)=>a+t.missing,0),gm=d.gentle_low.reduce((a,i)=>a+D.byId[i].missing,0);
   const travel=flat.reduce((a,t)=>a+t.travel,0),nowShare=flat.reduce((a,t)=>a+t.cyclists,0)/travel*100,dutchShare=flat.reduce((a,t)=>a+t.dutch*t.travel,0)/travel;
@@ -454,7 +536,84 @@ fetch('data/towns.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.js
   // towns.html#<built-up area code> opens that town's panel
   const want=location.hash.slice(1),tr=want&&document.querySelector(`tr.main[data-id="${CSS.escape(want)}"]`);
   if(tr){toggle(tr);tr.scrollIntoView({block:'start'})}
+  toPart();
 }).catch(e=>{document.getElementById('chart').innerHTML=`<p class="err" style="padding:16px">Could not load the town data (${esc(e.message)}). Reload the page to try again.</p>`});
+
+// towns.html#where-to-build and #summary: the charts above load after the browser jumps to the section and push it down,
+// so scroll there again once each part has drawn
+function toPart(){const el=document.getElementById(location.hash.slice(1));if(el&&el.classList.contains('part'))el.scrollIntoView({block:'start'})}
+// --- Where to build: the top corridors for protected cycle routes, across every area (data/priorities.json) ---
+{
+const pc=v=>Math.round(v*100)+'%';
+function row(c,i,mode,mx){
+  const prot=c.protected>0?`${pc(c.protected)} protected`:'<strong>No protected track</strong>';
+  const part=c.lane>0?` · ${pc(c.lane)} painted or shared`:'';
+  const fig=mode==='safety'?[c.n,'COLLISIONS']:mode==='use'?['+'+(c.uplift).toLocaleString(),'GO DUTCH']:[(c.pct_dutch/Math.max(c.pct_now,1)).toFixed(1)+'×','COMMUTERS'];
+  const chips=[c.women!=null?`<span class="chip w">Women ${c.women}% of casualties</span>`:'',c.children!=null&&c.casualties?`<span class="chip">Children ${c.children}%</span>`:'',
+    c.imd!=null&&c.imd<=2?`<span class="chip">Most deprived ${c.imd*10}%</span>`:'',c.nocar!=null&&c.nocar>=35?`<span class="chip">${Math.round(c.nocar)}% no car</span>`:''].join('');
+  const bars=mode==='both'?`<div class="bars"><span>Safety</span><i class="bs" style="width:${Math.min(100,c.safety/mx.s*100).toFixed(0)}%"></i><span>Use</span><i class="bu" style="width:${Math.min(100,c.uplift/mx.u*100).toFixed(0)}%"></i></div>`:'';
+  return `<li><a class="row" href="area.html?area=${c.area}#danger"><span class="rank">${i+1}</span><span style="min-width:0">
+    <div class="nm">${esc(c.name)}${c.ref?` <span class="ref">${esc(c.ref)}</span>`:''}</div>
+    <div class="loc"><b>${esc(c.town)}</b> · ${esc(c.area_name)}</div>
+    <div class="ln"><strong>${c.n}</strong> collisions, <strong>${c.ksi}</strong> killed or seriously injured · ${c.km.toFixed(1)} km${c.speed?` · ${c.speed} mph`:''}</div>
+    <div class="ln">${prot}${part}${c.aadf?` · ~${c.aadf} bikes/day`:''}</div>
+    <div class="ln">Commuters cycling <strong>${c.pct_now}</strong> → <strong>${c.pct_dutch}</strong> Go Dutch · school <strong>${c.school_now}</strong> → <strong>${c.school_dutch}</strong></div>
+    <div class="chips">${chips}</div>${bars}</span>
+    <span class="fig">${fig[0]}<small>${fig[1]}</small></span></a></li>`;
+}
+fetch('data/priorities.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
+  const s=D.stats;
+  document.getElementById('b-facts').innerHTML=`
+    <div class="fact w"><b>${s.women}%</b><span>of cyclist casualties on the roads measured were women, and ${s.children}% were children under 16. In the Netherlands more than half of cycle trips are made by women.</span></div>
+    <div class="fact g"><b>${(s.pct_dutch/s.pct_now).toFixed(1)}×</b><span>the commuters on the top 10 corridors if they matched Dutch cycling levels: ${s.pct_now.toLocaleString()} to ${s.pct_dutch.toLocaleString()} a day.</span></div>
+    <div class="fact g"><b>${(s.pct_women/s.pct_now).toFixed(1)}×</b><span>the commuters on those corridors if women cycled as much as men do now (${s.pct_women.toLocaleString()} a day).</span></div>
+    <div class="fact"><b>${s.stretches.toLocaleString()}</b><span>road stretches measured; ${s.eligible} have 5+ cycle collisions and are at least half unprotected.</span></div>`;
+  const mx={s:Math.max(...D.both.map(c=>c.safety)),u:Math.max(...D.both.map(c=>c.uplift))};
+  document.getElementById('b-both').innerHTML=`<div class="sh"><h2>Top 10: safer and more cycling</h2><p>Corridors that score on both counts: a record of collisions with little protection, and a large gap between the cycling there now and Dutch levels. The figure is how many times more commuters would cycle there at Dutch levels.</p></div><ol class="both-ol">${D.both.map((c,i)=>row(c,i,'both',mx)).join('')}</ol>`;
+  document.getElementById('b-safety').innerHTML=`<div class="sh"><h2>Top 10 for safety</h2><p>Most harm each year on stretches that are at least half unprotected.</p></div><ol>${D.safety.map((c,i)=>row(c,i,'safety')).join('')}</ol>`;
+  document.getElementById('b-use').innerHTML=`<div class="sh"><h2>Top 10 for more cycling</h2><p>Largest gap between commuters and pupils cycling now and the Go Dutch estimate, on unprotected stretches. The figure is the extra people a day.</p></div><ol>${D.use.map((c,i)=>row(c,i,'use')).join('')}</ol>`;
+  document.getElementById('b-areas').innerHTML=`<div class="sh"><h2>Best three in each area</h2><p>The highest combined scores within each area, for local comparison.</p></div><div class="tw"><table class="at"><thead><tr><th>Area</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>${
+    D.areas.filter(a=>D.per_area[a.id]).map(a=>`<tr><td><a href="area.html?area=${a.id}#danger">${esc(a.name)}</a></td>${[0,1,2].map(i=>{const c=D.per_area[a.id][i];
+      return `<td>${c?`${esc(c.name)}<small>${esc(c.town)} · ${c.n} collisions · ${c.pct_now}→${c.pct_dutch} commuters</small>`:''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  toPart();
+}).catch(e=>{document.getElementById('b-both').innerHTML=`<p class="err" style="padding:16px">Could not load the rankings (${esc(e.message)}). Reload the page to try again.</p>`});
+}
+// --- All areas: the cycling top 10s across every area (data/summary.json) ---
+{
+const SECTIONS=[
+  {key:'popular',cls:'s-pop',tab:'counts',title:'Most popular',sub:'Highest average bikes per day at a counter.',
+   fig:c=>[c.avg,'BIKES/DAY'],val:c=>c.avg,ex:c=>`${c.src.startsWith('DfT')?'DfT count point':c.kind+' · council counter'} · ${c.period}`},
+  {key:'collisions',cls:'s-col',tab:'danger',title:'Most collisions',sub:'Roads with the most injury collisions involving a bicycle.',
+   fig:c=>[c.n,'COLLISIONS'],val:c=>c.n,ex:c=>`${c.fatal?c.fatal+' fatal · ':''}${c.serious} serious · ${c.km.toFixed(1)} km stretch`},
+  {key:'risk',cls:'s-risk',tab:'danger',title:'Highest risk per rider',sub:'Collisions per million km cycled.',
+   fig:c=>[c.rate.toFixed(1),'PER M KM'],val:c=>c.rate,ex:c=>`${c.n} collisions · ~${c.aadf} bikes/day`},
+  {key:'safe',cls:'s-safe',tab:'danger',title:'Safe & busy',sub:'150+ bikes a day and the fewest collisions per km cycled.',
+   fig:c=>[c.aadf,'BIKES/DAY'],val:c=>c.aadf,ex:c=>`${c.n} collision${c.n===1?'':'s'} · ${c.rate.toFixed(1)} per M km`},
+];
+fetch('data/summary.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(S=>{
+  document.getElementById('s-areas').innerHTML=S.areas.map(a=>`<a href="area.html?area=${a.id}">${esc(a.name)}</a>`).join('');
+  document.getElementById('s-grid').innerHTML=SECTIONS.map(sec=>{
+    const rows=S[sec.key],mx=Math.max(...rows.map(sec.val));
+    return `<section class="${sec.cls}"><div class="sh"><h2>${sec.title}</h2><p>${sec.sub}</p></div><ol>${rows.map((c,i)=>{
+      const [f,u]=sec.fig(c);
+      return `<li><a class="row" href="area.html?area=${c.area}#${sec.tab}"><span class="rank">${i+1}</span><span style="min-width:0">
+        <div class="nm">${esc(c.name)}${c.ref&&!c.name.includes(c.ref)?` <span class="ref">${esc(c.ref)}</span>`:''}</div>
+        <div class="loc"><b>${esc(c.town)}</b> · ${esc(c.area_name)}</div>
+        <div class="ex">${esc(sec.ex(c))}</div>
+        <div class="pbar"><i style="width:${(sec.val(c)/mx*100).toFixed(1)}%"></i></div></span>
+        <span class="fig">${f}<small>${u}</small></span></a></li>`}).join('')}</ol></section>`;
+  }).join('');
+  if(S.deprivation&&S.deprivation.length){
+    const el=document.getElementById('s-dep');el.hidden=false;
+    el.innerHTML=`<div class="sh"><h2>Collisions and deprivation</h2><p>Share of cycle collisions in each area's most deprived fifth of neighbourhoods, against the share of residents who live there. Areas where collisions are most over-represented come first.</p></div>
+      <div class="key"><span style="--k:var(--dep)">Cycle collisions</span><span style="--k:var(--line)">Residents</span></div>
+      <div class="tw"><table class="dt"><thead><tr><th>Area</th><th class="dn">Collisions</th><th class="dn">Residents</th><th></th><th class="dn">Collisions counted</th></tr></thead><tbody>${
+      S.deprivation.map(d=>`<tr><td><a href="area.html?area=${d.area}#danger">${esc(d.area_name)}</a></td><td class="dn">${d.coll}%</td><td class="dn">${d.pop}%</td>
+        <td><div class="pair"><i class="c" style="width:${d.coll}%"></i><i class="p" style="width:${d.pop}%"></i></div></td><td class="dn">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  toPart();
+}).catch(e=>{document.getElementById('s-grid').innerHTML=`<p class="err">Could not load the summary (${esc(e.message)}). Reload the page to try again.</p>`});
+}
 </script>
 </body>
 </html>
