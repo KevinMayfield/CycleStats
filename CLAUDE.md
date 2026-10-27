@@ -62,3 +62,45 @@ by car or van availability, from nomisweb.co.uk/sources/census_2021_od). Commute
 Next steps if revisited: add TS058 to `fetch_data.py` and per-town distance bands to `towns.py`; map the main
 destinations of each flat town's lower social grade workers; check whether a protected route exists from Long Eaton
 to Castle Donington (Trent crossing at Sawley, A6/A50).
+
+## Protected, painted and shared provision: collision rates (27 Oct 2026, not on the page)
+
+Do protected tracks, painted lanes and shared pavements change the cycle collision rate on our roads? Run
+`python3 pipeline/infra_rates.py --split` after `priorities.py`, which records each stretch's share protected,
+`paint` (painted lane in the road) and `shared` (pavement shared with walkers); `lane` is paint + shared.
+
+Method: only stretches with a DfT cycle count of 20+ bikes/day (1,321 across the areas), since counted roads are in the
+data whether or not anyone crashed there. Rate = cycle collisions 2021–25 / (bikes/day × km × 365 × 5) per million
+cycle-km, pooled, 95% bootstrap intervals. A stretch is classed by what covers at least half its length.
+
+| Provision | Stretches | Collisions | Per million cycle-km | Killed or seriously injured |
+|---|---|---|---|---|
+| Mostly protected track | 15 | 39 | 2.7 (1.7–3.9) | 0.62 (0.21–0.78) |
+| Mostly shared pavement | 132 | 218 | 3.0 (2.3–3.8) | 1.04 (0.77–1.36) |
+| Mixed | 274 | 676 | 4.2 (3.6–4.7) | 1.11 (0.92–1.32) |
+| Nothing | 819 | 868 | 4.2 (3.8–4.6) | 1.27 (1.10–1.45) |
+| Mostly painted lane | 81 | 320 | 4.5 (3.7–5.4) | 0.99 (0.76–1.35) |
+
+Busy roads only (100+ bikes/day, a fairer comparison since roads with nothing carry fewer cyclists): protected 2.8
+(KSI 0.67), shared pavement 2.8 (0.99), nothing 3.9 (1.06), painted lane 4.1 (0.86).
+
+- Protected: about 35% fewer collisions than nothing and about half the serious ones, in line with London's 40–65%
+  lower injury odds (Adams & Aldred 2020). Only 15 stretches, so the intervals are wide.
+- Painted lanes: no safer than nothing, slightly worse, matching London's +34% injury odds for advisory lanes and
+  Parkin & Meyers (2010) on closer passing beside painted lanes.
+- Shared pavements: fewer collisions in total but as many serious ones as painted lanes; riders still cross every side
+  road. DfT counts are on the carriageway, so pavement riders may be under-counted, and cyclist–pedestrian crashes on
+  pavements are rarely police-reported.
+- All rates are higher on 30 mph roads than on 40 mph+ roads (more junctions; the 40+ sample is mostly rural).
+
+Limits: few protected stretches; DfT counts are often single-day or estimated; OSM tagging varies by area; "mostly"
+leaves junctions unprotected; collisions snap to the nearest named road. Supporting evidence, not proof, for crediting
+partial provision as a quarter of a protected track in the scores.
+
+UK research consulted: Adams & Aldred 2020 (Transport Findings, London injury risk); Li, Graham & Liu 2017 and hEART
+2023 (London Cycle Superhighways); Laverty, Aldred & Goodman 2021 (Waltham Forest LTNs); Goodman, Sahlqvist & Ogilvie
+2014 (iConnect/Connect2); Aldred et al. 2019 (mini-Hollands); Goodman et al. 2013 (Cycling Demonstration Towns);
+Parkin & Meyers 2010 and Stewart & McHale 2014 (passing distance); LTN 1/20 (shared use as a last resort).
+
+Next steps if revisited: check the protected stretches by hand (tagging, junctions); add more years or areas to grow
+the protected sample; compare before and after where a track was built in 2021–25.

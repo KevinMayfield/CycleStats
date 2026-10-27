@@ -85,15 +85,15 @@ def samples(geom, step=30):
 def measure(c):
     pts = list(samples(c['geom']))
     if not pts: return None
-    prot = lane = 0; speeds = []; vals = collections.defaultdict(list)
+    prot = paint = shared = 0; speeds = []; vals = collections.defaultdict(list)
     for la, lo in pts:
         p = P(la, lo)
         _, k = rg.near(p, 25, lambda kk: roadways[kk][0] == c['name'])
         t = tags.get(k, {}) if k else {}
         kind = cyc_tags(t)
         if kind != 'protected' and cg.near(p, 15)[1]: kind = 'protected'
-        elif kind is None and sg.near(p, 15)[1]: kind = 'lane'
-        prot += kind == 'protected'; lane += kind == 'lane'
+        elif kind is None and sg.near(p, 15)[1]: kind = 'shared'
+        prot += kind == 'protected'; paint += kind == 'lane'; shared += kind == 'shared'
         ms = t.get('maxspeed', '').split()
         if ms and ms[0].isdigit(): speeds.append(int(ms[0]))
         for kind_, (grid, props) in pct.items():
@@ -118,7 +118,8 @@ def measure(c):
     return dict(
         name=c['name'], ref=c['ref'], km=c['km'], n=c['n'], ksi=c['ksi'], aadf=c.get('aadf'),
         lat=round(mid[0], 5), lon=round(mid[1], 5), geom=c['geom'],
-        protected=round(prot / n, 2), lane=round(lane / n, 2), speed=max(set(speeds), key=speeds.count) if speeds else None,
+        # partial provision (lane) is a painted lane in the road (paint) or a pavement shared with walkers (shared)
+        protected=round(prot / n, 2), lane=round((paint + shared) / n, 2), paint=round(paint / n, 2), shared=round(shared / n, 2), speed=max(set(speeds), key=speeds.count) if speeds else None,
         pct_now=med(('commute', 'bicycle')), pct_dutch=med(('commute', 'dutch_slc')), pct_women=med(('commute', 'gendereq_slc')),
         school_now=med(('school', 'bicycle')), school_dutch=med(('school', 'dutch_slc')),
         casualties=len(people), women=round(100 * known_sex.count('2') / len(known_sex)) if known_sex else None,
