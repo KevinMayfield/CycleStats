@@ -30,9 +30,10 @@ ROUTES = [
             ('Derby', 52.9255, -1.4740)]),
         dict(name='Derby to Long Eaton', note='Down the Derwent valley to the Trent', pts=[
             ('Derby', 52.9255, -1.4740), ('Borrowash', 52.9050, -1.3830), ('Draycott', 52.8950, -1.3350), ('Long Eaton', 52.8980, -1.2710)]),
-        dict(name='Long Eaton to Newark', note='Down the Trent past Nottingham', pts=[
-            ('Long Eaton', 52.8980, -1.2710), ('Beeston Lock', 52.9174, -1.2083), ('Trent Bridge, Nottingham', 52.9370, -1.1460),
-            ('Gunthorpe', 52.9830, -0.9960), ('Hoveringham', 53.0110, -0.9540), ('Fiskerton', 53.0520, -0.9130), ('Kelham', 53.0900, -0.8460),
+        dict(name='Long Eaton to Nottingham', note='Down the Trent by Beeston to Trent Bridge', pts=[
+            ('Long Eaton', 52.8980, -1.2710), ('Beeston Lock', 52.9174, -1.2083), ('Trent Bridge, Nottingham', 52.9370, -1.1460)]),
+        dict(name='Nottingham to Newark', note='Down the Trent valley by Gunthorpe and Fiskerton', pts=[
+            ('Trent Bridge, Nottingham', 52.9370, -1.1460), ('Gunthorpe', 52.9830, -0.9960), ('Hoveringham', 53.0110, -0.9540), ('Fiskerton', 53.0520, -0.9130), ('Kelham', 53.0900, -0.8460),
             ('Newark-on-Trent', 53.0770, -0.8130)]),
         dict(name='Newark to Gainsborough', note='North along the Lincolnshire bank of the Trent past the Great Army camp at Torksey', pts=[
             ('Newark-on-Trent', 53.0770, -0.8130), ('Winthorpe', 53.0960, -0.7780), ('Collingham', 53.1440, -0.7490), ('Besthorpe', 53.1770, -0.7390),
@@ -275,7 +276,8 @@ USE = dict(
 )
 TOWN_REACH = 300
 PCT_REACH = 150    # m: the Propensity to Cycle Tool's flow on a road running the same way within this distance
-PCT_BIN = 500      # m: predicted flows are smoothed over stretches of this length   # m: a route serves a town if it passes through its built-up area or within this distance of its edge
+PCT_BIN = 500      # m: predicted flows are smoothed over stretches of this length
+OD_MAX_KM = 15     # town pairs further apart than this are past everyday cycling range, so their commuters don't count   # m: a route serves a town if it passes through its built-up area or within this distance of its edge
 
 
 def dist(a, b): return math.hypot(a[0] - b[0], a[1] - b[1])
@@ -429,10 +431,59 @@ def main():
             if kind not in best or dd < best[kind][0]: best[kind] = (dd, now, dutch)
         return sum(v[1] for v in best.values()), sum(v[2] for v in best.values())
 
+    # people who commute between towns (Census 2021 home-to-work flows by MSOA, raw/od/, downloaded by hand; see
+    # README). MSOAs are matched to towns through their LSOAs: an LSOA's name is its MSOA's name plus a letter.
+    tid = {t['id']: t for t in towns}
+    od_pairs = {}
+    od_cache = os.path.join(CACHE, 'od_pairs.json')
+    od_src = os.path.join(HERE, '..', 'raw', 'od', 'ODWP01EW_MSOA.csv')
+    if os.path.exists(od_cache):
+        od_pairs = json.load(open(od_cache))
+    elif os.path.exists(od_src):
+        lsoa_msoa = {}
+        for row in csv.reader(open(os.path.join(HERE, '..', 'raw', 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
+            if row[0].startswith('E01'): lsoa_msoa[row[0]] = row[1][:-1]
+        votes = collections.defaultdict(collections.Counter)
+        for row in csv.DictReader(open(os.path.join(HERE, '..', 'raw', 'imd', 'lsoa_bua.csv'))):
+            if row['lsoa'] in lsoa_msoa and row['bua'] in tid: votes[lsoa_msoa[row['lsoa']]][row['bua']] += 1
+        msoa_town = {m: c.most_common(1)[0][0] for m, c in votes.items()}
+        cnt = collections.Counter()
+        with open(od_src) as f:
+            for row in csv.reader(f):
+                if row[4] != '3': continue   # working at a workplace in the UK, not from home
+                a, b = msoa_town.get(row[1]), msoa_town.get(row[3])
+                if a and b and a != b: cnt['|'.join(sorted((a, b)))] += int(row[6])
+        od_pairs = dict(cnt); json.dump(od_pairs, open(od_cache, 'w'))
+    print(f'Census flows: {len(od_pairs)} town pairs')
+
+    def km_between(a, b):
+        return dist(P(tid[a]['lat'], tid[a]['lon']), P(tid[b]['lat'], tid[b]['lon'])) / 1000
+
+    def route_commuters(rstages, track):
+        """people commuting between two towns along a route, credited to every stage between them. Each town sits where
+        the route passes closest to its centre; a pair counts when the route runs between them (at least half their
+        straight-line distance apart along it) and they are within everyday cycling range"""
+        towns_on = []
+        for s in rstages: towns_on += [t for t in s['towns'] if t not in towns_on]
+        pos = {}
+        for t in towns_on:
+            c = P(tid[t]['lat'], tid[t]['lon'])
+            pos[t] = min(track, key=lambda x: dist(x[1], c))[0]
+        for s in rstages: s['od'] = []
+        for i, a in enumerate(towns_on):
+            for b in towns_on[i + 1:]:
+                n, d = od_pairs.get('|'.join(sorted((a, b))), 0), km_between(a, b)
+                lo, hi = sorted((pos[a], pos[b]))
+                if not n or d > OD_MAX_KM or hi - lo < 0.5 * d: continue
+                for s in rstages:
+                    if min(s['_to'], hi) - max(s['_from'], lo) >= 1.0: s['od'].append([a, b, n, round(d, 1)])   # 1 km+ of the stage between them
+        for s in rstages:
+            s['od'].sort(key=lambda x: -x[2]); s.pop('_from'); s.pop('_to')
+
     # 4. measure every 25 m
     out_routes, segs, coll_all, pbins = [], [], {}, []
     for r in ROUTES:
-        rstages = []
+        rstages = []; track = []; route_km = 0.0
         for sn, st in enumerate(r['stages'], 1):
             coords = st['geo']['features'][0]['geometry']['coordinates']; props = st['geo']['features'][0]['properties']
             samples = []
@@ -440,7 +491,7 @@ def main():
                 L = dist(P(a[1], a[0]), P(b[1], b[0])); k = max(1, int(L // 25))
                 u = ((P(b[1], b[0])[0] - P(a[1], a[0])[0]) / (L or 1), (P(b[1], b[0])[1] - P(a[1], a[0])[1]) / (L or 1))
                 for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k, L / k, u))
-            mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None; served = []
+            mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None; served = []; along = 0.0
             pbin, pacc, pvals = [], 0.0, []
             for s in samples:
                 p = P(s[0], s[1]); w = s[2]; cls, k = classify(p)
@@ -451,6 +502,8 @@ def main():
                 pacc += w; pbin[-1]['pts'].append([round(s[0], 5), round(s[1], 5)]); pbin[-1]['vals'].append((now, dutch, cls in ('main', 'busy')))
                 for t in town_at(p):
                     if t not in served: served.append(t)
+                if int(along // 100) != int((along + w) // 100): track.append((route_km + along / 1000, p))
+                along += w
                 mix[cls] += w
                 rid = near(ncn, p, 15)
                 if rid: onroute[ninfo[rid]] += w
@@ -499,12 +552,14 @@ def main():
             rstages.append(dict(n=sn, name=st['name'], note=st['note'], km=round(km, 1), ascent=int(props.get('filtered ascend', 0)), profile=prof,
                                 mix={c: round(v / 1000, 1) for c, v in mix.items()}, via=st['via'],
                                 routes=[dict(name=k, km=round(v / 1000, 1)) for k, v in onroute.most_common(4) if v >= 1000],
-                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi, towns=served, pred=pred,
+                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi, towns=served, pred=pred, _from=route_km, _to=route_km + along / 1000,
                                 todo=sorted(todo, key=lambda t: -t['km'])))
+            route_km += along / 1000
         tot = collections.Counter()
         for s in rstages:
             for c, v in s['mix'].items(): tot[c] += v
         kmr = sum(s['km'] for s in rstages)
+        route_commuters(rstages, track)
         rtowns = []
         for s in rstages: rtowns += [t for t in s['towns'] if t not in rtowns]
         out_routes.append(dict(id=r['id'], name=r['name'], sub=r['sub'], joins=r.get('joins'), card=r.get('card', True), use=USE[r['id']][0], who=USE[r['id']][1], towns=rtowns, km=round(kmr, 1),
@@ -521,6 +576,7 @@ def main():
         print(f"{r['name']}: {r['km']} km, {r['ascent']} m up, signed {r['signed']}%, {r['mix']}")
         print('   towns:', ', '.join(out['towns'][t]['name'] for t in r['towns']))
         print('   predicted a day:', [(s['name'], s['pred']) for s in r['stages']])
+        print('   commuters between towns:', [(s['name'], sum(x[2] for x in s['od'])) for s in r['stages']])
         for s in r['stages']:
             print(f"   {s['n']}. {s['name']}: {s['km']} km {s['mix']} to do: {[(t['road'], t['km']) for t in s['todo'][:4]]}")
 
