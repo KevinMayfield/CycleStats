@@ -19,8 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 CACHE = os.path.join(RAW, 'danelaw')
 UA = {'User-Agent': 'CycleStats/1.0 (https://github.com/KevinMayfield/CycleStats)'}
-AREAS = ['sheffield', 'rotherham', 'middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'east-riding',
-         'north-yorkshire', 'leeds', 'wakefield', 'doncaster-barnsley']
+AREAS = ['south-yorkshire', 'middlesbrough-redcar', 'rutland', 'leicestershire', 'east-midlands', 'lincolnshire', 'east-riding',
+         'north-yorkshire', 'west-yorkshire']
 
 # routes, stages and legs. Points are (name, lat, lon); link legs may add via points after the end point.
 ROUTES = [

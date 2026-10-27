@@ -1,31 +1,11 @@
 [
  {
-  "id": "leeds",
-  "name": "Leeds"
+  "id": "west-yorkshire",
+  "name": "West Yorkshire"
  },
  {
-  "id": "sheffield",
-  "name": "Sheffield"
- },
- {
-  "id": "kirklees-calderdale",
-  "name": "Kirklees & Calderdale"
- },
- {
-  "id": "bradford",
-  "name": "Bradford"
- },
- {
-  "id": "wakefield",
-  "name": "Wakefield"
- },
- {
-  "id": "doncaster-barnsley",
-  "name": "Doncaster & Barnsley"
- },
- {
-  "id": "rotherham",
-  "name": "Rotherham"
+  "id": "south-yorkshire",
+  "name": "South Yorkshire"
  },
  {
   "id": "east-riding",
@@ -36,12 +16,8 @@
   "name": "Lincolnshire"
  },
  {
-  "id": "nottinghamshire",
-  "name": "Nottingham & Nottinghamshire"
- },
- {
-  "id": "derbyshire",
-  "name": "Derby & Derbyshire"
+  "id": "east-midlands",
+  "name": "East Midlands Combined County Authority"
  },
  {
   "id": "north-yorkshire",
