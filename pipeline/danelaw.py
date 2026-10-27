@@ -59,6 +59,15 @@ ROUTES = [
             ('Barton-upon-Humber', 53.6840, -0.4390), ('Hessle', 53.7230, -0.4380), ('North Ferriby', 53.7210, -0.5040), ('Brough', 53.7290, -0.5720),
             ('Howden', 53.7450, -0.8680)]),
     ]),
+    dict(id='repton', name='Repton extension', sub='Derby to Repton by Heath Wood', joins='Derby', stages=[
+        dict(name='Derby to Repton', note='Over the Trent at Swarkestone Bridge to the Viking cemetery at Heath Wood and the Great Army camp at Repton', pts=[
+            ('Derby', 52.9255, -1.4740), ('Chellaston', 52.8700, -1.4400), ('Swarkestone', 52.8530, -1.4520), ('Ingleby', 52.8290, -1.4950),
+            ('Repton', 52.8390, -1.5500)]),
+    ]),
+    dict(id='stamfordbridge', name='Stamford Bridge extension', sub='York to Stamford Bridge', joins='York', stages=[
+        dict(name='York to Stamford Bridge', note='East from Jorvik to the battlefield of 1066', pts=[
+            ('York', 53.9620, -1.0815), ('Osbaldwick', 53.9600, -1.0300), ('Dunnington', 53.9650, -0.9850), ('Stamford Bridge', 53.9920, -0.9140)]),
+    ]),
     dict(id='soar', name='Soar variant', sub='Leicester to Long Eaton', joins='Long Eaton', stages=[
         dict(name='Leicester to Long Eaton', note='Down the Soar from Leicester, one of the Five Boroughs, to the Trent', pts=[
             ('Leicester', 52.6340, -1.1430), ('Birstall', 52.6760, -1.1200), ('Barrow upon Soar', 52.7530, -1.1500), ('Loughborough', 52.7720, -1.2050),
@@ -92,8 +101,8 @@ ROUTES = [
 
 SITES = [
     dict(name='Leicester', lat=52.6340, lon=-1.1430, on='soar', text='One of the Five Boroughs of the Danelaw, and the start of the Soar variant. Æthelflæd of Mercia took it back from the Danes in 918.'),
-    dict(name='Heath Wood, Ingleby', lat=52.8270, lon=-1.5070, on=None, text='Off the route, near Repton: the only known Viking cremation cemetery in Britain, around 60 barrows above the Trent.'),
-    dict(name='Repton', lat=52.8390, lon=-1.5500, on=None, text='Off the route, 13 km up the Trent from Derby. The Great Heathen Army wintered here in 873–874 and drove out the Mercian king; a Viking camp and burials have been excavated by the church.'),
+    dict(name='Heath Wood, Ingleby', lat=52.8270, lon=-1.5070, on='repton', text='The only known Viking cremation cemetery in Britain: around 60 barrows in the wood above the Trent, on the Repton extension.'),
+    dict(name='Repton', lat=52.8390, lon=-1.5500, on='repton', text='At the end of the Repton extension, up the Trent from Derby. The Great Heathen Army wintered here in 873–874 and drove out the Mercian king; a Viking camp and burials have been excavated by the church.'),
     dict(name='Derby', lat=52.9255, lon=-1.4740, on='main', text='One of the Five Boroughs. Its name is Old Norse, Djúrabý, "deer farm". Æthelflæd, Lady of the Mercians, took it back from the Danes in 917.'),
     dict(name='Nottingham', lat=52.9370, lon=-1.1460, on='main', text='Another of the Five Boroughs. The Great Heathen Army wintered here in 867–868.'),
     dict(name='Stow Minster', lat=53.3270, lon=-0.6760, on=None, text='Off the route, 5 km from Torksey. A great Anglo-Saxon minster with the earliest known carving of a Viking ship in England scratched into a pillar.'),
@@ -113,7 +122,7 @@ SITES = [
     dict(name='Selby', lat=53.7845, lon=-1.0640, on='main', text='A name of Old Norse origin, probably "willow farm", like many -by places along the Way.'),
     dict(name='Riccall', lat=53.8330, lon=-1.0590, on='main', text='Harald Hardrada\'s fleet came up the Ouse and landed here in September 1066, the last great Viking invasion of England.'),
     dict(name='Fulford', lat=53.9370, lon=-1.0710, on='main', text='Harald Hardrada beat the northern earls here on 20 September 1066, five days before his defeat at Stamford Bridge.'),
-    dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on=None, text='Off the route, 11 km east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
+    dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='stamfordbridge', text='At the end of the Stamford Bridge extension, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
 ]
 
