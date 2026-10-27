@@ -150,10 +150,11 @@ Promise.all([get('data/areas.json'),get('data/towns.json'),get('data/danelaw-lin
     fg.bindTooltip(`<b>Danelaw: ${esc(r.name)}</b><br>${esc(r.sub)} · ${p1(r.km)} km<br><span style="opacity:.75">Click for the Danelaw Cycle Network</span>`,{sticky:true,className:'tt'})
       .on('click',()=>location.href='danelaw.html').addTo(m);
   });
-  // area names
+  // area names, with a short label where the full name would crowd its neighbours (tooltips and cards keep the full name)
+  const SHORT={'east-midlands':'East Midlands'};
   T.outlines.filter(o=>names[o.id]).forEach(o=>{const r=o.rings.reduce((a,b)=>ringArea(b)>ringArea(a)?b:a);
     const c=r.reduce((s,p)=>[s[0]+p[0]/r.length,s[1]+p[1]/r.length],[0,0]);
-    L.tooltip({permanent:true,direction:'center',className:'lab',interactive:false}).setLatLng(c).setContent(esc(names[o.id])).addTo(m)});
+    L.tooltip({permanent:true,direction:'center',className:'lab',interactive:false}).setLatLng(c).setContent(esc(SHORT[o.id]||names[o.id])).addTo(m)});
   m.fitBounds(all.getBounds().pad(.02));
   const sw=(k,t)=>`<span><i style="background:var(${TIER[k][1]})"></i>${t}</span>`;
   document.getElementById('legend').innerHTML=sw('flat',`Flat town (routes ${T.flat_max}% or less)`)+sw('gentle',`Gently sloping (to ${T.gentle_max}%)`)+sw('hilly','Hilly')+sw('bench','Hull and York')+(DL?'<span><i class="ln"></i>Danelaw Cycle Network route</span>':'')+'<span><i class="ar"></i>Area (click for its map)</span>';

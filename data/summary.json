@@ -73,6 +73,18 @@
    "lon": -1.10262161
   },
   {
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
+   "name": "Woodhouse Lane (A660)",
+   "town": "Leeds",
+   "avg": 955,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 97318",
+   "period": "2025",
+   "lat": 53.81048322,
+   "lon": -1.55607128
+  },
+  {
    "area": "east-riding",
    "area_name": "Hull & East Riding",
    "name": "Holderness Road (A165)",
@@ -107,18 +119,6 @@
    "period": "2021–2025",
    "lat": 53.96343744,
    "lon": -1.11729292
-  },
-  {
-   "area": "north-yorkshire",
-   "area_name": "York & North Yorkshire",
-   "name": "Bishopgate Street (A1036)",
-   "town": "York",
-   "avg": 820,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 60057",
-   "period": "2021–2025",
-   "lat": 53.95376751,
-   "lon": -1.0826149
   }
  ],
  "collisions": [
@@ -174,11 +174,11 @@
    "lon": -0.3494
   },
   {
-   "area": "leeds",
-   "area_name": "Leeds",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Otley Road",
    "ref": "A660",
-   "town": "Headingley, Leeds",
+   "town": "Leeds",
    "km": 2.86,
    "n": 28,
    "fatal": 0,
@@ -191,8 +191,8 @@
    "lon": -1.58217
   },
   {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Mansfield Road",
    "ref": "A60",
    "town": "Nottingham",
@@ -225,11 +225,11 @@
    "lon": -0.37667
   },
   {
-   "area": "leeds",
-   "area_name": "Leeds",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Headingley Lane",
    "ref": "A660",
-   "town": "Hyde Park, Leeds",
+   "town": "Leeds",
    "km": 1.13,
    "n": 25,
    "fatal": 0,
@@ -242,11 +242,11 @@
    "lon": -1.56413
   },
   {
-   "area": "leeds",
-   "area_name": "Leeds",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Kirkstall Road",
    "ref": "A65",
-   "town": "Burley, Leeds",
+   "town": "Leeds",
    "km": 4.51,
    "n": 24,
    "fatal": 0,
@@ -312,55 +312,38 @@
    "lon": -1.063737
   },
   {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Woodborough Road",
    "ref": "B684",
    "town": "Nottingham",
-   "km": 3.56,
+   "km": 3.57,
    "n": 9,
    "fatal": 0,
    "serious": 1,
    "ksi": 1,
    "aadf": 22,
-   "rate": 63.0,
+   "rate": 62.8,
    "match": "on road",
    "lat": 52.96944,
    "lon": -1.14214
   },
   {
-   "area": "bradford",
-   "area_name": "Bradford",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Barkerend Road",
    "ref": "B6381",
-   "town": "Bradford Moor, Bradford",
-   "km": 1.28,
+   "town": "Bradford",
+   "km": 1.29,
    "n": 7,
    "fatal": 1,
    "serious": 2,
    "ksi": 3,
    "aadf": 58,
-   "rate": 51.7,
+   "rate": 51.3,
    "match": "same road, 0.2 km away",
    "lat": 53.79834,
    "lon": -1.72087
-  },
-  {
-   "area": "bradford",
-   "area_name": "Bradford",
-   "name": "Leeds Old Road",
-   "ref": "B6381",
-   "town": "Bradford Moor, Bradford",
-   "km": 1.0,
-   "n": 5,
-   "fatal": 0,
-   "serious": 1,
-   "ksi": 1,
-   "aadf": 58,
-   "rate": 47.2,
-   "match": "on road",
-   "lat": 53.8004784,
-   "lon": -1.7113322
   },
   {
    "area": "lincolnshire",
@@ -380,8 +363,8 @@
    "lon": -0.09281
   },
   {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Ilkeston Road",
    "ref": "A609",
    "town": "Nottingham",
@@ -397,11 +380,11 @@
    "lon": -1.1665
   },
   {
-   "area": "bradford",
-   "area_name": "Bradford",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Queen's Road",
    "ref": "A6177",
-   "town": "Bolton, Bradford",
+   "town": "Bradford",
    "km": 1.42,
    "n": 8,
    "fatal": 0,
@@ -414,8 +397,8 @@
    "lon": -1.7529
   },
   {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Upper Parliament Street",
    "ref": "A6008",
    "town": "Nottingham",
@@ -431,28 +414,28 @@
    "lon": -1.15052
   },
   {
-   "area": "leeds",
-   "area_name": "Leeds",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Armley Road",
    "ref": "A647",
-   "town": "Armley, Leeds",
-   "km": 0.71,
+   "town": "Leeds",
+   "km": 0.72,
    "n": 13,
    "fatal": 0,
    "serious": 5,
    "ksi": 5,
    "aadf": 298,
-   "rate": 33.7,
+   "rate": 33.2,
    "match": "on road",
    "lat": 53.79802,
    "lon": -1.57659
   },
   {
-   "area": "bradford",
-   "area_name": "Bradford",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Leeds Road",
    "ref": "A647",
-   "town": "Barkerend, Bradford",
+   "town": "Bradford",
    "km": 4.17,
    "n": 13,
    "fatal": 1,
@@ -463,15 +446,32 @@
    "match": "on road",
    "lat": 53.7931897,
    "lon": -1.7434332
+  },
+  {
+   "area": "south-yorkshire",
+   "area_name": "South Yorkshire",
+   "name": "Trafford Way",
+   "ref": "A630",
+   "town": "Doncaster",
+   "km": 1.08,
+   "n": 5,
+   "fatal": 0,
+   "serious": 2,
+   "ksi": 2,
+   "aadf": 101,
+   "rate": 25.1,
+   "match": "on road",
+   "lat": 53.52281,
+   "lon": -1.13852
   }
  ],
  "safe": [
   {
-   "area": "sheffield",
-   "area_name": "Sheffield",
+   "area": "south-yorkshire",
+   "area_name": "South Yorkshire",
    "name": "Sheaf Street",
    "ref": "A61",
-   "town": "Park Hill, Sheffield",
+   "town": "Sheffield",
    "km": 0.93,
    "n": 0,
    "ksi": 0,
@@ -495,11 +495,11 @@
    "lon": -0.08947
   },
   {
-   "area": "leeds",
-   "area_name": "Leeds",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Leeds Road",
    "ref": "A660",
-   "town": "Holt Park, Leeds",
+   "town": "Leeds",
    "km": 1.39,
    "n": 0,
    "ksi": 0,
@@ -509,22 +509,8 @@
    "lon": -1.5962
   },
   {
-   "area": "bradford",
-   "area_name": "Bradford",
-   "name": "Bradford Road",
-   "ref": "A65",
-   "town": "Menston, Baildon",
-   "km": 0.93,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 307,
-   "rate": 0.0,
-   "lat": 53.89148,
-   "lon": -1.73137
-  },
-  {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Clifton Boulevard",
    "ref": "A52",
    "town": "Nottingham",
@@ -537,11 +523,11 @@
    "lon": -1.18086
   },
   {
-   "area": "sheffield",
-   "area_name": "Sheffield",
+   "area": "south-yorkshire",
+   "area_name": "South Yorkshire",
    "name": "Queens Road",
    "ref": "A61",
-   "town": "Highfield, Sheffield",
+   "town": "Sheffield",
    "km": 1.7,
    "n": 0,
    "ksi": 0,
@@ -551,11 +537,11 @@
    "lon": -1.4664336
   },
   {
-   "area": "sheffield",
-   "area_name": "Sheffield",
+   "area": "south-yorkshire",
+   "area_name": "South Yorkshire",
    "name": "Attercliffe Common",
    "ref": "A6178",
-   "town": "Carbrook, Sheffield",
+   "town": "Sheffield",
    "km": 1.27,
    "n": 0,
    "ksi": 0,
@@ -579,8 +565,8 @@
    "lon": -1.09583
   },
   {
-   "area": "derbyshire",
-   "area_name": "Derby & Derbyshire",
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
    "name": "Eastgate",
    "ref": "A52",
    "town": "Derby",
@@ -593,11 +579,11 @@
    "lon": -1.4670928
   },
   {
-   "area": "bradford",
-   "area_name": "Bradford",
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
    "name": "Coutances Way",
    "ref": "A65",
-   "town": "Esscroft, Ilkley",
+   "town": "Ilkley",
    "km": 1.87,
    "n": 0,
    "ksi": 0,
@@ -605,6 +591,20 @@
    "rate": 0.0,
    "lat": 53.92063,
    "lon": -1.77182
+  },
+  {
+   "area": "lincolnshire",
+   "area_name": "Lincolnshire",
+   "name": "Moorland Avenue",
+   "ref": null,
+   "town": "Bracebridge",
+   "km": 1.27,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 222,
+   "rate": 0.0,
+   "lat": 53.20787,
+   "lon": -0.56658
   }
  ],
  "deprivation": [
@@ -614,13 +614,6 @@
    "coll": 48,
    "pop": 28,
    "n": 1387
-  },
-  {
-   "area": "derbyshire",
-   "area_name": "Derby & Derbyshire",
-   "coll": 35,
-   "pop": 20,
-   "n": 1074
   },
   {
    "area": "lincolnshire",
@@ -637,32 +630,18 @@
    "n": 852
   },
   {
-   "area": "kirklees-calderdale",
-   "area_name": "Kirklees & Calderdale",
-   "coll": 45,
-   "pop": 32,
-   "n": 415
+   "area": "east-midlands",
+   "area_name": "East Midlands Combined County Authority",
+   "coll": 31,
+   "pop": 22,
+   "n": 2555
   },
   {
-   "area": "rotherham",
-   "area_name": "Rotherham",
-   "coll": 44,
-   "pop": 35,
-   "n": 143
-  },
-  {
-   "area": "leeds",
-   "area_name": "Leeds",
-   "coll": 36,
-   "pop": 29,
-   "n": 1209
-  },
-  {
-   "area": "bradford",
-   "area_name": "Bradford",
-   "coll": 59,
-   "pop": 53,
-   "n": 467
+   "area": "west-yorkshire",
+   "area_name": "West Yorkshire",
+   "coll": 42,
+   "pop": 36,
+   "n": 2404
   },
   {
    "area": "middlesbrough-redcar",
@@ -672,27 +651,6 @@
    "n": 234
   },
   {
-   "area": "wakefield",
-   "area_name": "Wakefield",
-   "coll": 38,
-   "pop": 33,
-   "n": 313
-  },
-  {
-   "area": "doncaster-barnsley",
-   "area_name": "Doncaster & Barnsley",
-   "coll": 43,
-   "pop": 39,
-   "n": 408
-  },
-  {
-   "area": "nottinghamshire",
-   "area_name": "Nottingham & Nottinghamshire",
-   "coll": 28,
-   "pop": 24,
-   "n": 1481
-  },
-  {
    "area": "north-yorkshire",
    "area_name": "York & North Yorkshire",
    "coll": 8,
@@ -700,48 +658,28 @@
    "n": 1145
   },
   {
+   "area": "south-yorkshire",
+   "area_name": "South Yorkshire",
+   "coll": 37,
+   "pop": 37,
+   "n": 1163
+  },
+  {
    "area": "rutland",
    "area_name": "Rutland",
    "coll": 0,
    "pop": 0,
    "n": 14
-  },
-  {
-   "area": "sheffield",
-   "area_name": "Sheffield",
-   "coll": 32,
-   "pop": 36,
-   "n": 612
   }
  ],
  "areas": [
   {
-   "id": "leeds",
-   "name": "Leeds"
+   "id": "west-yorkshire",
+   "name": "West Yorkshire"
   },
   {
-   "id": "sheffield",
-   "name": "Sheffield"
-  },
-  {
-   "id": "kirklees-calderdale",
-   "name": "Kirklees & Calderdale"
-  },
-  {
-   "id": "bradford",
-   "name": "Bradford"
-  },
-  {
-   "id": "wakefield",
-   "name": "Wakefield"
-  },
-  {
-   "id": "doncaster-barnsley",
-   "name": "Doncaster & Barnsley"
-  },
-  {
-   "id": "rotherham",
-   "name": "Rotherham"
+   "id": "south-yorkshire",
+   "name": "South Yorkshire"
   },
   {
    "id": "east-riding",
@@ -752,12 +690,8 @@
    "name": "Lincolnshire"
   },
   {
-   "id": "nottinghamshire",
-   "name": "Nottingham & Nottinghamshire"
-  },
-  {
-   "id": "derbyshire",
-   "name": "Derby & Derbyshire"
+   "id": "east-midlands",
+   "name": "East Midlands Combined County Authority"
   },
   {
    "id": "north-yorkshire",

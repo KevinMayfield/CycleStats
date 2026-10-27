@@ -291,7 +291,7 @@ def main():
     print('DfT traffic counts')
     for aid, cfg in areas.items():
         fetch_aadf(aid, cfg)
-    if any(c['counters'] == 'leeds' for c in areas.values()):
+    if any('leeds' in c['counters'] for c in areas.values()):
         print('Leeds City Council cycle counters')
         fetch_leeds_counters()
     print('Deprivation and car availability')

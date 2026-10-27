@@ -2,21 +2,15 @@
 
 **[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
 
-An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: fifteen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: nine areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
-| **Leeds** | City of Leeds district |
-| **Sheffield** | City of Sheffield |
-| **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
-| **Bradford** | City of Bradford district |
-| **Wakefield** | Wakefield district |
-| **Doncaster & Barnsley** | Doncaster and Barnsley districts |
-| **Rotherham** | Rotherham district |
+| **West Yorkshire** | Leeds, Bradford, Kirklees, Calderdale and Wakefield (Leeds, Bradford, Huddersfield, Halifax, Wakefield, Dewsbury, Keighley) |
+| **South Yorkshire** | Sheffield, Rotherham, Doncaster and Barnsley |
 | **Hull & East Riding** | Kingston upon Hull and the East Riding of Yorkshire (Hull, Beverley, Bridlington, Goole) |
 | **Lincolnshire** | Lincolnshire county, North Lincolnshire and North East Lincolnshire (Lincoln, Boston, Grantham, Skegness, Grimsby, Immingham, Scunthorpe) |
-| **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
-| **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
+| **East Midlands Combined County Authority** | Derby, Derbyshire, Nottingham and Nottinghamshire (Nottingham, Derby, Mansfield, Chesterfield, Worksop, Newark, Beeston, Long Eaton, Ilkeston, Buxton) |
 | **Leicester & Leicestershire** | Leicester city and Leicestershire county (Loughborough, Hinckley, Coalville, Melton Mowbray, Market Harborough) |
 | **Rutland** | Rutland county (Oakham, Uppingham, Rutland Water) |
 | **York & North Yorkshire** | City of York and the North Yorkshire council area (York, Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
@@ -26,7 +20,7 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 |---|---|---|
 | **Routes & paths** | The 10 longest signed cycle routes and the 10 longest dedicated cycle paths (cycleways and bike-designated paths), measured inside the area, plus the suggested Danelaw Cycle Network routes that cross it (dashed; `danelaw_lines.py` writes their outlines to `data/danelaw-lines.json`) | OpenStreetMap, Danelaw Cycle Network |
 | **Safety** | Where cyclists are hurt and safer alternatives, on one map: the most dangerous roads (the 10 with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1, merged with the 10 with the most collisions per million km cycled), the roads with 150+ bikes a day and the fewest collisions per km cycled, cycle paths, and every collision | DfT STATS19 2021–2025 + DfT traffic counts + OpenStreetMap |
-| **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
+| **Bike counts** | The busiest DfT count points; in West Yorkshire also every Leeds City Council automatic counter, including off-road paths | Leeds City Council / DfT |
 | **Towns & health** | The area's flat and gently sloping towns, sortable by how many more people would cycle at Hull and York levels or by health gain (health need × room for cycling to grow), with Hull and York as the benchmark; each town links to its roads to improve on `towns.html` | `data/towns.json`, `data/health.json` |
 
 The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Safety tab says what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
@@ -64,7 +58,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 | 2 | `build_osm.py` | Clips routes and paths to the area, joins path segments by name, snaps each cycle collision to the nearest named road within 40 m and groups roads into connected stretches |
 | 3 | `dft_usage.py` | Matches DfT count points to the high-collision roads and works out collisions per million km cycled |
 | 4 | `safe_busy.py` | Same calculation for every road that has a DfT count, then ranks the well-used ones by lowest rate |
-| 5 | `council_counters.py` | Leeds: averages each council counter over complete days. Other areas: lists the busiest DfT count points. Then attaches the busiest count to each path and route |
+| 5 | `council_counters.py` | Lists the busiest DfT count points, and for West Yorkshire (`counters: leeds+dft`) also averages each Leeds City Council counter over complete days. Then attaches the busiest count to each path and route |
 | 6 | `deprivation.py` | Writes `data/<area>-imd.json` (LSOA outlines with IMD, housing condition and no-car figures), counts cycle collisions by deprivation decile using the LSOA in each STATS19 record, and tags each listed road with the decile at its midpoint |
 | 7 | `priorities.py` | For every stretch with collisions or a DfT count: harm, share protected (a dedicated cycle track beside the road, `foot=no`, or lanes physically separated by bollards, kerbs or wands) or partial (painted lane, or a pavement shared with walkers or split by a painted line, credited as a quarter of a track), speed limit, PCT commuters and pupils now and Go Dutch, and the share of cyclist casualties who were women or children |
 
@@ -81,7 +75,7 @@ Add an entry to `pipeline/areas.json`, then run `pipeline/run_all.sh <id>`. An a
 - **DfT bike counts** on most roads come from a single-day manual count, often carried forward from an earlier year. They undercount weekend and leisure riding. Where a road has no count point on it, the nearest count point on the same road number within 3 km is used, and the page says so.
 - **Leeds council counters** are averaged over complete days in the latest 12 months. Counters that have stopped reporting use their last full year (Kirkstall Forge towpath and Meanwood path: Dec 2023 – Nov 2024; Wykebeck Woods: July 2022 only). Some counters record one direction of a one-way lane. Leeds is the only area here with open automatic counter data.
 - **ELOR** (Leeds) has no council counter. Its figures are two DfT one-day counts from 2023 and are likely to understate use.
-- **Nottingham & Nottinghamshire**, **Derby & Derbyshire** and **Leicester & Leicestershire** each combine a city (unitary) council with its county, so their DfT count points come from both highway authorities.
+- **The East Midlands Combined County Authority** (Nottingham and Derby with their counties) and **Leicester & Leicestershire** each combine city (unitary) councils with their counties, so their DfT count points come from both highway authorities.
 - **North Yorkshire** became one council in 2023; collisions recorded under the former county and district codes are included.
 - **Sheffield** and **Barnsley** changed ONS code in 2023 (E08000019 → E08000039, E08000016 → E08000038); collisions under both codes are included.
 - **Deprivation** deciles are national: decile 1 is the most deprived 10% of neighbourhoods in England. A collision's neighbourhood says where it happened, not where the cyclist lives.

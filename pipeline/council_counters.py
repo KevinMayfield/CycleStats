@@ -1,5 +1,5 @@
-"""Bike counts for the Bike counts tab: Leeds City Council automatic counters for Leeds,
-the busiest DfT traffic count points everywhere else. Also attaches the busiest count to each path and route."""
+"""Bike counts for the Bike counts tab: the busiest DfT traffic count points, plus Leeds City Council's automatic counters
+where the area includes Leeds (counters 'leeds+dft'). Also attaches the busiest count to each path and route."""
 import csv, collections, json
 from area import *
 
@@ -85,7 +85,17 @@ def dft_counts(top=15):
     return cs[:top], blurb
 
 
-cs, blurb = leeds_counts() if CFG['counters'] == 'leeds' else dft_counts()
+if CFG['counters'] == 'leeds+dft':
+    # West Yorkshire: Leeds's automatic counters, and the busiest DfT count points across all five districts
+    lc, _ = leeds_counts(); dc, _ = dft_counts()
+    ids = {c['id'] for c in lc}
+    cs = lc + [c for c in dc if c['id'] not in ids]
+    blurb = ('Average bikes per day from Leeds City Council automatic counters (12 months to the latest data where available) and the busiest DfT '
+             f"traffic count points {CFG['in']}, 2021–25. Green dots are off-road paths. Leeds is the only council here with open data from automatic "
+             'counters; most DfT counts are single weekday counts on main roads, so leisure riding is undercounted. Counters on one-way lanes count one '
+             'direction only. Police collision data does not cover off-road paths, so they have usage figures but no safety rating.')
+else:
+    cs, blurb = dft_counts()
 cs.sort(key=lambda c: -c['avg'])
 d = json.load(open(A + 'work/data.json'))
 d['counts'] = cs; d['meta']['counts_blurb'] = blurb

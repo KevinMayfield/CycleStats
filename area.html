@@ -392,10 +392,9 @@ function renderCounts(){
 // terrain colours match the overview and the towns page (flat orange, gently sloping purple, Hull and York green); health
 // need uses the red/amber/green convention of the towns page (worse than England by 10% or more, within 10%, better)
 const TIERC=k=>css({flat:'--t-flat',gentle:'--t-gentle',bench:'--t-bench'}[k]),TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
-const ICB_OF={leeds:'West Yorkshire',bradford:'West Yorkshire','kirklees-calderdale':'West Yorkshire',wakefield:'West Yorkshire',
-  sheffield:'South Yorkshire',rotherham:'South Yorkshire','doncaster-barnsley':'South Yorkshire',
+const ICB_OF={'west-yorkshire':'West Yorkshire','south-yorkshire':'South Yorkshire',
   'east-riding':'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
-  lincolnshire:['Lincolnshire','Humber and North Yorkshire'],nottinghamshire:'Nottingham and Nottinghamshire',derbyshire:'Derby and Derbyshire',
+  lincolnshire:['Lincolnshire','Humber and North Yorkshire'],'east-midlands':['Nottingham and Nottinghamshire','Derby and Derbyshire'],
   leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','middlesbrough-redcar':'North East and North Cumbria'};
 const MEAS={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived areas'};
 const ragC=r=>r>=110?css('--danger'):r<=90?css('--safe'):css('--amber');
@@ -499,13 +498,16 @@ let start=tab(location.hash.slice(1));
 if(!groups[start]){try{start=tab(localStorage.getItem('leedsTab'))}catch(e){}}
 setTab(groups[start]?start:'routes');lbls();
 }
-// area: ?area= in the link, else the last one viewed, else Leeds
+// area: ?area= in the link, else the last one viewed, else the first area
 let AREA=new URLSearchParams(location.search).get('area');
 if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
-// merged areas, for old links and remembered areas: the Notts-Derby corridor went into Nottingham & Nottinghamshire and
-// Derby & Derbyshire; Grimsby, Immingham & Scunthorpe into Lincolnshire; Hull into Hull & East Riding and York into
-// York & North Yorkshire (Oct 2026)
-AREA={'notts-derby':'nottinghamshire','grimsby-scunthorpe':'lincolnshire',hull:'east-riding',york:'north-yorkshire'}[AREA]||AREA;
+// merged areas, for old links and remembered areas: the Notts-Derby corridor, Nottingham & Nottinghamshire and Derby &
+// Derbyshire went into the East Midlands Combined County Authority; Leeds, Bradford, Kirklees & Calderdale and Wakefield into
+// West Yorkshire; Sheffield, Rotherham and Doncaster & Barnsley into South Yorkshire; Grimsby, Immingham & Scunthorpe into
+// Lincolnshire; Hull into Hull & East Riding and York into York & North Yorkshire (Oct 2026)
+AREA={'notts-derby':'east-midlands',nottinghamshire:'east-midlands',derbyshire:'east-midlands',
+  leeds:'west-yorkshire',bradford:'west-yorkshire','kirklees-calderdale':'west-yorkshire',wakefield:'west-yorkshire',
+  sheffield:'south-yorkshire',rotherham:'south-yorkshire','doncaster-barnsley':'south-yorkshire','grimsby-scunthorpe':'lincolnshire',hull:'east-riding',york:'north-yorkshire'}[AREA]||AREA;
 fetch('data/areas.json').then(r=>r.json()).then(list=>{
   if(!list.some(a=>a.id===AREA)) AREA=list[0].id;
   try{localStorage.setItem('area',AREA)}catch(e){}

@@ -1,24 +1,38 @@
 {
-  "leeds": {
-    "name": "Leeds",
-    "eyebrow": "City of Leeds district",
-    "in": "inside Leeds",
-    "boundary_label": "Leeds district boundary",
-    "gss": "E08000035",
+  "west-yorkshire": {
+    "name": "West Yorkshire",
+    "eyebrow": "Leeds, Bradford, Kirklees, Calderdale and Wakefield",
+    "in": "inside West Yorkshire",
+    "boundary_label": "West Yorkshire boundaries",
+    "gss": [
+      "E08000035",
+      "E08000032",
+      "E08000034",
+      "E08000033",
+      "E08000036"
+    ],
     "centre": [
-      53.8,
-      -1.55
+      53.75,
+      -1.65
     ],
     "stats19_lad": [
-      "E08000035"
+      "E08000035",
+      "E08000032",
+      "E08000034",
+      "E08000033",
+      "E08000036"
     ],
     "dft_la": [
-      63
+      63,
+      195,
+      197,
+      87,
+      88
     ],
-    "rivers": "Aire|Wharfe",
-    "water_label": "River Aire, Wharfe & canal",
-    "places": "town|suburb|city",
-    "counters": "leeds",
+    "rivers": "Aire|Wharfe|Worth|Bradford Beck|Calder|Colne|Holme|Hebble|Ryburn|Spen|Dearne",
+    "water_label": "Rivers Aire, Calder, Wharfe & Colne",
+    "places": "town|city",
+    "counters": "leeds+dft",
     "rename": {
       "NCN Route 66": "NCN 66 · Leeds–Bradford–Hull",
       "NCN Route 67": "Trans Pennine Trail (NCN 67)",
@@ -26,152 +40,38 @@
     },
     "pct_region": "west-yorkshire"
   },
-  "sheffield": {
-    "name": "Sheffield",
-    "eyebrow": "City of Sheffield",
-    "in": "inside Sheffield",
-    "boundary_label": "Sheffield council boundary",
-    "gss": "E08000039",
-    "centre": [
-      53.39,
-      -1.47
-    ],
-    "stats19_lad": [
-      "E08000019",
-      "E08000039"
-    ],
-    "dft_la": [
-      159
-    ],
-    "rivers": "Don|Sheaf|Rivelin|Loxley|Porter",
-    "water_label": "Rivers Don, Sheaf & canal",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "south-yorkshire"
-  },
-  "kirklees-calderdale": {
-    "name": "Kirklees & Calderdale",
-    "eyebrow": "Huddersfield, Halifax & the Calder valley",
-    "in": "inside Kirklees & Calderdale",
-    "boundary_label": "Kirklees & Calderdale boundaries",
+  "south-yorkshire": {
+    "name": "South Yorkshire",
+    "eyebrow": "Sheffield, Rotherham, Doncaster and Barnsley",
+    "in": "inside South Yorkshire",
+    "boundary_label": "South Yorkshire boundaries",
     "gss": [
-      "E08000034",
-      "E08000033"
-    ],
-    "centre": [
-      53.68,
-      -1.85
-    ],
-    "stats19_lad": [
-      "E08000034",
-      "E08000033"
-    ],
-    "dft_la": [
-      197,
-      87
-    ],
-    "rivers": "Calder|Colne|Holme|Hebble|Ryburn|Spen",
-    "water_label": "Rivers Calder, Colne & canals",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "west-yorkshire"
-  },
-  "bradford": {
-    "name": "Bradford",
-    "eyebrow": "City of Bradford district",
-    "in": "inside Bradford district",
-    "boundary_label": "Bradford district boundary",
-    "gss": "E08000032",
-    "centre": [
-      53.83,
-      -1.85
-    ],
-    "stats19_lad": [
-      "E08000032"
-    ],
-    "dft_la": [
-      195
-    ],
-    "rivers": "Aire|Wharfe|Worth|Bradford Beck",
-    "water_label": "Rivers Aire, Wharfe & canal",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "west-yorkshire"
-  },
-  "wakefield": {
-    "name": "Wakefield",
-    "eyebrow": "Wakefield district",
-    "in": "inside Wakefield district",
-    "boundary_label": "Wakefield district boundary",
-    "gss": "E08000036",
-    "centre": [
-      53.66,
-      -1.42
-    ],
-    "stats19_lad": [
-      "E08000036"
-    ],
-    "dft_la": [
-      88
-    ],
-    "rivers": "Calder|Aire|Dearne",
-    "water_label": "Rivers Calder, Aire & canals",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "west-yorkshire"
-  },
-  "doncaster-barnsley": {
-    "name": "Doncaster & Barnsley",
-    "eyebrow": "Doncaster & Barnsley districts",
-    "in": "inside Doncaster & Barnsley",
-    "boundary_label": "Doncaster & Barnsley boundaries",
-    "gss": [
+      "E08000039",
+      "E08000018",
       "E08000017",
       "E08000038"
     ],
     "centre": [
-      53.53,
+      53.48,
       -1.3
     ],
     "stats19_lad": [
+      "E08000019",
+      "E08000039",
+      "E08000018",
       "E08000017",
       "E08000016",
       "E08000038"
     ],
     "dft_la": [
+      159,
+      62,
       79,
       194
     ],
-    "rivers": "Don|Dearne|Torne|Went|Idle|Dove",
-    "water_label": "Rivers Don, Dearne & canals",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "south-yorkshire"
-  },
-  "rotherham": {
-    "name": "Rotherham",
-    "eyebrow": "Rotherham district",
-    "in": "inside Rotherham district",
-    "boundary_label": "Rotherham district boundary",
-    "gss": "E08000018",
-    "centre": [
-      53.4,
-      -1.3
-    ],
-    "stats19_lad": [
-      "E08000018"
-    ],
-    "dft_la": [
-      62
-    ],
-    "rivers": "Don|Rother|Dearne",
-    "water_label": "Rivers Don, Rother & canal",
-    "places": "town|suburb|city|village",
+    "rivers": "Don|Sheaf|Rivelin|Loxley|Porter|Rother|Dearne|Torne|Went|Idle|Dove",
+    "water_label": "Rivers Don, Dearne, Rother & Sheaf",
+    "places": "town|city",
     "counters": "dft",
     "rename": {},
     "pct_region": "south-yorkshire"
@@ -238,61 +138,42 @@
       "humberside"
     ]
   },
-  "nottinghamshire": {
-    "name": "Nottingham & Nottinghamshire",
-    "eyebrow": "Nottingham city and Nottinghamshire county",
-    "in": "inside Nottingham & Nottinghamshire",
-    "boundary_label": "Nottingham & Nottinghamshire boundaries",
+  "east-midlands": {
+    "name": "East Midlands Combined County Authority",
+    "eyebrow": "Derby, Derbyshire, Nottingham and Nottinghamshire",
+    "in": "inside the East Midlands Combined County Authority",
+    "boundary_label": "Derby, Derbyshire, Nottingham & Nottinghamshire boundaries",
     "gss": [
       "E10000024",
-      "E06000018"
+      "E06000018",
+      "E10000007",
+      "E06000015"
     ],
     "centre": [
-      53.15,
-      -1.0
+      53.05,
+      -1.3
     ],
     "stats19_lad": [
       "E10000024",
-      "E06000018"
+      "E06000018",
+      "E10000007",
+      "E06000015"
     ],
     "dft_la": [
       2,
-      188
-    ],
-    "rivers": "Trent|Idle|Maun|Leen|Erewash|Soar",
-    "water_label": "Rivers Trent, Idle & Maun",
-    "places": "town|city",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "nottinghamshire"
-  },
-  "derbyshire": {
-    "name": "Derby & Derbyshire",
-    "eyebrow": "Derby city and Derbyshire county",
-    "in": "inside Derby & Derbyshire",
-    "boundary_label": "Derby & Derbyshire boundaries",
-    "gss": [
-      "E10000007",
-      "E06000015"
-    ],
-    "centre": [
-      53.1,
-      -1.6
-    ],
-    "stats19_lad": [
-      "E10000007",
-      "E06000015"
-    ],
-    "dft_la": [
+      188,
       61,
       119
     ],
-    "rivers": "Derwent|Trent|Wye|Dove|Rother|Erewash|Goyt",
-    "water_label": "Rivers Derwent, Trent, Wye & Dove",
+    "rivers": "Trent|Idle|Maun|Leen|Erewash|Soar|Derwent|Wye|Dove|Rother|Goyt",
+    "water_label": "Rivers Trent, Derwent, Idle, Wye & Dove",
     "places": "town|city",
     "counters": "dft",
     "rename": {},
-    "pct_region": "derbyshire"
+    "pct_region": [
+      "nottinghamshire",
+      "derbyshire"
+    ]
   },
   "north-yorkshire": {
     "centre": [

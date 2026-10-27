@@ -3,7 +3,7 @@ import collections, json, math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 AREAS = json.load(open(os.path.join(HERE, 'areas.json')))
-AREA = sys.argv[1] if len(sys.argv) > 1 else 'leeds'
+AREA = sys.argv[1] if len(sys.argv) > 1 else 'west-yorkshire'
 CFG = AREAS[AREA]
 S = os.path.join(HERE, '..', 'raw') + '/'          # shared downloads (national DfT files, Leeds counters)
 A = os.path.join(S, AREA) + '/'                     # this area's downloads and working files
