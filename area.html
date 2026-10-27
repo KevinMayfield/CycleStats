@@ -13,7 +13,7 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
   --land:#eceee9; --land-in:#f9faf7; --road:#c9cdc6; --road-major:#b3b8b0; --water:#8fb8d6; --label:#4b5450;
-  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e; --dep:#6b2fa0; --dep-soft:#efe6f6; --dane:#3a2f6b;
+  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e; --dep:#6b2fa0; --dep-soft:#efe6f6; --dane:#3a2f6b; --t-flat:#c25e00; --t-gentle:#7d5bbf; --t-bench:#0b8a6f;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -21,11 +21,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; color-scheme:dark}}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; --t-flat:#cf7414; --t-gentle:#9b7fe0; --t-bench:#1f9a7e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; color-scheme:dark}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; --t-flat:#cf7414; --t-gentle:#9b7fe0; --t-bench:#1f9a7e; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -383,9 +383,9 @@ function renderCounts(){
     :`<div class="r"><span class="dot" style="background:var(--count)"></span>DfT traffic count point</div>`)+`<div class="r" style="color:var(--muted)">Bigger dot = more bikes</div>`+nbhLegend();
 }
 // --- Towns and Health tabs: this area's flat and gently sloping towns, from data/towns.json and data/health.json ---
-// terrain colours are the validated categorical slots used on the health page; health need uses the red/amber/green
-// convention of the towns page (worse than England by 10% or more, within 10%, better)
-const TIERC={flat:'#2a78d6',gentle:'#eb6834',bench:'#1baf7a'},TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
+// terrain colours match the overview and the towns page (flat orange, gently sloping purple, Hull and York green); health
+// need uses the red/amber/green convention of the towns page (worse than England by 10% or more, within 10%, better)
+const TIERC=k=>css({flat:'--t-flat',gentle:'--t-gentle',bench:'--t-bench'}[k]),TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
 const ICB_OF={leeds:'West Yorkshire',bradford:'West Yorkshire','kirklees-calderdale':'West Yorkshire',wakefield:'West Yorkshire',
   sheffield:'South Yorkshire',rotherham:'South Yorkshire','doncaster-barnsley':'South Yorkshire',
   hull:'Humber and North Yorkshire','east-riding':'Humber and North Yorkshire',york:'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
@@ -408,7 +408,7 @@ const exLoad=Promise.all(['towns','health'].map(f=>fetch(`data/${f}.json`).then(
     // build both layers off the map (adding outlines to a layer already on the map before it has settled fails), then
     // put back whichever tab is showing
     ['towns','health'].forEach(g=>groups[g].remove());
-    tl.forEach((t,i)=>shape(t,TIERC[t.tier],`<b>${t.name}</b><br>${TIERN[t.tier]} · ${p1(t.cycle21)}% cycle to work now, ${p1(t.dutch)}% Go Dutch${t.tier!=='bench'?'<br><span style="opacity:.75">Click for where to build</span>':''}`,'towns',i));
+    tl.forEach((t,i)=>shape(t,TIERC(t.tier),`<b>${t.name}</b><br>${TIERN[t.tier]} · ${p1(t.cycle21)}% cycle to work now, ${p1(t.dutch)}% Go Dutch${t.tier!=='bench'?'<br><span style="opacity:.75">Click for where to build</span>':''}`,'towns',i));
     hl.forEach((t,i)=>shape(t,ragC(t.need),`<b>${t.name}</b><br>Health need ${t.need} (England 100) · ${p1(t.cycle)}% cycle to work`,'health',i));
     if(groups[cur]&&(cur==='towns'||cur==='health')) groups[cur].addTo(map);
   });
@@ -427,7 +427,7 @@ function renderTownTab(k){
   rows.forEach((t,i)=>{
     let col,sub,chips,fig,v;
     if(k==='towns'){
-      col=TIERC[t.tier];v=t.missing;
+      col=TIERC(t.tier);v=t.missing;
       sub=`${TIERN[t.tier]} · routes average ${t.slope}% gradient · ${nf(t.travel)} travel to work`;
       const d=t.coll>=10?Math.round((t.coll_rate/T.coll_ew-1)*100):null;
       chips=`<div class="use">${p1(t.cycle21)}% cycle to work now <em>(${nf(t.cyclists)} people)</em> · Go Dutch ${p1(t.dutch)}%</div><div class="chips">${d==null?`<span class="chip">${t.coll} collisions in 5 years</span>`:`<span class="chip" style="background:${d>=10?'var(--danger-soft)':d<=-10?'var(--safe-soft)':'var(--bg)'};color:${d>=10?'var(--danger)':d<=-10?'var(--safe)':'var(--muted)'}">Collisions ${Math.abs(d)<10?'about England & Wales':Math.abs(d)+'% '+(d>0?'above':'below')+' England & Wales'}</span>`}${t.nocar>=T.nocar_high?`<span class="chip dp">${t.nocar}% no car</span>`:''}${t.deprived>=T.deprived_high?`<span class="chip dp">Deprived</span>`:''}</div>`;
@@ -448,7 +448,7 @@ function renderTownTab(k){
   list.querySelectorAll('button.item').forEach(b=>b.onclick=()=>select(k,+b.dataset.i,true));
   list.querySelectorAll('a.item').forEach(a=>a.onmouseenter=()=>select(k,+a.dataset.i,false));
   legend.innerHTML=(k==='towns'
-    ?['flat','gentle','bench'].filter(x=>rows.some(t=>t.tier===x)).map(x=>`<div class="r"><span class="dot" style="background:${TIERC[x]};border-radius:2px"></span>${TIERN[x]} town</div>`).join('')+`<div class="r" style="color:var(--muted)">Ranked by extra cyclists at Hull &amp; York levels</div>`
+    ?['flat','gentle','bench'].filter(x=>rows.some(t=>t.tier===x)).map(x=>`<div class="r"><span class="dot" style="background:${TIERC(x)};border-radius:2px"></span>${TIERN[x]} town</div>`).join('')+`<div class="r" style="color:var(--muted)">Ranked by extra cyclists at Hull &amp; York levels</div>`
     :`<div class="lh">Health need against England</div><div class="r"><span class="dot" style="background:var(--danger);border-radius:2px"></span>10% or more worse</div><div class="r"><span class="dot" style="background:var(--amber);border-radius:2px"></span>Within 10%</div><div class="r"><span class="dot" style="background:var(--safe);border-radius:2px"></span>10% or more better</div>`)+nbhLegend();
 }
 function setTab(k){
