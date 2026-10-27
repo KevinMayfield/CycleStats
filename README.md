@@ -26,7 +26,7 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 
 | Tab | What it ranks | Source |
 |---|---|---|
-| **Routes & paths** | The 10 longest signed cycle routes and the 10 longest dedicated cycle paths (cycleways and bike-designated paths), measured inside the area | OpenStreetMap |
+| **Routes & paths** | The 10 longest signed cycle routes and the 10 longest dedicated cycle paths (cycleways and bike-designated paths), measured inside the area, plus the suggested Danelaw Cycle Network routes that cross it (dashed; `danelaw_lines.py` writes their outlines to `data/danelaw-lines.json`) | OpenStreetMap, Danelaw Cycle Network |
 | **Safety** | Where cyclists are hurt and safer alternatives, on one map: the most dangerous roads (the 10 with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1, merged with the 10 with the most collisions per million km cycled), the roads with 150+ bikes a day and the fewest collisions per km cycled, cycle paths, and every collision | DfT STATS19 2021–2025 + DfT traffic counts + OpenStreetMap |
 | **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
 
