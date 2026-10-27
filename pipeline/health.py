@@ -25,6 +25,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 H = os.path.join(RAW, 'health')
 DATA = os.path.join(HERE, '..', 'data')
+# NHS integrated care boards (2022 boundaries) by council, using the 2011 council names in the PCT zone files.
+# North East and North Cumbria is covered except North Cumbria, which sits in the PCT's North West region.
+ICB = {
+    'NHS West Yorkshire': ['Bradford', 'Calderdale', 'Kirklees', 'Leeds', 'Wakefield'],
+    'NHS South Yorkshire': ['Barnsley', 'Doncaster', 'Rotherham', 'Sheffield'],
+    'NHS Humber and North Yorkshire': ['Kingston upon Hull, City of', 'East Riding of Yorkshire', 'North East Lincolnshire', 'North Lincolnshire',
+                                       'York', 'Craven', 'Hambleton', 'Harrogate', 'Richmondshire', 'Ryedale', 'Scarborough', 'Selby'],
+    'NHS Lincolnshire': ['Boston', 'East Lindsey', 'Lincoln', 'North Kesteven', 'South Holland', 'South Kesteven', 'West Lindsey'],
+    'NHS Nottingham and Nottinghamshire': ['Nottingham', 'Ashfield', 'Bassetlaw', 'Broxtowe', 'Gedling', 'Mansfield', 'Newark and Sherwood', 'Rushcliffe'],
+    'NHS Derby and Derbyshire': ['Derby', 'Amber Valley', 'Bolsover', 'Chesterfield', 'Derbyshire Dales', 'Erewash', 'High Peak',
+                                 'North East Derbyshire', 'South Derbyshire'],
+    'NHS Leicester, Leicestershire and Rutland': ['Leicester', 'Blaby', 'Charnwood', 'Harborough', 'Hinckley and Bosworth', 'Melton',
+                                                  'North West Leicestershire', 'Oadby and Wigston', 'Rutland'],
+    'NHS North East and North Cumbria': ['County Durham', 'Darlington', 'Gateshead', 'Hartlepool', 'Middlesbrough', 'Newcastle upon Tyne',
+                                         'North Tyneside', 'Redcar and Cleveland', 'South Tyneside', 'Stockton-on-Tees', 'Sunderland'],
+}
+ICB_NOTE = {'NHS North East and North Cumbria': 'excluding North Cumbria'}
 FT = [(93015, 501, 'inactive'), (93088, 501, 'overweight'), (241, 501, 'diabetes'), (93107, 3, 'child_obese')]
 
 
@@ -73,12 +90,27 @@ def main():
 
     ft = {name: fingertips(ind, at) for ind, at, name in FT}
 
-    # PCT health outcomes by 2011 LSOA (most codes unchanged in 2021)
+    # PCT health outcomes by 2011 LSOA (most codes unchanged in 2021), and the same summed for each NHS ICB
     pct = {}
+    lad_icb = {lad: icb for icb, lads in ICB.items() for lad in lads}
+    keys = dict(commuters='all', cyclists='bicycle', now_value='base_slvaluecomb', now_deaths='base_sldeath',
+                value='dutch_sivaluecomb', value_lives='dutch_sivalueyll', value_sick='dutch_sivaluesick', deaths='dutch_sideath',
+                sickdays='dutch_sisickdays', hours='dutch_sicyclehours', ebike_value='ebike_sivaluecomb', ebike_deaths='ebike_sideath')
+    icb = collections.defaultdict(collections.Counter)
     for f in os.listdir(os.path.join(RAW, 'pct')):
         if f.endswith('_z.csv'):
             for r in csv.DictReader(open(os.path.join(RAW, 'pct', f))):
                 pct[r['geo_code']] = (-float(r['dutch_sideath'] or 0), float(r['dutch_sivaluecomb'] or 0))
+                if r['lad_name'] in lad_icb:
+                    c = icb[lad_icb[r['lad_name']]]; c['zones'] += 1
+                    for k, col in keys.items(): c[k] += float(r[col] or 0)
+    # deaths and sick days come out of the PCT as changes (negative = fewer); report them as avoided
+    icbs = [dict(name=n, note=ICB_NOTE.get(n), councils=len(ICB[n]), commuters=round(c['commuters']), cyclists=round(c['cyclists']),
+                 now_value=round(c['now_value']), now_deaths=round(-c['now_deaths'], 1), value=round(c['value']), value_lives=round(c['value_lives']),
+                 value_sick=round(c['value_sick']), deaths=round(-c['deaths'], 1), sickdays=round(-c['sickdays']), hours=round(c['hours']),
+                 ebike_value=round(c['ebike_value']), ebike_deaths=round(-c['ebike_deaths'], 1))
+            for n, c in icb.items()]
+    icbs.sort(key=lambda x: -x['value'])
 
     by_town = collections.defaultdict(list)
     for l, t in lsoa_town.items(): by_town[t].append(l)
@@ -112,9 +144,10 @@ def main():
     eng = dict(inactive=ft['inactive'][1], overweight=ft['overweight'][1], diabetes=ft['diabetes'][1], child_obese=ft['child_obese'][1],
                health_dep=20.0, bad_health=round(eng_bad, 1))
     periods = {name: ft[name][2] for name in ft}
-    json.dump(dict(towns=out, england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
+    json.dump(dict(towns=out, icbs=icbs, england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
               ensure_ascii=False, separators=(',', ':'))
     print('England', eng, periods)
+    for x in icbs: print(f"{x['name']:42} now £{x['now_value']/1e6:5.1f}m  Go Dutch +£{x['value']/1e6:5.1f}m (lives {x['value_lives']/1e6:.1f}, sick {x['value_sick']/1e6:.1f})  deaths {x['deaths']}  sick days {x['sickdays']:,}  e-bike +£{x['ebike_value']/1e6:.1f}m")
     league = sorted([x for x in out if x['score'] is not None and x['tier'] in ('flat', 'gentle', 'bench')], key=lambda x: -x['score'])
     for x in league[:25]:
         print(f"{x['name'][:28]:28} {x['tier']:6} need={x['need']:4} cycle={x['cycle']:4} dutch={x['dutch']:4} gap={x['gap']:4} score={x['score']:5} "
