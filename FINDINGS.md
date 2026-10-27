@@ -69,8 +69,9 @@ Hull especially would gain from segregated paths:
   include Spring Bank West, Princes Avenue, Spring Bank, Anlaby Road, Holderness Road, Beverley Road and James
   Reckitt Avenue.
 - **Potential:** it has the highest Go Dutch potential of any town in the region, 38.6% cycling to work.
-- **Build these first:** Hull to Beverley is the top-ranked stage of the Danelaw Cycle Network, with about 910 trips a
-  day predicted on the 6 km that need a path.
+- **Build these first:** Hull to Beverley is the top-ranked stage of the Danelaw Cycle Network. 13,037 people commute
+  between Hull, Cottingham and Beverley (Census 2021), and about 910 trips a day are predicted on the 6 km that need a
+  path.
 
 Hull already cycles because it is flat. Protected routes would make it safer and could take it towards the Dutch
 levels its terrain allows.
@@ -99,6 +100,10 @@ levels its terrain allows.
       get none.
   - **Taking both into account:** the corridor is probably one of the biggest opportunities in the region, not one
     of the smallest.
+  - **Census commuting confirms it:** 7,171 people commute between Beeston and Nottingham, the biggest flow between
+    any two towns in the region. Another 2,341 commute between Long Eaton and Nottingham and 2,240 between Derby and
+    Long Eaton. On those figures, Long Eaton to Nottingham ranks 3rd and Derby to Long Eaton 7th among the network's
+    flat stages.
 - **Derby and Derbyshire have a safety problem:**
   - Half of Derbyshire's towns (8 of 16) have collision rates above England & Wales.
   - Its neighbours do better: Nottinghamshire is 5% below the national rate, Lincolnshire 38% below and
@@ -111,7 +116,26 @@ levels its terrain allows.
 West Yorkshire has higher collision rates still: Bradford is 98% above England & Wales, Kirklees and Calderdale 68%
 and Leeds 39%. But those areas are hilly. Derbyshire stands out among the gentler East Midlands.
 
-### 6. Build paths people will use
+### 6. Towns 5–12 km apart are where cycling to work can grow
+
+The Census 2021 home-to-work flows show where people actually travel. The biggest flows between towns are almost all
+between neighbours 4–12 km apart. That distance is too far to walk but an easy cycle, especially by e-bike:
+
+| Towns | Distance | People commuting between them |
+|---|---|---|
+| Beeston ↔ Nottingham | 6.7 km | 7,171 |
+| Cottingham ↔ Hull | 5.0 km | 6,611 |
+| Beverley ↔ Hull | 10.3 km | 5,470 |
+| Hessle ↔ Hull | 7.5 km | 4,657 |
+| Long Eaton ↔ Nottingham | 11.4 km | 2,341 |
+| Derby ↔ Long Eaton | 12.7 km | 2,215 |
+
+Beyond about 15 km the flows fall away: 1,701 people commute between Leeds and York (34 km), and 403 between Hull and
+York (55 km). Long routes between cities are destination rides. The everyday value of a route lies in the short links
+between neighbouring towns along it. So the network's "Build these first" ranking counts the people commuting between
+towns within 15 km of each other along each stage.
+
+### 7. Build paths people will use
 
 "Cyclists don't use cycle paths" is too often true today. Paths tend to be built to meet a quota, to complete a
 network on the map, or at the request of enthusiast groups, which are often male dominated. Only 17% of cycling
@@ -128,10 +152,11 @@ The [Danelaw Cycle Network](https://kevinmayfield.github.io/CycleStats/danelaw.h
 a proposed network of flat, safe routes between towns. It runs along the rivers, old roads and railways of the part of
 England once under Danish rule, and along the Roman roads before them.
 
-- **Size:** 13 routes and about 1,660 km, linking 53 towns where 1.1 million people travel to work.
+- **Size:** 14 routes and about 1,710 km, linking 59 towns where 1.3 million people travel to work.
 - **The spine:** the Danelaw Way, Repton to Stamford Bridge (300 km, 287 m of climbing).
 - **Getting-to-work routes** keep to the direct line with no scenic detours: Trent Valley, Soar, Aire (Leeds to
-  Hull), Don, Beverley (Hull to York), Tadcaster (Leeds to York), Hull to Bridlington, and York to Middlesbrough.
+  Hull), Don (Sheffield to Goole), Beverley (Hull to York), Tadcaster (Leeds to York), Barton to Hull over the Humber
+  Bridge, Hull to Bridlington, and York to Middlesbrough.
 - **Destination rides** are flat enough for a much wider set of people, older riders on e-bikes among them:
   - the Lincolnshire coast
   - the Skegness route
@@ -139,10 +164,16 @@ England once under Danish rule, and along the Roman roads before them.
   - the Lindsey Ridings loop
   - York to Bridlington over the Wolds
   - the Great North Road, Stamford to Middlesbrough
-- **Build these first:** a ranking by predicted trips a day on the stretches that need a path, flat towns first. The
-  top flat-town stages are Hull to Beverley, Goole to Selby, Thirsk to Northallerton, Tadcaster to York and
-  Doncaster to Thorne.
-- **History:** the routes pass 31 Danelaw sites and 16 Roman sites, from the Great Army's camp at Repton to
+- **Build these first:** a ranking by the people who commute between the towns each stage links (Census 2021, towns
+  within 15 km), flat routes first, with the predicted trips a day shown alongside. The top flat stages are:
+  1. Hull to Beverley: 13,037 commuters
+  2. Cleethorpes to Barton-upon-Humber: 11,954
+  3. Long Eaton to Nottingham: 11,851
+  4. Doncaster to Thorne: 7,838
+  5. Hessle to Hull: 6,847
+
+  Among routes with some climbing, Sheffield to Rotherham and Mexborough leads, with 14,936.
+- **History:** the routes pass 31 Danelaw sites and 17 Roman sites, from the Great Army's camp at Repton to
   Eboracum and the battlefield at Stamford Bridge.
 
 ### Why the Danes' and Romans' routes
