@@ -76,6 +76,7 @@ a.item:hover .go{text-decoration:underline}
 .rank{font:700 15px/26px var(--display);width:26px;height:26px;border-radius:50%;text-align:center;color:#fff}
 .nm{font-weight:600;font-size:14px;line-height:1.3}
 .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.sub b{font-weight:600;color:var(--ink)}
 .fig{font-family:var(--mono);font-size:13px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .fig small{display:block;color:var(--muted);font-size:10.5px;letter-spacing:.04em}
 .bar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
@@ -205,6 +206,14 @@ DATA.risk.forEach((d,i)=>{const m=bad.find(b=>b.name===d.name&&(b.ref||'')===(d.
   if(m){m.riskTop=i+1;if(m.aadf==null){m.aadf=d.aadf;m.rate=d.rate;m.match=d.match}}else bad.push({...d,_k:'bad',riskTop:i+1})});
 bad.sort((a,b)=>b.score-a.score).forEach((d,j)=>d._j=j);
 ROWS.danger=[...bad,...DATA.safe.map((d,j)=>({...d,_k:'good',_j:j}))];
+// the town each road or counter is in, as the summary names them: the nearest town or city (a city counts as nearer, as
+// it covers more ground), so a road name is clear across a whole county or combined authority
+function townOf(la,lo){let best='',bd=1e9;const k=Math.cos(la*Math.PI/180)*111.32;
+  DATA.places.forEach(([n,pla,plo,t])=>{if(t!=='town'&&t!=='city')return;
+    const d=Math.hypot((plo-lo)*k,(pla-la)*110.57)*(t==='city'?.5:1);if(d<bd){bd=d;best=n}});
+  return best}
+ROWS.danger.forEach(d=>{const p=d.geom.flat();const m=p[Math.floor(p.length/2)];d.town=m?townOf(m[0],m[1]):''});
+DATA.counts.forEach(c=>c.town=townOf(c.lat,c.lon));
 // routes skip PAL's greens: green is kept for cycle paths
 const RPAL=['#2f6fd6','#e0752d','#a24bc9','#d23a6c','#0aa2c0','#b8860b','#5b5bd6','#c2532d','#8a5a44','#5d7a8c'];
 const colOf=r=>r._k==='dane'?css('--dane'):r._k==='route'?RPAL[r._j%10]:r._k==='path'?css('--offroad'):r._k==='good'?SAFE[r._j%10]:DANGER[Math.min(r._j,9)];
@@ -269,7 +278,7 @@ const useTxt=d=>d.aadf==null?'No DfT cycle count on this road':`~${d.aadf} bikes
       L.polyline(g,{color:'#000',weight:12,opacity:.0001}).addTo(fg);
       L.polyline(g,{color:colOf(d),weight:6,opacity:.85,lineCap:'round'}).addTo(fg);
     });
-    fg.bindTooltip(`<b>${d._k==='good'?'Safer busy road':'Dangerous road'} ${d._j+1}. ${d.name}${d.ref?' ('+d.ref+')':''}</b><br>${d.n} cycle collisions · ${d.ksi} killed/serious<br>${useTxt(d)}`,{sticky:true,className:'tt'});
+    fg.bindTooltip(`<b>${d._k==='good'?'Safer busy road':'Dangerous road'} ${d._j+1}. ${d.name}${d.ref?' ('+d.ref+')':''}</b>${d.town?', '+d.town:''}<br>${d.n} cycle collisions · ${d.ksi} killed/serious<br>${useTxt(d)}`,{sticky:true,className:'tt'});
     fg.on('click',()=>select('danger',i,false));
     fg.addTo(groups.danger);feats.danger.push(fg);
     (d.cp_pts||[]).forEach(([la,lo,v,id])=>{
@@ -286,7 +295,7 @@ function drawCounts(){
   DATA.counts.forEach((c,i)=>{
     const off=c.kind==='Off-road path',col=off?css('--offroad'):css('--count');
     const fg=L.featureGroup([L.circleMarker([c.lat,c.lon],{radius:5+14*Math.sqrt(c.avg/cmax),color:css('--panel'),weight:1.5,fillColor:col,fillOpacity:.85})]);
-    fg.bindTooltip(`<b>${c.name}</b><br>${c.avg} bikes/day · ${c.period}<br><span style="opacity:.75">${c.src}</span>`,{className:'tt'});
+    fg.bindTooltip(`<b>${c.name}</b>${c.town?', '+c.town:''}<br>${c.avg} bikes/day · ${c.period}<br><span style="opacity:.75">${c.src}</span>`,{className:'tt'});
     fg.on('click',()=>select('counts',i,false));fg.addTo(groups.counts);feats.counts.push(fg);
   });
 }
@@ -312,7 +321,7 @@ function render(k){
       if(sk==='route'){sub=[r.ref&&r.ref!==r.name?r.ref:null,{ncn:'National Cycle Network',rcn:'Regional route',lcn:'Local route'}[r.network]].filter(Boolean).join(' · ');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
       else if(sk==='dane'){sub=`${r.sub} · ${fmt(r.full)} km in all`;fig=`${fmt(r.km)}<small>KM HERE</small>`;}
       else if(sk==='path'){sub=r.kind+(r.segregated==='yes'?' · segregated from walkers':'');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
-      else{sub=`${r.ref?r.ref+' · ':''}${fmt(r.km,1)} km stretch`;
+      else{sub=`${r.town?`<b>${r.town}</b> · `:''}${r.ref?r.ref+' · ':''}${fmt(r.km,1)} km stretch`;
         fig=sk==='good'?`${r.aadf}<small>BIKES/DAY</small>`:`${r.n}<small>COLLISIONS</small>`;
         const use=r.aadf==null?'<em>No DfT cycle count on this road</em>'
           :`~${r.aadf} bikes/day · ${fmt(r.rate)} per million km cycled${r.match!=='on road'?` <em>(count ${r.match})</em>`:''}`;
@@ -380,7 +389,7 @@ function renderCounts(){
   let h=`<p class="blurb">${BLURB.counts}</p>`;
   DATA.counts.forEach((c,i)=>{
     const off=c.kind==='Off-road path',col=off?'var(--offroad)':'var(--count)';
-    h+=`<button class="item" id="it-counts-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${c.name}</div><div class="sub">${c.kind} · ${c.period}</div><div class="chips"><span class="chip">${c.chip}</span>${c.note&&!c.src.startsWith('DfT')?`<span class="chip">${c.note}</span>`:''}</div><div class="bar"><i style="width:${(c.avg/cmax*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${c.avg}<small>BIKES/DAY</small></span></button>`;
+    h+=`<button class="item" id="it-counts-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${c.name}</div><div class="sub">${c.town?`<b>${c.town}</b> · `:''}${c.kind} · ${c.period}</div><div class="chips"><span class="chip">${c.chip}</span>${c.note&&!c.src.startsWith('DfT')?`<span class="chip">${c.note}</span>`:''}</div><div class="bar"><i style="width:${(c.avg/cmax*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${c.avg}<small>BIKES/DAY</small></span></button>`;
   });
   list.innerHTML=h;
   list.querySelectorAll('.item').forEach(b=>b.onclick=()=>select('counts',+b.dataset.i,true));
