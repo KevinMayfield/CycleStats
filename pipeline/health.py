@@ -17,6 +17,12 @@ Benefit of more cycling, from the Propensity to Cycle Tool zones (raw/pct/*_z.cs
 Health gain score: need / 100 x the gap between Go Dutch and today's cycling to work (percentage points). It is high
 where people are least healthy and most of the potential for cycling is unused.
 
+Road danger for each ICB: cyclists killed, seriously injured and slightly injured where the collision happened
+(police-reported STATS19, 2021-25, raw/dft/cycle_cas.csv with each collision's council from the national collision file,
+cached as raw/health/cycle_collision_lad.csv), against people who cycle to work (Census 2021) as a rough measure of
+exposure. Scenarios: every board at the lowest killed-or-seriously-injured rate among them; and how far risk per rider
+must fall for casualties not to rise if commuting grew to Go Dutch.
+
 Downloads (cached in raw/health/): Fingertips CSVs and Census 2021 TS037, fetched with /usr/bin/python3 on Kevin's Mac.
 """
 import collections, csv, io, json, os, urllib.request, zipfile
@@ -93,7 +99,7 @@ def main():
     # PCT health outcomes by 2011 LSOA (most codes unchanged in 2021), and the same summed for each NHS ICB
     pct = {}
     lad_icb = {lad: icb for icb, lads in ICB.items() for lad in lads}
-    keys = dict(commuters='all', cyclists='bicycle', now_value='base_slvaluecomb', now_deaths='base_sldeath',
+    keys = dict(commuters='all', cyclists='bicycle', dutch_cyclists='dutch_slc', now_value='base_slvaluecomb', now_deaths='base_sldeath',
                 value='dutch_sivaluecomb', value_lives='dutch_sivalueyll', value_sick='dutch_sivaluesick', deaths='dutch_sideath',
                 sickdays='dutch_sisickdays', hours='dutch_sicyclehours', ebike_value='ebike_sivaluecomb', ebike_deaths='ebike_sideath')
     icb = collections.defaultdict(collections.Counter)
@@ -108,8 +114,47 @@ def main():
     icbs = [dict(name=n, note=ICB_NOTE.get(n), councils=len(ICB[n]), commuters=round(c['commuters']), cyclists=round(c['cyclists']),
                  now_value=round(c['now_value']), now_deaths=round(-c['now_deaths'], 1), value=round(c['value']), value_lives=round(c['value_lives']),
                  value_sick=round(c['value_sick']), deaths=round(-c['deaths'], 1), sickdays=round(-c['sickdays']), hours=round(c['hours']),
-                 ebike_value=round(c['ebike_value']), ebike_deaths=round(-c['ebike_deaths'], 1))
+                 ebike_value=round(c['ebike_value']), ebike_deaths=round(-c['ebike_deaths'], 1), dutch_cyclists=round(c['dutch_cyclists']))
             for n, c in icb.items()]
+    # road danger: cyclist casualties where the collision happened, by board, against Census 2021 cycle commuters
+    ny = ['Craven', 'Hambleton', 'Harrogate', 'Richmondshire', 'Ryedale', 'Scarborough', 'Selby']   # one council since 2023
+    lad_name = {}
+    for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
+        if r[0].startswith('E01'): lad_name[r[2]] = r[3]
+    name_icb = {('North Yorkshire' if l in ny else l): n for n, ls in ICB.items() for l in ls}
+    code_icb = {c: name_icb[n] for c, n in lad_name.items() if n in name_icb}
+    cl = os.path.join(H, 'cycle_collision_lad.csv')
+    if not os.path.exists(cl):
+        ids = {r['collision_index'] for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'cycle_cas.csv'))) if r['casualty_type'] == '1'}
+        rd = csv.reader(io.TextIOWrapper(urllib.request.urlopen(urllib.request.Request(
+            'https://data.dft.gov.uk/road-accidents-safety-data/dft-road-casualty-statistics-collision-last-5-years.csv',
+            headers={'User-Agent': 'CycleStats'}), timeout=600), encoding='utf-8-sig'))
+        head = next(rd); h = {k: i for i, k in enumerate(head)}
+        with open(cl + '.part', 'w', newline='') as f:
+            w = csv.writer(f); w.writerow(['collision_index', 'local_authority_ons_district'])
+            for row in rd:
+                if row[h['collision_index']] in ids: w.writerow([row[h['collision_index']], row[h['local_authority_ons_district']]])
+        os.replace(cl + '.part', cl)
+    where = {r['collision_index']: r['local_authority_ons_district'] for r in csv.DictReader(open(cl))}
+    cas, years = collections.defaultdict(collections.Counter), set()
+    for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'cycle_cas.csv'))):
+        i = code_icb.get(where.get(r['collision_index']))
+        if r['casualty_type'] == '1' and i:
+            cas[i][r['casualty_severity']] += 1; years.add(r['collision_year'])
+    riders = collections.Counter()
+    for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'ttw2021.csv'))):
+        i = code_icb.get(lsoa_lad.get(r['lsoa']))
+        if i and r['method'] == '9': riders[i] += int(r['people'])
+    ny_ = len(years)
+    for x in icbs:
+        c = cas[x['name']]
+        x.update(killed=round(c['1'] / ny_, 1), serious=round(c['2'] / ny_), slight=round(c['3'] / ny_), riders21=riders[x['name']],
+                 ksi_rate=round(1000 * (c['1'] + c['2']) / ny_ / riders[x['name']], 1) if riders[x['name']] else None,
+                 growth=round(x['dutch_cyclists'] / x['cyclists'], 1) if x['cyclists'] else None)
+    best = min(x['ksi_rate'] for x in icbs if x['ksi_rate'])
+    for x in icbs:
+        x['ksi_at_best'] = round((x['killed'] + x['serious']) - best * x['riders21'] / 1000)
+        x['cut_needed'] = round(100 * (1 - 1 / x['growth'])) if x['growth'] else None
     icbs.sort(key=lambda x: -x['value'])
 
     by_town = collections.defaultdict(list)
@@ -144,9 +189,10 @@ def main():
     eng = dict(inactive=ft['inactive'][1], overweight=ft['overweight'][1], diabetes=ft['diabetes'][1], child_obese=ft['child_obese'][1],
                health_dep=20.0, bad_health=round(eng_bad, 1))
     periods = {name: ft[name][2] for name in ft}
-    json.dump(dict(towns=out, icbs=icbs, england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
+    json.dump(dict(towns=out, icbs=icbs, cas_years=sorted(years), england={k: round(x, 1) for k, x in eng.items()}, periods=periods), open(os.path.join(DATA, 'health.json'), 'w'),
               ensure_ascii=False, separators=(',', ':'))
     print('England', eng, periods)
+    for x in icbs: print(f"{x['name']:42} killed {x['killed']}/yr serious {x['serious']} slight {x['slight']} riders {x['riders21']} KSI per 1000 riders {x['ksi_rate']} at best -{x['ksi_at_best']}  growth x{x['growth']} cut {x['cut_needed']}%  today's cycling avoids {x['now_deaths']} deaths")
     for x in icbs: print(f"{x['name']:42} now £{x['now_value']/1e6:5.1f}m  Go Dutch +£{x['value']/1e6:5.1f}m (lives {x['value_lives']/1e6:.1f}, sick {x['value_sick']/1e6:.1f})  deaths {x['deaths']}  sick days {x['sickdays']:,}  e-bike +£{x['ebike_value']/1e6:.1f}m")
     league = sorted([x for x in out if x['score'] is not None and x['tier'] in ('flat', 'gentle', 'bench')], key=lambda x: -x['score'])
     for x in league[:25]:
