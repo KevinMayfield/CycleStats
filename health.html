@@ -157,7 +157,7 @@ fetch('data/health.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
   chart();
   // league table
   document.getElementById('league').innerHTML=`<thead><tr><th class="n">#</th><th>Town</th><th class="n">Health need<br>(England 100)</th><th>What drives it (England 100)</th><th>Cycle to work: today and Go Dutch</th><th class="n">Health gain score</th><th class="n">Deaths avoided a year</th><th class="n">Health value a year</th></tr></thead><tbody>${
-    lg.slice(0,30).map((t,i)=>`<tr><td class="n">${i+1}</td><td><b>${esc(t.name)}</b><small>${esc(t.area_name)}</small><span class="tier"><i style="background:var(${TIER[t.tier][1]})"></i>${TIER[t.tier][0]}</span></td>
+    lg.slice(0,50).map((t,i)=>`<tr><td class="n">${i+1}</td><td><b>${esc(t.name)}</b><small>${esc(t.area_name)}</small><span class="tier"><i style="background:var(${TIER[t.tier][1]})"></i>${TIER[t.tier][0]}</span></td>
       <td class="n"><b style="color:var(--${rag(t.need)})">${t.need}</b></td>
       <td><div class="chips">${Object.keys(M).map(k=>`<span class="chip ${rag(t.ratios[k])}" title="${esc(ML[k])}: ${p1(t[k])}% (England ${p1(E[k])}%)">${M[k]} ${p1(t[k])}%</span>`).join('')}</div></td>
       <td class="cyc"><div class="bar" aria-label="${p1(t.cycle)}% cycle to work now, ${p1(t.dutch)}% under Go Dutch"><i class="d" style="width:${t.dutch/40*100}%"></i><i class="n" style="width:${t.cycle/40*100}%"></i></div><small>${p1(t.cycle)}% now · ${p1(t.dutch)}% Go Dutch</small></td>
