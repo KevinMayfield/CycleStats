@@ -204,7 +204,9 @@ USE = dict(
     tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
     aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, with no scenic detours'),
 )
-TOWN_REACH = 300   # m: a route serves a town if it passes through its built-up area or within this distance of its edge
+TOWN_REACH = 300
+PCT_REACH = 150    # m: the Propensity to Cycle Tool's flow on a road running the same way within this distance
+PCT_BIN = 500      # m: predicted flows are smoothed over stretches of this length   # m: a route serves a town if it passes through its built-up area or within this distance of its edge
 
 
 def dist(a, b): return math.hypot(a[0] - b[0], a[1] - b[1])
@@ -324,8 +326,42 @@ def main():
                 if any(inside(p, ring) for ring in rings) or any(dist(p, q) < TOWN_REACH for ring in rings for q in ring):
                     yield tid
 
+    # predicted cycling: the Propensity to Cycle Tool's route network (commuting and school trips a day, by segment),
+    # today (Census 2011) and under Go Dutch. PCT routes riders along roads, so a path beside a road or a towpath
+    # takes the flow of the nearest road running the same way.
+    near_route = set()
+    for r in ROUTES:
+        for st in r['stages']:
+            for lo, la, *_ in st['geo']['features'][0]['geometry']['coordinates']:
+                q = P(la, lo); near_route.add((int(q[0] // 1000), int(q[1] // 1000)))
+    regions = sorted({json.load(open(os.path.join(HERE, 'areas.json')))[a]['pct_region'] for a in AREAS})
+    pgrid, pseg = Grid(100), {}
+    for reg in regions:
+        for kind in ('commute', 'school'):
+            for fi, ft in enumerate(json.load(open(os.path.join(HERE, '..', 'raw', 'pct', f'{reg}_{kind}.geojson')))['features']):
+                g = ft['geometry']; pr = ft['properties']
+                for li, line in enumerate(g['coordinates'] if g['type'] == 'MultiLineString' else [g['coordinates']]):
+                    q = [P(la, lo) for lo, la in line]
+                    if not any((int(x[0] // 1000) + di, int(x[1] // 1000) + dj) in near_route for x in q[::4] + q[-1:] for di in (-1, 0, 1) for dj in (-1, 0, 1)): continue
+                    for j in range(len(q) - 1):
+                        L = dist(q[j], q[j + 1])
+                        if L == 0: continue
+                        key = (reg, kind, fi, li, j)
+                        pseg[key] = (kind, pr.get('bicycle') or 0, pr.get('dutch_slc') or 0, ((q[j + 1][0] - q[j][0]) / L, (q[j + 1][1] - q[j][1]) / L))
+                        pgrid.add(key, q[j], q[j + 1])
+    print(f'PCT: {len(pseg)} segments near the routes from {", ".join(regions)}')
+
+    def predicted(p, d):
+        """(today, Go Dutch) commuting plus school trips a day on the nearest PCT road running the same way as d"""
+        best = {}
+        for key, dd in pgrid.within(p, PCT_REACH).items():
+            kind, now, dutch, u = pseg[key]
+            if abs(u[0] * d[0] + u[1] * d[1]) < 0.8: continue
+            if kind not in best or dd < best[kind][0]: best[kind] = (dd, now, dutch)
+        return sum(v[1] for v in best.values()), sum(v[2] for v in best.values())
+
     # 4. measure every 25 m
-    out_routes, segs, coll_all = [], [], {}
+    out_routes, segs, coll_all, pbins = [], [], {}, []
     for r in ROUTES:
         rstages = []
         for sn, st in enumerate(r['stages'], 1):
@@ -333,10 +369,17 @@ def main():
             samples = []
             for a, b in zip(coords, coords[1:]):
                 L = dist(P(a[1], a[0]), P(b[1], b[0])); k = max(1, int(L // 25))
-                for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k, L / k))
+                u = ((P(b[1], b[0])[0] - P(a[1], a[0])[0]) / (L or 1), (P(b[1], b[0])[1] - P(a[1], a[0])[1]) / (L or 1))
+                for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k, L / k, u))
             mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None; served = []
+            pbin, pacc, pvals = [], 0.0, []
             for s in samples:
                 p = P(s[0], s[1]); w = s[2]; cls, k = classify(p)
+                now, dutch = predicted(p, s[3]); pvals.append((w, now, dutch, cls))
+                if not pbin or pacc >= PCT_BIN:
+                    if pbin: pbin[-1]['pts'].append([round(s[0], 5), round(s[1], 5)])
+                    pbin.append(dict(pts=[], vals=[])); pacc = 0.0
+                pacc += w; pbin[-1]['pts'].append([round(s[0], 5), round(s[1], 5)]); pbin[-1]['vals'].append((now, dutch, cls in ('main', 'busy')))
                 for t in town_at(p):
                     if t not in served: served.append(t)
                 mix[cls] += w
@@ -353,6 +396,7 @@ def main():
                     runs.append(cur); segs.append(cur)
                 cur['pts'].append([round(s[0], 5), round(s[1], 5)]); cur['km'] += w / 1000
                 if k: cur['keys'][k] += 1
+                cur.setdefault('dutch', []).append(dutch); cur.setdefault('now', []).append(now)
             # where a proper path is needed: A-road stretches of 300 m or more, B and C road stretches of 1 km or more
             todo = []
             for run in runs:
@@ -363,7 +407,8 @@ def main():
                     nc = sum(1 for c in coll_all.values() if any(dist(P(c[0], c[1]), P(*q)) < 30 for q in run['pts'][::8]))
                     todo.append(dict(cls=run['cls'], km=round(run['km'], 1), road=nm or ref or ('A road' if run['cls'] == 'busy' else 'B or C road'),
                                      ref=ref, speed=ms, near=min(places, key=lambda x: dist(x[1], pm))[0] if places else '',
-                                     collisions=nc, lat=mid[0], lon=mid[1]))
+                                     collisions=nc, lat=mid[0], lon=mid[1],
+                                     now=sorted(run['now'])[len(run['now']) // 2], dutch=sorted(run['dutch'])[len(run['dutch']) // 2]))
             km = int(props['track-length']) / 1000
             # height profile: metres above sea level every 500 m along the stage
             prof, acc, nxt = [], 0.0, 0.0
@@ -371,10 +416,21 @@ def main():
                 if acc >= nxt and len(a) > 2: prof.append(round(a[2])); nxt += 500
                 acc += dist(P(a[1], a[0]), P(b[1], b[0]))
             if len(coords[-1]) > 2: prof.append(round(coords[-1][2]))
+            # predicted trips a day: along the whole stage, and on the road stretches where a path has to be built
+            med = lambda xs: sorted(xs)[len(xs) // 2] if xs else 0
+            wsum = lambda rows: sum(x[0] for x in rows) or 1
+            build = [x for x in pvals if x[3] in ('main', 'busy')]
+            pred = dict(now=round(sum(x[0] * x[1] for x in pvals) / wsum(pvals)), dutch=round(sum(x[0] * x[2] for x in pvals) / wsum(pvals)),
+                        build_dutch=round(sum(x[0] * x[2] for x in build) / wsum(build)) if build else 0,
+                        build_now=round(sum(x[0] * x[1] for x in build) / wsum(build)) if build else 0, build_km=round(sum(x[0] for x in build) / 1000, 1))
+            for b in pbin:
+                pbins.append(dict(route=r['id'], stage=sn, pts=b['pts'][::4] + ([b['pts'][-1]] if len(b['pts']) % 4 != 1 else []),
+                                  now=med([v[0] for v in b['vals']]), dutch=med([v[1] for v in b['vals']]),
+                                  need=round(sum(v[2] for v in b['vals']) / len(b['vals']), 1)))
             rstages.append(dict(n=sn, name=st['name'], note=st['note'], km=round(km, 1), ascent=int(props.get('filtered ascend', 0)), profile=prof,
                                 mix={c: round(v / 1000, 1) for c, v in mix.items()}, via=st['via'],
                                 routes=[dict(name=k, km=round(v / 1000, 1)) for k, v in onroute.most_common(4) if v >= 1000],
-                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi, towns=served,
+                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi, towns=served, pred=pred,
                                 todo=sorted(todo, key=lambda t: -t['km'])))
         tot = collections.Counter()
         for s in rstages:
@@ -386,15 +442,16 @@ def main():
                                ascent=sum(s['ascent'] for s in rstages), mix={c: round(v, 1) for c, v in tot.items()},
                                signed=round(sum(s['signed'] * s['km'] for s in rstages) / max(kmr, 1)), stages=rstages))
     for s in segs:
-        s.pop('keys', None); s['km'] = round(s['km'], 2)
+        s.pop('keys', None); s.pop('now', None); s.pop('dutch', None); s['km'] = round(s['km'], 2)
         s['pts'] = s['pts'][::3] + ([s['pts'][-1]] if len(s['pts']) % 3 != 1 else [])
     used = {t for r in out_routes for t in r['towns']}
-    out = dict(routes=out_routes, segments=segs, collisions=list(coll_all.values()), sites=SITES,
+    out = dict(routes=out_routes, segments=segs, predicted=pbins, collisions=list(coll_all.values()), sites=SITES,
                towns={t['id']: dict(name=t['name'], travel=t['travel'], cycle=t['cycle21'], dutch=t['dutch'], tier=t['tier']) for t in towns if t['id'] in used})
     json.dump(out, open(os.path.join(HERE, '..', 'data', 'danelaw.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     for r in out_routes:
         print(f"{r['name']}: {r['km']} km, {r['ascent']} m up, signed {r['signed']}%, {r['mix']}")
         print('   towns:', ', '.join(out['towns'][t]['name'] for t in r['towns']))
+        print('   predicted a day:', [(s['name'], s['pred']) for s in r['stages']])
         for s in r['stages']:
             print(f"   {s['n']}. {s['name']}: {s['km']} km {s['mix']} to do: {[(t['road'], t['km']) for t in s['todo'][:4]]}")
 

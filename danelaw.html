@@ -16,6 +16,8 @@
   --accent:#0f6b5c; --soft:#e2f0ec;
   /* riding conditions, best to worst: traffic-free path, quiet road or track (track dashed), B/C road, A road */
   --path:#1b8a6b; --quiet:#2f6fd6; --main:#d99a1e; --busy:#c8372d; --site:#3a2f6b;
+  /* predicted cycling, few to many trips a day: one hue, light to dark */
+  --p1:#f2cfe2; --p2:#e294c0; --p3:#c9579a; --p4:#9e2c72; --p5:#62124a;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -23,11 +25,13 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --accent:#4cc3a8; --soft:#183a33;
-  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5; color-scheme:dark}}
+  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5;
+  --p1:#6e3d5e; --p2:#9c4680; --p3:#c3529a; --p4:#ec80c0; --p5:#ffc7e6; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --accent:#4cc3a8; --soft:#183a33;
-  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5; color-scheme:dark}
+  --path:#2fa483; --quiet:#5b8de8; --main:#c99628; --busy:#e0564a; --site:#c9bdf5;
+  --p1:#6e3d5e; --p2:#9c4680; --p3:#c3529a; --p4:#ec80c0; --p5:#ffc7e6; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -50,6 +54,20 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
 h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1;margin:0 0 4px}
 .sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:100ch}
+.mode{display:flex;flex-wrap:wrap;gap:6px;padding:10px 18px 0}
+.mode button{font:600 12px/1 var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.mode button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.rank{width:100%;border-collapse:collapse;font-size:13px}
+.rank th{text-align:left;font:600 11px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+.rank td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rank tr.go{cursor:pointer}.rank tr.go:hover td{background:var(--bg)}
+.rank td.n,.rank th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+.rank small{display:block;color:var(--muted);font-size:12px}
+.rank .bar{position:relative;min-width:120px}.rank .bar i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--p4)}
+.rank .bar i.now{background:var(--p2);height:6px;margin-top:2px}
+.tier{font:600 11px/1 var(--mono);padding:3px 6px;border-radius:4px;white-space:nowrap;background:var(--soft);color:var(--accent)}
+.tier.gentle{background:transparent;box-shadow:inset 0 0 0 1px var(--main);color:var(--ink)}
+.tier.none{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 18px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:24px;height:4px;border-radius:2px;display:inline-block}
@@ -137,9 +155,14 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     </div>
   </section>
   <section>
-    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (letters for the other routes: L Lindsey Ridings, S Soar, A Aire, D Don, T Tadcaster, B Beverley, W Wolds, R Bridlington, H Holland, C Lindsey coast, K Skegness); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Hover for details. Select a ride below, or a stage square on the map, to pick it out (select it again to show everything), or a road or site to zoom to it.</p></div>
+    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (letters for the other routes: L Lindsey Ridings, S Soar, A Aire, D Don, T Tadcaster, B Beverley, W Wolds, R Bridlington, H Holland, C Lindsey coast, K Skegness); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Switch to <b>Predicted cycling</b> to see how many trips a day the Propensity to Cycle Tool predicts along each stretch with Dutch-standard routes: bold where a path still has to be built, thin where it can be ridden away from traffic today. Hover for details. Select a ride below, or a stage square on the map, to pick it out (select it again to show everything), or a road or site to zoom to it.</p></div>
+    <div class="mode" role="group" aria-label="Map view"><button id="m-cond" aria-pressed="true">Riding conditions today</button><button id="m-pred" aria-pressed="false">Predicted cycling</button></div>
     <div class="legend" id="legend"></div>
-    <div id="map" role="img" aria-label="Map of the Danelaw Cycle Network, coloured by what exists along the line today"></div>
+    <div id="map" role="img" aria-label="Map of the Danelaw Cycle Network, coloured by what exists along the line today or by predicted cycling"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Build these first</h2><p>Where a proper path would carry the most people. Each stage is ranked by the trips a day the Propensity to Cycle Tool predicts on its road stretches with Dutch-standard routes (commuting and school trips, the Go Dutch scenario), the stretches where a path has to be built. Start with the stages at the top: they serve flat towns and should become the success stories that win support for the rest. Towns on gentle slopes come next. Leisure trips are not in the prediction, so destination rides score lower than they deserve. Select a stage to see it on the map.</p></div>
+    <div class="tw"><table class="rank" id="rank"></table></div>
   </section>
   <section>
     <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the other routes bring Lincoln, Grimsby, Leicester, Leeds, Doncaster, Hull, Stamford and the Lincolnshire coast into the network. Rides for getting to work come first, then destination rides. Each ride shows the towns of 10,000 people or more it links, and its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
@@ -150,7 +173,7 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     <div class="story" id="story"></div>
   </section>
   <section>
-    <div class="sh"><h2>Paths to build</h2><p>Where the route has to use a road with traffic: A-road stretches of 300 m or more and B or C road stretches of 1 km or more, longest first, with the police-reported cycle collisions on each (2021–25). These are where a proper traffic-free path should be built, so nobody has to ride beside busy traffic.</p></div>
+    <div class="sh"><h2>Paths to build</h2><p>Where the route has to use a road with traffic: A-road stretches of 300 m or more and B or C road stretches of 1 km or more, most predicted trips first, with the police-reported cycle collisions on each (2021–25). These are where a proper traffic-free path should be built, so nobody has to ride beside busy traffic.</p></div>
     <div class="tw" id="todo"></div>
   </section>
   <div class="notes">
@@ -174,15 +197,32 @@ const ride=m=>(m.path||0)+(m.quiet||0)+(m.track||0);
 const roads=m=>(m.main||0)+(m.busy||0);
 function mixBar(mix,km){return `<div class="mix" role="img" aria-label="${ORDER.filter(c=>mix[c]).map(c=>`${CLS[c][0]} ${pct(mix[c],km)}%`).join(', ')}">${ORDER.filter(c=>mix[c]).map(c=>`<i style="width:${(mix[c]/km*100).toFixed(1)}%;background:${c==='track'?'repeating-linear-gradient(90deg,var(--quiet) 0 5px,var(--panel) 5px 8px)':`var(${CLS[c][1]})`}" title="${CLS[c][0]}: ${mix[c]} km"></i>`).join('')}</div>`}
 function mixLine(mix,km){return `<div class="mixl">${ORDER.filter(c=>mix[c]).map(c=>`<span>${CLS[c][0].split(':')[0]} ${pct(mix[c],km)}%</span>`).join('')}</div>`}
+const PBANDS=[25,100,250,500];   // trips a day: under 25, 25-100, 100-250, 250-500, 500 or more
+const pband=v=>PBANDS.filter(x=>v>=x).length;
+let cond,pred,LEGEND;
+function setMode(m){
+  const p=m==='pred';document.getElementById('m-cond').setAttribute('aria-pressed',!p);document.getElementById('m-pred').setAttribute('aria-pressed',p);
+  if(p){map.removeLayer(cond);pred.addTo(map)}else{map.removeLayer(pred);cond.addTo(map)}
+  const lab=['Under 25','25–100','100–250','250–500','500 or more'];
+  document.getElementById('legend').innerHTML=p
+    ?`<span>Trips a day predicted with Dutch-standard routes:</span>`+lab.map((t,i)=>`<span><i style="background:var(--p${i+1});height:6px"></i>${t}</span>`).join('')+`<span><i style="background:var(--muted);height:7px"></i>Bold: path needed</span><span><i style="background:var(--muted);height:2px"></i>Thin: rideable today</span><span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`
+    :LEGEND;
+}
 function drawMap(){
   map=L.map('map',{zoomSnap:.25,scrollWheelZoom:false});
   document.getElementById('map').classList.toggle('dark',isDark());
   map.fitBounds(L.latLngBounds(D.segments.flatMap(s=>s.pts)).pad(.04),{animate:false});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · links routed with BRouter'}).addTo(map);
-  D.segments.forEach(s=>s.casing=L.polyline(s.pts,{color:css('--panel'),weight:10,opacity:.9,lineCap:'round',interactive:false}).addTo(map));
+  cond=L.layerGroup().addTo(map);pred=L.layerGroup();
+  D.segments.forEach(s=>s.casing=L.polyline(s.pts,{color:css('--panel'),weight:10,opacity:.9,lineCap:'round',interactive:false}).addTo(cond));
   D.segments.forEach(s=>{const c=CLS[s.cls],r=D.routes.find(x=>x.id===s.route),st=r.stages[s.stage-1];
     s.line=L.polyline(s.pts,{color:css(c[1]),weight:c[2],opacity:.95,dashArray:c[3],lineCap:c[3]?'butt':'round'})
-      .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${c[0]} · ${s.km} km`,{sticky:true,className:'tt'}).addTo(map)});
+      .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${c[0]} · ${s.km} km`,{sticky:true,className:'tt'}).addTo(cond)});
+  // predicted cycling: bold where a path still has to be built, thin where it can be ridden away from traffic today
+  (D.predicted||[]).forEach(b=>b.casing=L.polyline(b.pts,{color:css('--panel'),weight:b.need>=.5?11:5,opacity:.9,lineCap:'round',interactive:false}).addTo(pred));
+  (D.predicted||[]).forEach(b=>{const r=D.routes.find(x=>x.id===b.route),st=r.stages[b.stage-1],need=b.need>=.5,k=pband(b.dutch);
+    b.line=L.polyline(b.pts,{color:css(`--p${k+1}`),weight:need?7:2.5,opacity:.95,lineCap:'round'})
+      .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>About ${nf(b.dutch)} trips a day predicted with Dutch-standard routes (${nf(b.now)} today)<br>${need?'A proper path is needed here':'Can be ridden away from traffic today'}`,{sticky:true,className:'tt'}).addTo(pred)});
   D.routes.forEach(r=>r.stages.forEach(st=>{const first=D.segments.find(s=>s.route===r.id&&s.stage===st.n);if(!first)return;
     const lab=r.id==='main'?st.n:({lincoln:'L',soar:'S',aire:'A',holland:'H',coast:'C',skegness:'K',don:'D',beverley:'B',wolds:'W',driffield:'R',tadcaster:'T'}[r.id]||'')+(r.stages.length>1?st.n:'');
     st.marker=L.marker(first.pts[0],{zIndexOffset:900,icon:L.divIcon({className:'',html:`<span class="mk st">${lab}</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
@@ -201,6 +241,8 @@ function highlight(sel){
     s.casing.setStyle({weight:hl?16:10,opacity:o?.95:.25});s.line.setStyle({weight:hl?c[2]+3:c[2],opacity:o?.95:.18});
     if(hl){s.casing.bringToFront()}});
   if(sel)D.segments.forEach(s=>{if(hit(s.route,s.stage))s.line.bringToFront()});
+  (D.predicted||[]).forEach(b=>{const o=hit(b.route,b.stage);b.casing.setStyle({opacity:o?.9:.25});b.line.setStyle({opacity:o?.95:.15});if(o&&sel)b.casing.bringToFront()});
+  if(sel)(D.predicted||[]).forEach(b=>{if(hit(b.route,b.stage))b.line.bringToFront()});
   D.routes.forEach(r=>r.stages.forEach(st=>st.marker&&st.marker.setOpacity(hit(r.id,st.n)?1:.3)));
 }
 function zoom(rid,ns){
@@ -217,7 +259,9 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <div class="fact"><b style="color:var(--busy)">${pct(roads(M.mix),M.km)}%</b><span>of the main Way (${nf(roads(M.mix))} km) is on A, B or C roads, where a proper path should be built. ${nf(onRoads)} km across all the routes.</span></div>
     <div class="fact"><b>${M.signed}%</b><span>of the main Way follows signed cycle routes today</span></div>
     <div class="fact"><b>${nf(allKm-M.km)} km</b><span>on ${V.length} more routes: ${nf(V.filter(r=>r.use==='work').reduce((t,r)=>t+r.km,0))} km for getting to work and ${nf(V.filter(r=>r.use!=='work').reduce((t,r)=>t+r.km,0))} km of destination rides</span></div>`;
-  document.getElementById('legend').innerHTML=ORDER.map(c=>`<span><i style="background:${CLS[c][3]?`repeating-linear-gradient(90deg,var(${CLS[c][1]}) 0 7px,transparent 7px 12px)`:`var(${CLS[c][1]})`}"></i>${CLS[c][0]}</span>`).join('')+`<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`;
+  LEGEND=ORDER.map(c=>`<span><i style="background:${CLS[c][3]?`repeating-linear-gradient(90deg,var(${CLS[c][1]}) 0 7px,transparent 7px 12px)`:`var(${CLS[c][1]})`}"></i>${CLS[c][0]}</span>`).join('')+`<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`;
+  document.getElementById('legend').innerHTML=LEGEND;
+  document.getElementById('m-cond').onclick=()=>setMode('cond');document.getElementById('m-pred').onclick=()=>setMode('pred');
   // the three tests, across every route
   const allUp=d.routes.reduce((t,r)=>t+r.ascent,0),tws=Object.values(d.towns),trav=tws.reduce((t,x)=>t+x.travel,0);
   const cyc=tws.reduce((t,x)=>t+x.travel*x.cycle,0)/trav,dut=tws.reduce((t,x)=>t+x.travel*x.dutch,0)/trav;
@@ -255,7 +299,7 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   const breakdown=parts=>{const ss=parts.flatMap(sts),k=ss.reduce((t,s)=>t+s.km,0),mix={},sig={};
     ss.forEach(s=>{for(const c in s.mix)mix[c]=(mix[c]||0)+s.mix[c];(s.routes||[]).forEach(x=>sig[x.name]=(sig[x.name]||0)+x.km)});
     const col=ss.reduce((t,s)=>t+s.collisions,0),ksi=ss.reduce((t,s)=>t+(s.ksi||0),0),top=Object.entries(sig).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    return `<span class="bd"><span class="nums"><span><b>${pct(ride(mix),k)}%</b> away from traffic</span><span><b>${nf(roads(mix))}</b> km on roads</span><span><b>${col}</b> collisions${ksi?`, <b>${ksi}</b> serious`:''}</span></span>
+    return `<span class="bd"><span class="nums"><span><b>${pct(ride(mix),k)}%</b> away from traffic</span><span><b>${nf(roads(mix))}</b> km on roads</span><span><b>${col}</b> collisions${ksi?`, <b>${ksi}</b> serious`:''}</span><span><b>${nf(ss.reduce((t,s)=>t+(s.pred?s.pred.dutch*s.km:0),0)/k)}</b> trips a day predicted (${nf(ss.reduce((t,s)=>t+(s.pred?s.pred.now*s.km:0),0)/k)} today)</span></span>
       ${mixBar(mix,k)}<span class="mixl">${ORDER.filter(c=>pct(mix[c],k)>0).map(c=>`<span>${SHORT[c]} ${pct(mix[c],k)}%</span>`).join('')}</span><span class="via">${top.length?'Follows '+top.map(([n,v])=>`${esc(n)} (${nf(v)} km)`).join(', '):'Few signed cycle routes'}</span>
       <span class="via">${ss.length} stage${ss.length>1?'s':''}: ${parts.flatMap(q=>sts(q).map(s=>esc(q[3]?s.name.split(' to ').reverse().join(' to '):s.name))).join(' · ')}</span></span>`};
   const card=o=>{const p=prof(o.parts),u=up(o.parts),hi=p.length?Math.max(...p):0,tw=rtowns(o.parts).map(i=>d.towns[i]);
@@ -266,9 +310,21 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <div class="ogrp">Destination rides</div><div class="opts">${OPTS.filter(o=>o.use==='destination').map(card).join('')}</div>`;
   document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const was=o.getAttribute('aria-pressed')==='true';document.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',!was&&x===o));if(was)return zoom();
     zoom(OPTS[+o.dataset.o].parts.map(([rid,a,b])=>[rid,Array.from({length:b-a+1},(_,i)=>a+i)]))});
-  const todo=d.routes.flatMap(r=>r.stages.flatMap(st=>st.todo.map(t=>({...t,route:r.name,stage:st.name})))).sort((a,b)=>b.km-a.km).slice(0,30);
-  document.getElementById('todo').innerHTML=`<table><thead><tr><th></th><th>Road</th><th>Near</th><th>Route and stage</th><th class="n">Length</th><th class="n">Speed limit</th><th class="n">Collisions</th></tr></thead><tbody>${
-    todo.map((t,i)=>`<tr class="go" data-i="${i}"><td><span class="tag ${t.cls}">${t.cls==='busy'?'A road':'B/C road'}</span></td><td><b>${esc(t.road)}</b>${t.ref&&t.ref!==t.road?` <small style="display:inline">${esc(t.ref)}</small>`:''}</td><td>${esc(t.near)}</td><td>${esc(t.route)}<small>${esc(t.stage)}</small></td><td class="n">${t.km} km</td><td class="n">${esc(t.speed||'')}</td><td class="n">${t.collisions}</td></tr>`).join('')}</tbody></table>`;
+  // build first: stages ranked by predicted trips a day on the stretches that need a path, flat towns first
+  // a stage that climbs 6 m a km or more counts as hilly whatever its towns
+  const tierOf=st=>{const t=(st.towns||[]).map(i=>d.towns[i].tier);return st.ascent/st.km>=6?'hilly':!t.length?'none':t.includes('hilly')?'hilly':t.includes('gentle')?'gentle':'flat'};
+  const TIER={flat:'Flat towns',gentle:'Gentle slopes',hilly:'Some hills',none:'No large town'};
+  const cand=d.routes.flatMap(r=>r.stages.map(st=>({r,st,t:tierOf(st)}))).filter(x=>x.st.pred&&x.st.pred.build_km>=.5).sort((a,b)=>b.st.pred.build_dutch-a.st.pred.build_dutch);
+  const first=cand.filter(x=>x.t==='flat').slice(0,10),next=cand.filter(x=>x.t!=='flat').slice(0,6),bmax=Math.max(...cand.map(x=>x.st.pred.build_dutch));
+  const rrow=(x,i)=>`<tr class="go" data-r="${x.r.id}" data-n="${x.st.n}"><td class="n">${i+1}</td><td><b>${esc(x.st.name)}</b><small>${esc(x.r.name)}</small></td><td><span class="tier ${x.t==='flat'?'':x.t==='gentle'?'gentle':'none'}">${TIER[x.t]}</span><small>${(x.st.towns||[]).map(i=>esc(d.towns[i].name)).join(', ')}</small></td>
+    <td class="n">${x.st.pred.build_km} km</td><td class="bar" aria-label="${nf(x.st.pred.build_dutch)} trips a day predicted, against ${nf(x.st.pred.build_now)} today"><i style="width:${(x.st.pred.build_dutch/bmax*100).toFixed(1)}%"></i></td><td class="n"><b>${nf(x.st.pred.build_dutch)}</b><small>${nf(x.st.pred.build_now)} today</small></td></tr>`;
+  const rhead=t=>`<tr><th colspan="6" style="padding-top:14px">${t}</th></tr>`;
+  document.getElementById('rank').innerHTML=`<thead><tr><th class="n">#</th><th>Stage</th><th>Towns served</th><th class="n">Path to build</th><th>Predicted trips a day where the path is needed</th><th class="n"></th></tr></thead><tbody>
+    ${rhead('First: flat towns')}${first.map(rrow).join('')}${rhead('Next: towns on gentle slopes or with hills')}${next.map(rrow).join('')}</tbody>`;
+  document.querySelectorAll('#rank tr.go').forEach(tr=>tr.onclick=()=>{setMode('pred');zoom(tr.dataset.r,[+tr.dataset.n])});
+  const todo=d.routes.flatMap(r=>r.stages.flatMap(st=>st.todo.map(t=>({...t,route:r.name,stage:st.name})))).sort((a,b)=>(b.dutch||0)-(a.dutch||0)||b.km-a.km).slice(0,30);
+  document.getElementById('todo').innerHTML=`<table><thead><tr><th></th><th>Road</th><th>Near</th><th>Route and stage</th><th class="n">Length</th><th class="n">Speed limit</th><th class="n">Collisions</th><th class="n">Predicted a day</th></tr></thead><tbody>${
+    todo.map((t,i)=>`<tr class="go" data-i="${i}"><td><span class="tag ${t.cls}">${t.cls==='busy'?'A road':'B/C road'}</span></td><td><b>${esc(t.road)}</b>${t.ref&&t.ref!==t.road?` <small style="display:inline">${esc(t.ref)}</small>`:''}</td><td>${esc(t.near)}</td><td>${esc(t.route)}<small>${esc(t.stage)}</small></td><td class="n">${t.km} km</td><td class="n">${esc(t.speed||'')}</td><td class="n">${t.collisions}</td><td class="n">${nf(t.dutch||0)}<small>${nf(t.now||0)} today</small></td></tr>`).join('')}</tbody></table>`;
   document.querySelectorAll('#todo tr.go').forEach(tr=>tr.onclick=()=>{const t=todo[+tr.dataset.i];map.flyTo([t.lat,t.lon],14,{duration:.7});document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'})});
   document.getElementById('story').innerHTML=d.sites.map((s,i)=>`<div class="site" data-i="${i}" tabindex="0" role="button"><h3><span class="mk${s.on?'':' off'}" aria-hidden="true">ᚱ</span>${esc(s.name)} <span class="on">${s.on?RNAME[s.on]:'off route'}</span></h3><p>${esc(s.text)}</p></div>`).join('');
   drawMap();
