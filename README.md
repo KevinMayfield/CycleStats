@@ -2,26 +2,24 @@
 
 **[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
 
-An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: fifteen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
 | **Leeds** | City of Leeds district |
 | **Sheffield** | City of Sheffield |
-| **Hull** | Kingston upon Hull |
-| **York** | City of York |
 | **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
 | **Bradford** | City of Bradford district |
 | **Wakefield** | Wakefield district |
 | **Doncaster & Barnsley** | Doncaster and Barnsley districts |
 | **Rotherham** | Rotherham district |
-| **East Riding of Yorkshire** | East Riding (Beverley, Bridlington, Goole) |
+| **Hull & East Riding** | Kingston upon Hull and the East Riding of Yorkshire (Hull, Beverley, Bridlington, Goole) |
 | **Lincolnshire** | Lincolnshire county, North Lincolnshire and North East Lincolnshire (Lincoln, Boston, Grantham, Skegness, Grimsby, Immingham, Scunthorpe) |
 | **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
 | **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
 | **Leicester & Leicestershire** | Leicester city and Leicestershire county (Loughborough, Hinckley, Coalville, Melton Mowbray, Market Harborough) |
 | **Rutland** | Rutland county (Oakham, Uppingham, Rutland Water) |
-| **North Yorkshire** | North Yorkshire council area (Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
+| **York & North Yorkshire** | City of York and the North Yorkshire council area (York, Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
 | **Middlesbrough & Redcar** | Middlesbrough and Redcar & Cleveland |
 
 | Tab | What it ranks | Source |

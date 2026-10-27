@@ -388,7 +388,7 @@ function renderCounts(){
 const TIERC=k=>css({flat:'--t-flat',gentle:'--t-gentle',bench:'--t-bench'}[k]),TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
 const ICB_OF={leeds:'West Yorkshire',bradford:'West Yorkshire','kirklees-calderdale':'West Yorkshire',wakefield:'West Yorkshire',
   sheffield:'South Yorkshire',rotherham:'South Yorkshire','doncaster-barnsley':'South Yorkshire',
-  hull:'Humber and North Yorkshire','east-riding':'Humber and North Yorkshire',york:'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
+  'east-riding':'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
   lincolnshire:['Lincolnshire','Humber and North Yorkshire'],nottinghamshire:'Nottingham and Nottinghamshire',derbyshire:'Derby and Derbyshire',
   leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','middlesbrough-redcar':'North East and North Cumbria'};
 const MEAS={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived areas'};
@@ -489,8 +489,9 @@ setTab(groups[start]?start:'routes');lbls();
 let AREA=new URLSearchParams(location.search).get('area');
 if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
 // merged areas, for old links and remembered areas: the Notts-Derby corridor went into Nottingham & Nottinghamshire and
-// Derby & Derbyshire; Grimsby, Immingham & Scunthorpe into Lincolnshire (Oct 2026)
-AREA={'notts-derby':'nottinghamshire','grimsby-scunthorpe':'lincolnshire'}[AREA]||AREA;
+// Derby & Derbyshire; Grimsby, Immingham & Scunthorpe into Lincolnshire; Hull into Hull & East Riding and York into
+// York & North Yorkshire (Oct 2026)
+AREA={'notts-derby':'nottinghamshire','grimsby-scunthorpe':'lincolnshire',hull:'east-riding',york:'north-yorkshire'}[AREA]||AREA;
 fetch('data/areas.json').then(r=>r.json()).then(list=>{
   if(!list.some(a=>a.id===AREA)) AREA=list[0].id;
   try{localStorage.setItem('area',AREA)}catch(e){}
