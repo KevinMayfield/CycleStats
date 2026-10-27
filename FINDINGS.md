@@ -84,6 +84,21 @@ levels its terrain allows.
   - Long Eaton is flat (gradient 0.6%) but cycles at less than half the rate of Goole (10.8%), a smaller town on
     similar ground.
   - Beeston (6.3%) shows what the corridor can do.
+- **Derby to Nottingham by Long Eaton could reach high cycling numbers.**
+  - **Population:** the towns along it (Derby, Long Eaton, Sandiacre, Stapleford, Beeston, Nottingham and West
+    Bridgford) have about 226,000 people travelling to work.
+  - **Terrain:** the line between them follows the Derwent and the Trent. It climbs only 6 m from Derby to Long
+    Eaton.
+  - **Potential:** 3.8% cycle to work today (about 8,400 people). The Go Dutch scenario puts the corridor at 23%,
+    about 51,000.
+  - **Why the route prediction is low:** two things hold it down.
+    - Risk of injury: Derby had 397 cycle collisions and Nottingham 581 in five years, and 31% of Long Eaton's killed
+      or seriously injured people. That keeps today's numbers low.
+    - Missing data: the Propensity to Cycle Tool predicts flows on roads, and the river paths run well away from
+      them. Between Derby and Newark, 70 of 154 half-kilometre stretches get under 25 predicted trips a day, and 30
+      get none.
+  - **Taking both into account:** the corridor is probably one of the biggest opportunities in the region, not one
+    of the smallest.
 - **Derby and Derbyshire have a safety problem:**
   - Half of Derbyshire's towns (8 of 16) have collision rates above England & Wales.
   - Its neighbours do better: Nottinghamshire is 5% below the national rate, Lincolnshire 38% below and
