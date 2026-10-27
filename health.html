@@ -116,6 +116,11 @@ td small{display:block;color:var(--muted);font-size:11.5px}
     <div class="method" id="icbnote"></div>
   </section>
   <section>
+    <div class="sh"><h2>Road danger: cyclists killed and injured in each NHS area</h2><p>Police-reported cyclist casualties a year where the collision happened (STATS19), set against people who cycle to work (Census 2021) as a rough guide to how much cycling there is. Safer roads are what turn the health gains above into reality: more people will only cycle if it feels safe, and more cycling on today's roads would bring more casualties.</p></div>
+    <div class="tw"><table id="cas"></table></div>
+    <div class="method" id="casnote"></div>
+  </section>
+  <section>
     <div class="sh"><h2>How this was worked out</h2></div>
     <div class="method" id="method"></div>
   </section>
@@ -161,6 +166,20 @@ fetch('data/health.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
   document.getElementById('icbnote').innerHTML=`<p><span style="display:inline-flex;align-items:center;gap:6px"><i style="width:12px;height:8px;background:var(--accent);display:inline-block"></i>Lives saved</span> &nbsp; <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:12px;height:8px;background:var(--t-flat);display:inline-block"></i>Sick days avoided</span></p>
     <p><b>Is this what cycling would save the NHS?</b> Not directly. The tool values a premature death avoided at the government's value of a statistical life, and a sick day at the wages lost. That is the benefit to people and the economy. NHS treatment costs avoided (fewer cases of heart disease, type 2 diabetes, some cancers, depression and falls) are on top of this but are not in the tool. Estimating them needs a disease model such as Sport England's MOVES; the extra hours of cycling a year behind these figures (about ${nf(tot('hours')/1e6)} million across the eight boards under Go Dutch, roughly ${p1(tot('hours')/52/1e6)} million a week) are the input such a model would take.</p>
     <p>Councils are matched to boards on 2011 boundaries; North East and North Cumbria excludes North Cumbria, which is outside the data downloaded for this site. Cycling to work here is the 2011 Census, the base of the tool's scenarios.</p>`;
+  // road danger by board
+  const rmax=Math.max(...I.map(x=>x.ksi_rate)),best=Math.min(...I.map(x=>x.ksi_rate)),bestB=I.find(x=>x.ksi_rate===best);
+  const yrs=d.cas_years||[],yr=yrs.length?`${yrs[0]}–${yrs[yrs.length-1].slice(2)}`:'';
+  document.getElementById('cas').innerHTML=`<thead><tr><th>NHS integrated care board</th><th class="n">Killed a year</th><th class="n">Seriously injured a year</th><th class="n">Slightly injured a year</th><th>Killed or seriously injured a year per 1,000 people who cycle to work</th><th class="n">Fewer killed or seriously injured a year at the lowest rate</th><th class="n">Cut in risk per rider needed at Go Dutch</th></tr></thead><tbody>${
+    I.slice().sort((a,b)=>b.ksi_rate-a.ksi_rate).map(x=>`<tr><td><b>${esc(x.name.replace(/^NHS /,''))}</b><small>${nf(x.riders21)} cycle to work</small></td>
+      <td class="n">${p1(x.killed)}</td><td class="n">${nf(x.serious)}</td><td class="n">${nf(x.slight)}</td>
+      <td><div class="split" style="width:${x.ksi_rate/rmax*100}%;min-width:0"><i class="l" style="flex:1;background:var(--${x.ksi_rate>=best*2?'bad':x.ksi_rate>=best*1.3?'warn':'good'})"></i></div><small>${p1(x.ksi_rate)}</small></td>
+      <td class="n">${x.ksi_at_best>0?nf(x.ksi_at_best):'–'}</td><td class="n">${x.cut_needed}%<small>cycling ×${p1(x.growth)}</small></td></tr>`).join('')}
+    <tr><td><b>All eight</b></td><td class="n"><b>${p1(tot('killed'))}</b></td><td class="n"><b>${nf(tot('serious'))}</b></td><td class="n"><b>${nf(tot('slight'))}</b></td><td><small>${p1(1000*(tot('killed')+tot('serious'))/tot('riders21'))} across the eight</small></td><td class="n"><b>${nf(I.reduce((s,x)=>s+Math.max(0,x.ksi_at_best),0))}</b></td><td></td></tr></tbody>`;
+  document.getElementById('casnote').innerHTML=`
+    <p><b>Where the danger is.</b> The lowest rate among the eight is ${esc(bestB.name.replace(/^NHS /,''))}'s, ${p1(best)} killed or seriously injured a year per 1,000 people who cycle to work. If every board's roads were as safe as that for the riders they have today, about ${nf(I.reduce((s,x)=>s+Math.max(0,x.ksi_at_best),0))} fewer cyclists a year would be killed or seriously injured across the eight, most of them in West Yorkshire.</p>
+    <p><b>Why infrastructure has to come first.</b> Under Go Dutch, cycling to work would grow between ${p1(Math.min(...I.map(x=>x.growth)))} and ${p1(Math.max(...I.map(x=>x.growth)))} times over. If the risk to each rider stayed as it is, casualties would grow with it. To keep them no higher than today, the risk per rider has to fall by ${Math.min(...I.map(x=>x.cut_needed))}–${Math.max(...I.map(x=>x.cut_needed))}%, which is what separated, Dutch-style routes are for: the more people cycle on safe routes, the safer each of them becomes.</p>
+    <p><b>Even now, cycling saves more lives than it costs.</b> About ${p1(tot('killed'))} cyclists a year are killed on these boards' roads, all cycling counted. Today's cycling to work alone avoids about ${p1(tot('now_deaths'))} premature deaths a year through better health (Propensity to Cycle Tool), before leisure and school cycling.</p>
+    <p>Casualties are police-reported (${esc(yr)}, averaged a year) and placed where the collision happened, so they include visitors and leisure rides; many slight injuries are never reported. People who cycle to work are only a guide to how much cycling there is in each area. Serious injuries are as recorded at the time; police forces using the newer injury-based reporting system record more of them, which makes some boards' figures look higher than others'.</p>`;
   // method
   const P=d.periods;
   document.getElementById('method').innerHTML=`
