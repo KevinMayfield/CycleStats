@@ -1,5 +1,5 @@
 """The Danelaw Way: a long-distance route from Derby to York along the rivers of the Danelaw, with the Lindsey Ridings
-(Torksey to Howden by Lincoln, Grimsby and the Humber), variants from Leicester down the Soar and from Leeds down the Aire, a route from Leicester by
+(a loop from Torksey by Lincoln, Grimsby, the Humber and Scunthorpe to Gainsborough), variants from Leicester down the Soar and from Leeds down the Aire, a route from Leicester by
 Stamford and Holland to the Wash, and a coastal route through the South and North Ridings of Lindsey to the Humber. Writes data/danelaw.json for danelaw.html.
 
 Each stage is routed with BRouter's touring profile ('trekking') through hand-picked villages on one bank of the
@@ -51,7 +51,7 @@ ROUTES = [
         dict(name='York to Stamford Bridge', note='East from Jorvik to the battlefield of 1066', pts=[
             ('York', 53.9620, -1.0815), ('Osbaldwick', 53.9600, -1.0300), ('Dunnington', 53.9650, -0.9850), ('Stamford Bridge', 53.9920, -0.9140)]),
     ]),
-    dict(id='lincoln', name='The Lindsey Ridings', sub='Torksey to Howden through Lindsey, by Lincoln, Grimsby and the Humber', joins='Torksey and Howden', stages=[
+    dict(id='lincoln', name='The Lindsey Ridings', sub='A loop through Lindsey from Torksey by Lincoln, Grimsby, the Humber and Scunthorpe to Gainsborough', joins='Torksey and Gainsborough', stages=[
         dict(name='Torksey to Lincoln', note='Along the Fossdyke, the Roman canal, into Lincoln', pts=[
             ('Torksey', 53.2985, -0.7430), ('Saxilby', 53.2690, -0.6640), ('Lincoln', 53.2307, -0.5406)]),
         dict(name='Lincoln to Grimsby', note='North-east by Market Rasen and Caistor on the edge of the Wolds to the Humber coast', pts=[
@@ -60,9 +60,13 @@ ROUTES = [
         dict(name='Grimsby to Barton-upon-Humber', note='Along the south bank of the Humber by Immingham and Goxhill', pts=[
             ('Grimsby', 53.5670, -0.0810), ('Stallingborough', 53.5880, -0.1880), ('Immingham', 53.6120, -0.2180), ('East Halton', 53.6550, -0.3100),
             ('Goxhill', 53.6760, -0.3360), ('Barrow upon Humber', 53.6780, -0.3830), ('Barton-upon-Humber', 53.6840, -0.4390)]),
-        dict(name='Barton-upon-Humber to Howden', note='Over the Humber Bridge and west along the north bank', pts=[
-            ('Barton-upon-Humber', 53.6840, -0.4390), ('Hessle', 53.7230, -0.4380), ('North Ferriby', 53.7210, -0.5040), ('Brough', 53.7290, -0.5720),
-            ('Howden', 53.7450, -0.8680)]),
+        dict(name='Barton-upon-Humber to Scunthorpe', note='West along the Humber by Winteringham to Alkborough above Trent Falls, then up the Trent to Scunthorpe', pts=[
+            ('Barton-upon-Humber', 53.6840, -0.4390), ('Chowder Ness', 53.6860, -0.4720), ('South Ferriby', 53.6730, -0.5040), ('Ferriby Sluice', 53.6790, -0.5450), ('Winteringham', 53.6890, -0.5900),
+            ('Whitton', 53.6970, -0.6400), ('Alkborough', 53.6840, -0.6680), ('Burton upon Stather', 53.6480, -0.6880), ('Flixborough', 53.6200, -0.6930),
+            ('Scunthorpe', 53.5880, -0.6540)]),
+        dict(name='Scunthorpe to Gainsborough', note='South by Messingham, Scotter and Blyton, back to the Trent', pts=[
+            ('Scunthorpe', 53.5880, -0.6540), ('Messingham', 53.5290, -0.6540), ('Scotter', 53.4970, -0.6720), ('Blyton', 53.4440, -0.7180),
+            ('Gainsborough', 53.3980, -0.7760)]),
     ]),
     dict(id='soar', name='Soar variant', sub='Leicester to Long Eaton', joins='Long Eaton', stages=[
         dict(name='Leicester to Long Eaton', note='Down the Soar from Leicester, one of the Five Boroughs, to the Trent', pts=[
@@ -129,7 +133,7 @@ SITES = [
     dict(name='Lincolnshire Wolds', lat=53.4970, lon=-0.3180, on='lincoln', text='Tealby, Normanby, Grimsby and dozens more: Lincolnshire has more Old Norse -by place names than any other English county, many of them strung along these chalk hills. The Lindsey Ridings cross their western edge at Caistor, close to the Viking Way footpath.'),
     dict(name='Barton-upon-Humber', lat=53.6845, lon=-0.4390, on='lincoln', text='The old ferry town on the south bank of the Humber. St Peter\'s Church has an Anglo-Saxon tower from around the end of the 10th century.'),
     dict(name='Grimsby', lat=53.5670, lon=-0.0810, on='lincoln', text='On the Humber coast: by tradition named after Grim, a Danish fisherman, with the Old Norse -by for farm or village. The Lindsey Ridings reaches the sea here.'),
-    dict(name='Humber', lat=53.7090, lon=-0.4500, on='lincoln', text='The estuary the Great Army crossed on its way to York in 866. The Lindsey Ridings crosses it on the Humber Bridge.'),
+    dict(name='Humber', lat=53.6950, lon=-0.6800, on='lincoln', text='The estuary the Great Army crossed on its way to York in 866. The Lindsey Ridings looks over Trent Falls at Alkborough, where the Trent and the Ouse meet to form the Humber.'),
     dict(name='Leeds', lat=53.7945, lon=-1.5410, on='aire', text='Leeds Minster keeps a 10th-century Anglo-Scandinavian stone cross carved with Weland the Smith, a hero of Norse legend. Start of the Aire variant.'),
     dict(name='Castleford', lat=53.7255, lon=-1.3560, on='aire', text='In 948 the army of Viking York under Eric Bloodaxe caught King Eadred\'s rearguard here and slaughtered it, the Anglo-Saxon Chronicle records.'),
     dict(name='Selby', lat=53.7845, lon=-1.0640, on='main', text='A name of Old Norse origin, probably "willow farm", like many -by places along the Way.'),
