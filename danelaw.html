@@ -63,7 +63,7 @@ h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1;mar
 .rank tr.go{cursor:pointer}.rank tr.go:hover td{background:var(--bg)}
 .rank td.n,.rank th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
 .rank small{display:block;color:var(--muted);font-size:12px}
-.rank .bar{position:relative;min-width:120px}.rank .bar i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--p4)}
+.rank .bar{position:relative;min-width:120px}.rank .bar i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--accent);margin-bottom:4px}
 .rank .bar i.now{background:var(--p2);height:6px;margin-top:2px}
 .tier{font:600 11px/1 var(--mono);padding:3px 6px;border-radius:4px;white-space:nowrap;background:var(--soft);color:var(--accent)}
 .tier.gentle{background:transparent;box-shadow:inset 0 0 0 1px var(--main);color:var(--ink)}
@@ -163,7 +163,7 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     <div id="map" role="img" aria-label="Map of the Danelaw Cycle Network, coloured by what exists along the line today or by predicted cycling"></div>
   </section>
   <section>
-    <div class="sh"><h2>Build these first</h2><p>Where a proper path would carry the most people. Each stage is ranked by the trips a day the Propensity to Cycle Tool predicts on its road stretches with Dutch-standard routes (commuting and school trips, the Go Dutch scenario), the stretches where a path has to be built. Start with the stages at the top: they serve flat towns and should become the success stories that win support for the rest. Towns on gentle slopes come next. Leisure trips are not in the prediction, so destination rides score lower than they deserve. Select a stage to see it on the map.</p></div>
+    <div class="sh"><h2>Build these first</h2><p>Where a proper path would carry the most people. Stages are ranked by how many people commute between the towns they link, from the Census 2021 home-to-work flows: towns within 15 km of each other, the range where cycling to work is realistic, especially by e-bike. Flat routes (under 3 m of climbing a km) come first: they should become the success stories that win support for the rest. The last column is the Propensity to Cycle Tool's Go Dutch prediction on the stretches that need a path; it counts only flows on roads, so it underrates routes along rivers and towpaths. Select a stage to see it on the map.</p></div>
     <div class="tw"><table class="rank" id="rank"></table></div>
   </section>
   <section>
@@ -283,14 +283,14 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   const rtowns=parts=>[...new Set(parts.flatMap(q=>sts(q).flatMap(s=>q[3]?[...(s.towns||[])].reverse():(s.towns||[]))))];
   const whole=r=>({n:r.name,t:`${r.sub}, joining the Way at ${r.joins}`,use:r.use,parts:[[r.id,1,r.stages.length]]});
   const VC=V.filter(r=>r.card!==false);
-  const OPTS=[{n:'Trent Valley and the Boroughs of Derby and Nottingham',t:'Repton to Gainsborough: getting to work along the Trent first, and a day ride too',use:'both',parts:[['main',1,4]]},
+  const OPTS=[{n:'Trent Valley and the Boroughs of Derby and Nottingham',t:'Repton to Gainsborough: getting to work along the Trent first, and a day ride too',use:'both',parts:[['main',1,5]]},
     {n:'York to Middlesbrough',t:'The A19 north by Easingwold, Thirsk and Northallerton to Teesside: getting to work between the towns first, and a ride to the Cleveland Hills',use:'both',parts:[['gnr',6,8]]},
     {n:'Barton to Hull',t:'Barton-upon-Humber over the Humber Bridge to Hessle and along the Humber into Hull',use:'work',parts:[['humber',1,1],['aire',4,4]]},
     {n:'Hull to Bridlington',t:'Hull by Beverley and Driffield up the flat Hull valley to the sea: getting to work first, and a day out at the coast',use:'both',parts:[['beverley',1,1],['driffield',1,2]]},
     ...VC.filter(r=>r.use==='work').map(whole),
     {n:'The Danelaw Way',t:'Repton to Stamford Bridge',use:'destination',parts:[['main',1,M.stages.length]]},
-    {n:'Gainsborough to Jorvik',t:'Gainsborough to York and Stamford Bridge by Howden',use:'destination',parts:[['main',5,M.stages.length]]},
-    {n:'Great North Road',t:'Stamford to Middlesbrough on the old road north: Ermine Street to Grantham and Newark, Doncaster, Selby, York and Northallerton',use:'destination',parts:[['gnr',1,5],['main',7,7],['gnr',6,8]]},
+    {n:'Gainsborough to Jorvik',t:'Gainsborough to York and Stamford Bridge by Howden',use:'destination',parts:[['main',6,M.stages.length]]},
+    {n:'Great North Road',t:'Stamford to Middlesbrough on the old road north: Ermine Street to Grantham and Newark, Doncaster, Selby, York and Northallerton',use:'destination',parts:[['gnr',1,5],['main',8,8],['gnr',6,8]]},
     {n:'York to Bridlington',t:'York by Pocklington over the Wolds to Driffield and the sea at Bridlington',use:'destination',parts:[['beverley',3,3,true],['wolds',1,1],['driffield',2,2]]},
     ...VC.filter(r=>r.use!=='work').map(whole)];
   const USE={work:'Getting to work',both:'Work first · leisure too',destination:'Destination ride'};
@@ -315,17 +315,20 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <div class="ogrp">Destination rides</div><div class="opts">${OPTS.filter(o=>o.use==='destination').map(card).join('')}</div>`;
   document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const was=o.getAttribute('aria-pressed')==='true';document.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',!was&&x===o));if(was)return zoom();
     zoom(OPTS[+o.dataset.o].parts.map(([rid,a,b])=>[rid,Array.from({length:b-a+1},(_,i)=>a+i)]))});
-  // build first: stages ranked by predicted trips a day on the stretches that need a path, flat towns first
-  // a stage that climbs 6 m a km or more counts as hilly whatever its towns
-  const tierOf=st=>{const t=(st.towns||[]).map(i=>d.towns[i].tier);return st.ascent/st.km>=6?'hilly':!t.length?'none':t.includes('hilly')?'hilly':t.includes('gentle')?'gentle':'flat'};
-  const TIER={flat:'Flat towns',gentle:'Gentle slopes',hilly:'Some hills',none:'No large town'};
-  const cand=d.routes.flatMap(r=>r.stages.map(st=>({r,st,t:tierOf(st)}))).filter(x=>x.st.pred&&x.st.pred.build_km>=.5).sort((a,b)=>b.st.pred.build_dutch-a.st.pred.build_dutch);
-  const first=cand.filter(x=>x.t==='flat').slice(0,10),next=cand.filter(x=>x.t!=='flat').slice(0,6),bmax=Math.max(...cand.map(x=>x.st.pred.build_dutch));
-  const rrow=(x,i)=>`<tr class="go" data-r="${x.r.id}" data-n="${x.st.n}"><td class="n">${i+1}</td><td><b>${esc(x.st.name)}</b><small>${esc(x.r.name)}</small></td><td><span class="tier ${x.t==='flat'?'':x.t==='gentle'?'gentle':'none'}">${TIER[x.t]}</span><small>${(x.st.towns||[]).map(i=>esc(d.towns[i].name)).join(', ')}</small></td>
-    <td class="n">${x.st.pred.build_km} km</td><td class="bar" aria-label="${nf(x.st.pred.build_dutch)} trips a day predicted, against ${nf(x.st.pred.build_now)} today"><i style="width:${(x.st.pred.build_dutch/bmax*100).toFixed(1)}%"></i></td><td class="n"><b>${nf(x.st.pred.build_dutch)}</b><small>${nf(x.st.pred.build_now)} today</small></td></tr>`;
+  // build first: stages ranked by the people who commute between the towns they link (Census 2021, pairs within
+  // 15 km), flat routes first; the PCT prediction where a path is needed is shown alongside
+  const FLAT_M_PER_KM=3;
+  const odSum=st=>(st.od||[]).reduce((t,x)=>t+x[2],0);
+  const cand=d.routes.flatMap(r=>r.stages.map(st=>({r,st,flat:st.ascent/st.km<FLAT_M_PER_KM,c:odSum(st)}))).filter(x=>x.st.pred&&x.st.pred.build_km>=.5)
+    .sort((a,b)=>b.c-a.c||b.st.pred.build_dutch-a.st.pred.build_dutch);
+  const first=cand.filter(x=>x.flat).slice(0,12),next=cand.filter(x=>!x.flat).slice(0,6),cmax=Math.max(...cand.map(x=>x.c)),pmax=Math.max(...cand.map(x=>x.st.pred.build_dutch));
+  const tn=i=>esc(d.towns[i].name.replace(/ \(.*\)$/,''));
+  const rrow=(x,i)=>`<tr class="go" data-r="${x.r.id}" data-n="${x.st.n}"><td class="n">${i+1}</td><td><b>${esc(x.st.name)}</b><small>${esc(x.r.name)} · ${nf(x.st.ascent)} m climbing in ${nf(x.st.km)} km</small></td>
+    <td class="bar" aria-label="${nf(x.c)} people commute between the towns this stage links"><i style="width:${(x.c/cmax*100).toFixed(1)}%"></i><small>${x.st.od.slice(0,2).map(([a,b,n,k])=>`${tn(a)}–${tn(b)} ${nf(n)} (${k} km)`).join(' · ')||'No large towns within 15 km of each other'}</small></td><td class="n"><b>${nf(x.c)}</b></td>
+    <td class="n">${x.st.pred.build_km} km</td><td class="n"><b>${nf(x.st.pred.build_dutch)}</b><small>${nf(x.st.pred.build_now)} today</small></td></tr>`;
   const rhead=t=>`<tr><th colspan="6" style="padding-top:14px">${t}</th></tr>`;
-  document.getElementById('rank').innerHTML=`<thead><tr><th class="n">#</th><th>Stage</th><th>Towns served</th><th class="n">Path to build</th><th>Predicted trips a day where the path is needed</th><th class="n"></th></tr></thead><tbody>
-    ${rhead('First: flat towns')}${first.map(rrow).join('')}${rhead('Next: towns on gentle slopes or with hills')}${next.map(rrow).join('')}</tbody>`;
+  document.getElementById('rank').innerHTML=`<thead><tr><th class="n">#</th><th>Stage</th><th>People commuting between the towns it links</th><th class="n"></th><th class="n">Path to build</th><th class="n">Predicted trips a day where the path is needed</th></tr></thead><tbody>
+    ${rhead('First: flat routes')}${first.map(rrow).join('')}${rhead('Next: routes with some climbing')}${next.map(rrow).join('')}</tbody>`;
   document.querySelectorAll('#rank tr.go').forEach(tr=>tr.onclick=()=>{setMode('pred');zoom(tr.dataset.r,[+tr.dataset.n])});
   const todo=d.routes.flatMap(r=>r.stages.flatMap(st=>st.todo.map(t=>({...t,route:r.name,stage:st.name})))).sort((a,b)=>(b.dutch||0)-(a.dutch||0)||b.km-a.km).slice(0,30);
   document.getElementById('todo').innerHTML=`<table><thead><tr><th></th><th>Road</th><th>Near</th><th>Route and stage</th><th class="n">Length</th><th class="n">Speed limit</th><th class="n">Collisions</th><th class="n">Predicted a day</th></tr></thead><tbody>${
