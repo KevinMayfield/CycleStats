@@ -12,6 +12,8 @@ os.makedirs(A + 'work', exist_ok=True)
 # local equirectangular projection in metres, centred on the area
 LAT0, LON0 = CFG['centre']
 K = math.cos(math.radians(LAT0)) * 111320; KY = 110574
+# an area's Propensity to Cycle Tool region, or regions when it spans more than one
+PCT_REGIONS = CFG['pct_region'] if isinstance(CFG['pct_region'], list) else [CFG['pct_region']]
 def P(lat, lon): return ((lon - LON0) * K, (lat - LAT0) * KY)
 def dist(a, b): return math.hypot(a[0] - b[0], a[1] - b[1])
 def glen(g): return sum(dist(P(*g[i]), P(*g[i + 1])) for i in range(len(g) - 1))

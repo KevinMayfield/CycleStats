@@ -41,7 +41,8 @@ for w in json.load(open(A + 'osm/paths.json'))['elements']:
 pct = {}
 for kind in ('commute', 'school'):
     grid = Grid(60); props = {}
-    for i, ft in enumerate(json.load(open(S + f"pct/{CFG['pct_region']}_{kind}.geojson"))['features']):
+    feats = [ft for region in PCT_REGIONS for ft in json.load(open(S + f"pct/{region}_{kind}.geojson"))['features']]
+    for i, ft in enumerate(feats):
         g = ft['geometry']
         lines = g['coordinates'] if g['type'] == 'MultiLineString' else [g['coordinates']]
         pts = [[P(la, lo) for lo, la in line] for line in lines]

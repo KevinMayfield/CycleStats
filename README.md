@@ -10,14 +10,13 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 | **Sheffield** | City of Sheffield |
 | **Hull** | Kingston upon Hull |
 | **York** | City of York |
-| **Grimsby, Immingham & Scunthorpe** | North East Lincolnshire and North Lincolnshire |
 | **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
 | **Bradford** | City of Bradford district |
 | **Wakefield** | Wakefield district |
 | **Doncaster & Barnsley** | Doncaster and Barnsley districts |
 | **Rotherham** | Rotherham district |
 | **East Riding of Yorkshire** | East Riding (Beverley, Bridlington, Goole) |
-| **Lincolnshire** | Lincolnshire county council area (Lincoln, Boston, Grantham, Skegness) |
+| **Lincolnshire** | Lincolnshire county, North Lincolnshire and North East Lincolnshire (Lincoln, Boston, Grantham, Skegness, Grimsby, Immingham, Scunthorpe) |
 | **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
 | **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
 | **Leicester & Leicestershire** | Leicester city and Leicestershire county (Loughborough, Hinckley, Coalville, Melton Mowbray, Market Harborough) |
