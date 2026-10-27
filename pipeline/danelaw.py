@@ -1,4 +1,4 @@
-"""The Danelaw Way: a long-distance route from Derby to York along the rivers of the Danelaw, with the Lindsey Ridings
+"""The Danelaw Cycle Network: the Danelaw Way, a long-distance route from Repton to Stamford Bridge along the rivers of the Danelaw, with the Lindsey Ridings
 (a loop from Torksey by Lincoln, Grimsby, the Humber and Scunthorpe to Gainsborough), variants from Leicester down the Soar and from Leeds down the Aire, a route from Leicester by
 Stamford and Holland to the Wash, and a coastal route through the South and North Ridings of Lindsey to the Humber. Writes data/danelaw.json for danelaw.html.
 
@@ -122,12 +122,27 @@ ROUTES = [
     ]),
     # routed by the shortest legal line rather than the touring profile, which winds round the lanes to avoid the A1079
     dict(id='beverley', name='Beverley route', sub='Hull to York by Beverley, the Hudson Way and Pocklington, the direct line between the two cities', joins='York', profile='shortest', stages=[
-        dict(name='Hull to Market Weighton', note='North by Cottingham to Beverley, then west on the Hudson Way, the old railway through the Wolds', pts=[
-            ('Hull', 53.7440, -0.3360), ('Cottingham', 53.7820, -0.4060), ('Beverley', 53.8420, -0.4350), ('Kiplingcotes', 53.8630, -0.5970),
-            ('Market Weighton', 53.8640, -0.6650)]),
-        dict(name='Market Weighton to York', note='Along the foot of the Wolds by Pocklington, then across the Vale of York by Wilberfoss and Dunnington', pts=[
-            ('Market Weighton', 53.8640, -0.6650), ('Shiptonthorpe', 53.8800, -0.7050), ('Pocklington', 53.9300, -0.7790), ('Barmby Moor', 53.9330, -0.8200),
-            ('Wilberfoss', 53.9470, -0.8870), ('Kexby', 53.9510, -0.9370), ('Dunnington', 53.9650, -0.9850), ('York', 53.9620, -1.0815)]),
+        dict(name='Hull to Beverley', note='North out of Hull by Cottingham', pts=[
+            ('Hull', 53.7440, -0.3360), ('Cottingham', 53.7820, -0.4060), ('Beverley', 53.8420, -0.4350)]),
+        dict(name='Beverley to Pocklington', note='West over the low southern end of the Wolds by Kiplingcotes and Market Weighton', pts=[
+            ('Beverley', 53.8420, -0.4350), ('Kiplingcotes', 53.8630, -0.5970), ('Market Weighton', 53.8640, -0.6650), ('Shiptonthorpe', 53.8800, -0.7050),
+            ('Pocklington', 53.9300, -0.7790)]),
+        dict(name='Pocklington to York', note='Across the Vale of York by Wilberfoss and Dunnington', pts=[
+            ('Pocklington', 53.9300, -0.7790), ('Barmby Moor', 53.9330, -0.8200), ('Wilberfoss', 53.9470, -0.8870), ('Kexby', 53.9510, -0.9370),
+            ('Dunnington', 53.9650, -0.9850), ('York', 53.9620, -1.0815)]),
+    ]),
+    dict(id='wolds', name='Wolds route', sub='Pocklington to Driffield over the Wolds', joins='Pocklington (the Beverley route from York) and Driffield (the Bridlington route)', card=False, stages=[
+        dict(name='Pocklington to Driffield', note='Over the Wolds by Warter and Middleton on the Wolds', pts=[
+            ('Pocklington', 53.9300, -0.7790), ('Warter', 53.9536, -0.6928), ('Middleton on the Wolds', 53.9320, -0.5610), ('Bainton', 53.9570, -0.5240),
+            ('Driffield', 54.0060, -0.4430)]),
+    ]),
+    dict(id='driffield', name='Bridlington route', sub='Beverley to Bridlington up the flat Hull valley by Driffield', joins='Beverley (the Beverley route from Hull)', card=False, profile='shortest', stages=[
+        dict(name='Beverley to Driffield', note='North up the Hull valley by Leconfield, Watton and Hutton Cranswick', pts=[
+            ('Beverley', 53.8420, -0.4350), ('Leconfield', 53.8760, -0.4620), ('Watton', 53.9280, -0.4490), ('Hutton Cranswick', 53.9550, -0.4370),
+            ('Driffield', 54.0060, -0.4430)]),
+        dict(name='Driffield to Bridlington', note='East by Nafferton, Burton Agnes and Carnaby to the sea', pts=[
+            ('Driffield', 54.0060, -0.4430), ('Nafferton', 54.0150, -0.3880), ('Burton Agnes', 54.0520, -0.3170), ('Carnaby', 54.0670, -0.2550),
+            ('Bridlington', 54.0830, -0.1920)]),
     ]),
     dict(id='tadcaster', name='Tadcaster route', sub='Leeds to York by Garforth and Tadcaster, the direct line between the two cities', joins='York', stages=[
         dict(name='Leeds to Tadcaster', note='East out of Leeds by Cross Gates and Garforth, then over the low ridge by Aberford to the Wharfe', pts=[
@@ -166,6 +181,7 @@ SITES = [
     dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='main', text='Where the Way ends, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
     dict(name='Barnby Dun', lat=53.5730, lon=-1.0700, on='don', text='Old Norse names line the Don below Doncaster: Barnby is Bjarni\'s farm, with the Norse -by, and Kirk Sandall takes the Norse kirkja, church.'),
     dict(name='Beverley', lat=53.8395, lon=-0.4265, on='beverley', text='The Minster stands on the monastery of St John of Beverley, which by tradition the Danes destroyed around 866. Later kings of England, Athelstan first, honoured his shrine as they fought to win back the North.'),
+    dict(name="Danes' Dyke", lat=54.1010, lon=-0.1430, on=None, text='The great earthwork across Flamborough Head, east of Bridlington. Despite the name it is much older than the Vikings: it was dug in prehistory, and the Danes were credited with it later.'),
     dict(name='Tadcaster', lat=53.8850, lon=-1.2620, on='tadcaster', text='Harold Godwinson gathered his army here on 24 September 1066 after marching north from London, then went through York to beat Harald Hardrada at Stamford Bridge the next day.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
 ]
@@ -183,6 +199,8 @@ USE = dict(
     skegness=('destination', 'A flat destination ride from the Trent to the sea for day trips and holidays, linking Lincoln, Woodhall Spa and Coningsby on the way'),
     don=('work', 'Getting to work: Doncaster, Bentley, Stainforth and Thorne to Goole along the flat Don valley'),
     beverley=('work', 'Getting to work between Hull, Beverley and York, by the most direct line that avoids the high Wolds'),
+    wolds=('destination', 'A destination ride from York over the Wolds by Pocklington, on to the sea at Bridlington'),
+    driffield=('work', 'Getting to work between Beverley, Driffield and Bridlington, and with the Beverley route a flat line from Hull to the sea'),
     tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
     aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, with no scenic detours'),
 )
@@ -364,7 +382,7 @@ def main():
         kmr = sum(s['km'] for s in rstages)
         rtowns = []
         for s in rstages: rtowns += [t for t in s['towns'] if t not in rtowns]
-        out_routes.append(dict(id=r['id'], name=r['name'], sub=r['sub'], joins=r.get('joins'), use=USE[r['id']][0], who=USE[r['id']][1], towns=rtowns, km=round(kmr, 1),
+        out_routes.append(dict(id=r['id'], name=r['name'], sub=r['sub'], joins=r.get('joins'), card=r.get('card', True), use=USE[r['id']][0], who=USE[r['id']][1], towns=rtowns, km=round(kmr, 1),
                                ascent=sum(s['ascent'] for s in rstages), mix={c: round(v, 1) for c, v in tot.items()},
                                signed=round(sum(s['signed'] * s['km'] for s in rstages) / max(kmr, 1)), stages=rstages))
     for s in segs:
