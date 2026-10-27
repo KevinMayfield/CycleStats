@@ -8,14 +8,6 @@
   "name": "Sheffield"
  },
  {
-  "id": "hull",
-  "name": "Hull"
- },
- {
-  "id": "york",
-  "name": "York"
- },
- {
   "id": "kirklees-calderdale",
   "name": "Kirklees & Calderdale"
  },
@@ -37,7 +29,7 @@
  },
  {
   "id": "east-riding",
-  "name": "East Riding of Yorkshire"
+  "name": "Hull & East Riding"
  },
  {
   "id": "lincolnshire",
@@ -53,7 +45,7 @@
  },
  {
   "id": "north-yorkshire",
-  "name": "North Yorkshire"
+  "name": "York & North Yorkshire"
  },
  {
   "id": "middlesbrough-redcar",

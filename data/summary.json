@@ -1,10 +1,10 @@
 {
  "popular": [
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Blossom Street (A1036)",
-   "town": "Bishophill, York",
+   "town": "York",
    "avg": 2140,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 75395",
@@ -13,10 +13,10 @@
    "lon": -1.09300698
   },
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Monkgate (A1036)",
-   "town": "Layerthorpe, York",
+   "town": "York",
    "avg": 1409,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 28292",
@@ -25,10 +25,10 @@
    "lon": -1.07606354
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "George Street (A165)",
-   "town": "Old Town, Hull",
+   "town": "Hull",
    "avg": 1167,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 18583",
@@ -37,10 +37,10 @@
    "lon": -0.33314169
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Holderness Road (A165)",
-   "town": "Summergangs, Hull",
+   "town": "Hull",
    "avg": 1096,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 6713",
@@ -61,10 +61,10 @@
    "lon": -1.12469453
   },
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Clifton Bridge (A1176)",
-   "town": "Clifton, York",
+   "town": "York",
    "avg": 982,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 89041",
@@ -73,10 +73,10 @@
    "lon": -1.10262161
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Holderness Road (A165)",
-   "town": "Summergangs, Hull",
+   "town": "Hull",
    "avg": 955,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 28714",
@@ -85,8 +85,8 @@
    "lon": -0.31813103
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Anlaby Road (A1105)",
    "town": "Hull",
    "avg": 945,
@@ -97,10 +97,10 @@
    "lon": -0.36391537
   },
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Boroughbridge Road (A59)",
-   "town": "Holgate, York",
+   "town": "York",
    "avg": 885,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 28735",
@@ -109,10 +109,10 @@
    "lon": -1.11729292
   },
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Bishopgate Street (A1036)",
-   "town": "Bishophill, York",
+   "town": "York",
    "avg": 820,
    "kind": "Road (DfT count point)",
    "src": "DfT count point 60057",
@@ -123,12 +123,12 @@
  ],
  "collisions": [
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Anlaby Road",
    "ref": "A1105",
-   "town": "Old Town, Hull",
-   "km": 7.38,
+   "town": "Hull",
+   "km": 7.37,
    "n": 48,
    "fatal": 0,
    "serious": 8,
@@ -140,38 +140,38 @@
    "lon": -0.3431747
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Holderness Road",
    "ref": "A165",
-   "town": "Garden Village, Hull",
-   "km": 7.12,
+   "town": "Hull",
+   "km": 7.11,
    "n": 47,
    "fatal": 0,
    "serious": 14,
    "ksi": 14,
    "aadf": 762,
-   "rate": 4.7,
+   "rate": 4.8,
    "match": "on road",
    "lat": 53.76028,
    "lon": -0.30352
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Beverley Road",
    "ref": "A1079",
-   "town": "Sculcoates, Hull",
-   "km": 8.04,
-   "n": 43,
+   "town": "Hull",
+   "km": 8.08,
+   "n": 44,
    "fatal": 0,
    "serious": 11,
    "ksi": 11,
-   "aadf": 647,
-   "rate": 4.5,
+   "aadf": 616,
+   "rate": 4.8,
    "match": "on road",
-   "lat": 53.7621,
-   "lon": -0.35039
+   "lat": 53.75999,
+   "lon": -0.3494
   },
   {
    "area": "leeds",
@@ -208,12 +208,12 @@
    "lon": -1.14874
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Spring Bank West",
    "ref": null,
-   "town": "Avenues, Hull",
-   "km": 3.62,
+   "town": "Hull",
+   "km": 3.61,
    "n": 27,
    "fatal": 0,
    "serious": 5,
@@ -259,28 +259,28 @@
    "lon": -1.5810828
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Cottingham Road",
    "ref": "B1233",
-   "town": "Newland, Hull",
-   "km": 2.18,
+   "town": "Hull",
+   "km": 2.17,
    "n": 21,
    "fatal": 0,
    "serious": 2,
    "ksi": 2,
    "aadf": 635,
-   "rate": 8.3,
+   "rate": 8.4,
    "match": "on road",
    "lat": 53.7694535,
    "lon": -0.3739278
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
    "name": "Princes Avenue",
    "ref": null,
-   "town": "Stepney, Hull",
+   "town": "Hull",
    "km": 0.97,
    "n": 19,
    "fatal": 0,
@@ -295,11 +295,11 @@
  ],
  "risk": [
   {
-   "area": "york",
-   "area_name": "York",
+   "area": "north-yorkshire",
+   "area_name": "York & North Yorkshire",
    "name": "Heworth Green",
    "ref": "A1036",
-   "town": "Heworth, York",
+   "town": "York",
    "km": 0.93,
    "n": 15,
    "fatal": 0,
@@ -380,23 +380,6 @@
    "lon": -0.09281
   },
   {
-   "area": "hull",
-   "area_name": "Hull",
-   "name": "Staveley Road",
-   "ref": null,
-   "town": "Bilton Grange, Hull",
-   "km": 0.31,
-   "n": 5,
-   "fatal": 0,
-   "serious": 0,
-   "ksi": 0,
-   "aadf": 220,
-   "rate": 40.2,
-   "match": "on road",
-   "lat": 53.767014,
-   "lon": -0.2704291
-  },
-  {
    "area": "nottinghamshire",
    "area_name": "Nottingham & Nottinghamshire",
    "name": "Ilkeston Road",
@@ -463,23 +446,26 @@
    "match": "on road",
    "lat": 53.79802,
    "lon": -1.57659
+  },
+  {
+   "area": "bradford",
+   "area_name": "Bradford",
+   "name": "Leeds Road",
+   "ref": "A647",
+   "town": "Barkerend, Bradford",
+   "km": 4.17,
+   "n": 13,
+   "fatal": 1,
+   "serious": 3,
+   "ksi": 4,
+   "aadf": 59,
+   "rate": 29.0,
+   "match": "on road",
+   "lat": 53.7931897,
+   "lon": -1.7434332
   }
  ],
  "safe": [
-  {
-   "area": "hull",
-   "area_name": "Hull",
-   "name": "Raich Carter Way",
-   "ref": "A1033",
-   "town": "Kingswood, Hull",
-   "km": 0.64,
-   "n": 0,
-   "ksi": 0,
-   "aadf": 505,
-   "rate": 0.0,
-   "lat": 53.79353,
-   "lon": -0.35505
-  },
   {
    "area": "sheffield",
    "area_name": "Sheffield",
@@ -605,9 +591,30 @@
    "rate": 0.0,
    "lat": 52.9248245,
    "lon": -1.4670928
+  },
+  {
+   "area": "bradford",
+   "area_name": "Bradford",
+   "name": "Coutances Way",
+   "ref": "A65",
+   "town": "Esscroft, Ilkley",
+   "km": 1.87,
+   "n": 0,
+   "ksi": 0,
+   "aadf": 225,
+   "rate": 0.0,
+   "lat": 53.92063,
+   "lon": -1.77182
   }
  ],
  "deprivation": [
+  {
+   "area": "east-riding",
+   "area_name": "Hull & East Riding",
+   "coll": 48,
+   "pop": 28,
+   "n": 1387
+  },
   {
    "area": "derbyshire",
    "area_name": "Derby & Derbyshire",
@@ -635,13 +642,6 @@
    "coll": 45,
    "pop": 32,
    "n": 415
-  },
-  {
-   "area": "hull",
-   "area_name": "Hull",
-   "coll": 62,
-   "pop": 52,
-   "n": 1008
   },
   {
    "area": "rotherham",
@@ -693,25 +693,11 @@
    "n": 1481
   },
   {
-   "area": "york",
-   "area_name": "York",
-   "coll": 9,
-   "pop": 6,
-   "n": 561
-  },
-  {
-   "area": "east-riding",
-   "area_name": "East Riding of Yorkshire",
-   "coll": 12,
-   "pop": 10,
-   "n": 379
-  },
-  {
    "area": "north-yorkshire",
-   "area_name": "North Yorkshire",
-   "coll": 7,
+   "area_name": "York & North Yorkshire",
+   "coll": 8,
    "pop": 6,
-   "n": 584
+   "n": 1145
   },
   {
    "area": "rutland",
@@ -738,14 +724,6 @@
    "name": "Sheffield"
   },
   {
-   "id": "hull",
-   "name": "Hull"
-  },
-  {
-   "id": "york",
-   "name": "York"
-  },
-  {
    "id": "kirklees-calderdale",
    "name": "Kirklees & Calderdale"
   },
@@ -767,7 +745,7 @@
   },
   {
    "id": "east-riding",
-   "name": "East Riding of Yorkshire"
+   "name": "Hull & East Riding"
   },
   {
    "id": "lincolnshire",
@@ -783,7 +761,7 @@
   },
   {
    "id": "north-yorkshire",
-   "name": "North Yorkshire"
+   "name": "York & North Yorkshire"
   },
   {
    "id": "middlesbrough-redcar",
