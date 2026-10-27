@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 CACHE = os.path.join(RAW, 'danelaw')
 UA = {'User-Agent': 'CycleStats/1.0 (https://github.com/KevinMayfield/CycleStats)'}
-AREAS = ['rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'grimsby-scunthorpe', 'east-riding', 'hull',
+AREAS = ['middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'grimsby-scunthorpe', 'east-riding', 'hull',
          'north-yorkshire', 'york', 'leeds', 'wakefield', 'doncaster-barnsley']
 
 # routes, stages and legs. Points are (name, lat, lon); link legs may add via points after the end point.
@@ -147,6 +147,34 @@ ROUTES = [
             ('Driffield', 54.0060, -0.4430), ('Nafferton', 54.0150, -0.3880), ('Burton Agnes', 54.0520, -0.3170), ('Carnaby', 54.0670, -0.2550),
             ('Bridlington', 54.0830, -0.1920)]),
     ]),
+    # the Great North Road: the A1 north from Stamford (on the line of Roman Ermine Street) to Doncaster, the A19 to
+    # Selby, the Way from Selby to York, then the A19 north by Thirsk and Northallerton to Teesside. Routed by the
+    # shortest legal line: the touring profile wandered far off it (Doncaster to Selby came to 55 km)
+    dict(id='gnr', name='Great North Road', sub='Stamford to Middlesbrough along the A1 and A19, by Grantham, Newark, Doncaster, York and Northallerton', joins='Stamford, Newark, Doncaster, Selby and York', card=False, profile='shortest', stages=[
+        dict(name='Stamford to Grantham', note='North on the line of Ermine Street by Great Casterton and Colsterworth', pts=[
+            ('Stamford', 52.6530, -0.4800), ('Great Casterton', 52.6650, -0.5180), ('Stretton', 52.7310, -0.5960), ('Colsterworth', 52.8060, -0.6190),
+            ('Great Ponton', 52.8650, -0.6290), ('Grantham', 52.9120, -0.6420)]),
+        dict(name='Grantham to Newark', note='Down off the limestone to the Trent by Long Bennington and Balderton', pts=[
+            ('Grantham', 52.9120, -0.6420), ('Great Gonerby', 52.9330, -0.6670), ('Long Bennington', 52.9930, -0.7550), ('Balderton', 53.0560, -0.7790),
+            ('Newark', 53.0770, -0.8130)]),
+        dict(name='Newark to Retford', note='The old Great North Road by Cromwell, Sutton-on-Trent and Tuxford', pts=[
+            ('Newark', 53.0770, -0.8130), ('Cromwell', 53.1200, -0.8100), ('Sutton-on-Trent', 53.1830, -0.8120), ('Tuxford', 53.2290, -0.8940),
+            ('Retford', 53.3220, -0.9430)]),
+        dict(name='Retford to Doncaster', note='By Barnby Moor, Ranskill and Bawtry to the Don', pts=[
+            ('Retford', 53.3220, -0.9430), ('Barnby Moor', 53.3510, -0.9910), ('Ranskill', 53.3840, -1.0050), ('Bawtry', 53.4310, -1.0190),
+            ('Rossington', 53.4760, -1.0610), ('Doncaster', 53.5228, -1.1330)]),
+        dict(name='Doncaster to Selby', note='The A19 north by Askern and the Aire at Chapel Haddlesey', pts=[
+            ('Doncaster', 53.5228, -1.1330), ('Bentley', 53.5440, -1.1500), ('Askern', 53.6160, -1.1530), ('Whitley', 53.6840, -1.1650),
+            ('Chapel Haddlesey', 53.7260, -1.1240), ('Brayton', 53.7650, -1.0850), ('Selby', 53.7840, -1.0670)]),
+        dict(name='York to Thirsk', note='The A19 north across the Vale of York by Shipton and Easingwold', pts=[
+            ('York', 53.9620, -1.0815), ('Skelton', 53.9990, -1.1340), ('Shipton', 54.0240, -1.1590), ('Tollerton', 54.0700, -1.2140),
+            ('Easingwold', 54.1200, -1.1920), ('Thormanby', 54.1700, -1.2400), ('Thirsk', 54.2320, -1.3430)]),
+        dict(name='Thirsk to Northallerton', note='Up the Vale of Mowbray by South Otterington', pts=[
+            ('Thirsk', 54.2320, -1.3430), ('South Otterington', 54.2930, -1.4210), ('Romanby', 54.3300, -1.4450), ('Northallerton', 54.3390, -1.4330)]),
+        dict(name='Northallerton to Middlesbrough', note='By Brompton, Hutton Rudby and Stokesley below the Cleveland Hills to Teesside', pts=[
+            ('Northallerton', 54.3390, -1.4330), ('Brompton', 54.3600, -1.4220), ('Ingleby Arncliffe', 54.4050, -1.3080), ('Hutton Rudby', 54.4490, -1.2840),
+            ('Stokesley', 54.4700, -1.1940), ('Nunthorpe', 54.5280, -1.1700), ('Marton', 54.5420, -1.1970), ('Middlesbrough', 54.5760, -1.2350)]),
+    ]),
     dict(id='tadcaster', name='Tadcaster route', sub='Leeds to York by Garforth and Tadcaster, the direct line between the two cities', joins='York', stages=[
         dict(name='Leeds to Tadcaster', note='East out of Leeds by Cross Gates and Garforth, then over the low ridge by Aberford to the Wharfe', pts=[
             ('Leeds', 53.7945, -1.5410), ('Cross Gates', 53.8060, -1.4500), ('Garforth', 53.7930, -1.3880), ('Aberford', 53.8280, -1.3450),
@@ -187,6 +215,30 @@ SITES = [
     dict(name="Danes' Dyke", lat=54.1010, lon=-0.1430, on=None, text='The great earthwork across Flamborough Head, east of Bridlington. Despite the name it is much older than the Vikings: it was dug in prehistory, and the Danes were credited with it later.'),
     dict(name='Tadcaster', lat=53.8850, lon=-1.2620, on='tadcaster', text='Harold Godwinson gathered his army here on 24 September 1066 after marching north from London, then went through York to beat Harald Hardrada at Stamford Bridge the next day.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
+    # the north of the network
+    dict(name='Brompton', lat=54.3600, lon=-1.4220, on='gnr', text='St Thomas\'s Church keeps a famous group of hogback stones: Anglo-Scandinavian grave markers of the 10th century, carved as houses with bears at each end.'),
+    dict(name='Teesside', lat=54.5450, lon=-1.1920, on='gnr', text='The Tees was near the northern edge of Scandinavian settlement, and the names show it: Ormesby, Normanby, Lazenby and Maltby all end in the Old Norse -by, a farm or village.'),
+]
+
+# Roman Britain along the routes: many of the towns began as Roman forts and towns on the roads that the
+# Great North Road and the Fosse Way still follow
+ROMAN = [
+    dict(name='Ratae (Leicester)', lat=52.6340, lon=-1.1420, on='soar', text='Ratae Corieltauvorum. The Jewry Wall, part of the town\'s public baths, is one of the largest pieces of Roman civic building still standing in Britain.'),
+    dict(name='Derventio (Little Chester, Derby)', lat=52.9350, lon=-1.4730, on='main', text='A Roman fort and small town on the Derwent, where the road from the south crossed the river north of Derby\'s centre.'),
+    dict(name='Margidunum', lat=52.9820, lon=-1.0050, on='main', text='A Roman small town on the Fosse Way above the Trent at East Bridgford, close to the Way at Gunthorpe.'),
+    dict(name='Ad Pontem', lat=53.0490, lon=-0.8470, on='main', text='A small Roman town on the Fosse Way by the Trent at Thorpe, near Newark.'),
+    dict(name='Great Casterton', lat=52.6680, lon=-0.5230, on='gnr', text='A small walled Roman town on Ermine Street, the Roman road from London to Lincoln and York. North of Stamford the Great North Road follows its line.'),
+    dict(name='Durobrivae (Water Newton)', lat=52.5590, lon=-0.3460, on=None, text='A walled Roman town on Ermine Street by the Nene, south of Stamford. The Water Newton treasure found here is the earliest Christian church silver known from the Roman Empire.'),
+    dict(name='Causennae (Ancaster)', lat=52.9850, lon=-0.5370, on=None, text='A small walled Roman town on Ermine Street, east of the Great North Road at Grantham.'),
+    dict(name='Lindum (Lincoln)', lat=53.2390, lon=-0.5390, on='lincoln', text='A legionary fortress, then a colonia for retired soldiers. Newport Arch, its Roman north gate, still has traffic passing through it.'),
+    dict(name='Segelocum (Littleborough)', lat=53.3330, lon=-0.7590, on='main', text='Where the Roman road from Lincoln to Doncaster and York crossed the Trent, opposite Marton on the Way.'),
+    dict(name='Caistor', lat=53.4960, lon=-0.3150, on='lincoln', text='A small Roman walled town on the edge of the Wolds; pieces of its wall survive near the church.'),
+    dict(name='Danum (Doncaster)', lat=53.5240, lon=-1.1370, on='gnr', text='A Roman fort guarding the crossing of the Don on the road north to York, under the town centre by the Minster.'),
+    dict(name='Lagentium (Castleford)', lat=53.7260, lon=-1.3560, on='aire', text='A Roman fort and settlement where the road north crossed the Aire.'),
+    dict(name='Petuaria (Brough)', lat=53.7290, lon=-0.5750, on='aire', text='A Roman town at the Humber crossing. An inscription found here records a magistrate\'s gift of a new stage for its theatre.'),
+    dict(name='Calcaria (Tadcaster)', lat=53.8840, lon=-1.2650, on='tadcaster', text='The Roman settlement where the road from York to the west crossed the Wharfe.'),
+    dict(name='Eboracum (York)', lat=53.9620, lon=-1.0820, on='main', text='The legionary fortress and capital of northern Britain. Constantine was proclaimed emperor here in 306.'),
+    dict(name='Isurium Brigantum (Aldborough)', lat=54.0910, lon=-1.3810, on=None, text='The Roman town of the Brigantes, west of the Great North Road at Boroughbridge, with mosaics still in place.'),
 ]
 
 K = math.cos(math.radians(53.3)) * 111320; KY = 110574
@@ -204,6 +256,7 @@ USE = dict(
     beverley=('work', 'Getting to work between Hull, Beverley and York, by the most direct line that avoids the high Wolds'),
     wolds=('destination', 'A destination ride from York over the Wolds by Pocklington, on to the sea at Bridlington'),
     driffield=('work', 'Getting to work between Beverley, Driffield and Bridlington, and with the Beverley route a flat line from Hull to the sea'),
+    gnr=('both', 'The old main road north: getting to work between the towns along it first, and a long-distance ride from Stamford to Teesside'),
     tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
     aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, and along the Humber from Howden by Brough and Hessle to Hull, with no scenic detours'),
 )
@@ -448,7 +501,7 @@ def main():
         s.pop('keys', None); s.pop('now', None); s.pop('dutch', None); s['km'] = round(s['km'], 2)
         s['pts'] = s['pts'][::3] + ([s['pts'][-1]] if len(s['pts']) % 3 != 1 else [])
     used = {t for r in out_routes for t in r['towns']}
-    out = dict(routes=out_routes, segments=segs, predicted=pbins, collisions=list(coll_all.values()), sites=SITES,
+    out = dict(routes=out_routes, segments=segs, predicted=pbins, collisions=list(coll_all.values()), sites=[dict(x, kind='danelaw') for x in SITES] + [dict(x, kind='roman') for x in ROMAN],
                towns={t['id']: dict(name=t['name'], travel=t['travel'], cycle=t['cycle21'], dutch=t['dutch'], tier=t['tier']) for t in towns if t['id'] in used})
     json.dump(out, open(os.path.join(HERE, '..', 'data', 'danelaw.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     for r in out_routes:
