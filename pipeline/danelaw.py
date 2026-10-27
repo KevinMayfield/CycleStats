@@ -46,11 +46,15 @@ ROUTES = [
             ('Selby', 53.7840, -1.0670), ('Riccall', 53.8330, -1.0590), ('Naburn', 53.9135, -1.0875), ('Fulford', 53.9370, -1.0710),
             ('York', 53.9620, -1.0815)]),
     ]),
-    dict(id='lincoln', name='Lincoln and Humber variant', sub='Torksey to Howden by Lincoln and the Humber', joins='Torksey and Howden', stages=[
+    dict(id='lincoln', name='Lincoln and Humber variant', sub='Torksey to Howden by Lincoln, Grimsby and the Humber', joins='Torksey and Howden', stages=[
         dict(name='Torksey to Lincoln', note='Along the Fossdyke, the Roman canal, into Lincoln', pts=[
             ('Torksey', 53.2985, -0.7430), ('Saxilby', 53.2690, -0.6640), ('Lincoln', 53.2307, -0.5406)]),
-        dict(name='Lincoln to Barton-upon-Humber', note='North along Ermine Street to the Humber', pts=[
-            ('Lincoln', 53.2307, -0.5406), ('Spital in the Street', 53.4295, -0.5434), ('Brigg', 53.5520, -0.4920), ('Barton-upon-Humber', 53.6840, -0.4390)]),
+        dict(name='Lincoln to Grimsby', note='North-east by Market Rasen and Caistor on the edge of the Wolds to the Humber coast', pts=[
+            ('Lincoln', 53.2307, -0.5406), ('Langworth', 53.2700, -0.4250), ('Market Rasen', 53.3880, -0.3370), ('Caistor', 53.4970, -0.3180),
+            ('Laceby', 53.5400, -0.1650), ('Grimsby', 53.5670, -0.0810)]),
+        dict(name='Grimsby to Barton-upon-Humber', note='Along the south bank of the Humber by Immingham and Goxhill', pts=[
+            ('Grimsby', 53.5670, -0.0810), ('Stallingborough', 53.5880, -0.1880), ('Immingham', 53.6120, -0.2180), ('East Halton', 53.6550, -0.3100),
+            ('Goxhill', 53.6760, -0.3360), ('Barrow upon Humber', 53.6780, -0.3830), ('Barton-upon-Humber', 53.6840, -0.4390)]),
         dict(name='Barton-upon-Humber to Howden', note='Over the Humber Bridge and west along the north bank', pts=[
             ('Barton-upon-Humber', 53.6840, -0.4390), ('Hessle', 53.7230, -0.4380), ('North Ferriby', 53.7210, -0.5040), ('Brough', 53.7290, -0.5720),
             ('Howden', 53.7450, -0.8680)]),
@@ -96,13 +100,13 @@ SITES = [
     dict(name='Torksey', lat=53.2985, lon=-0.7430, on='main', text='The Great Army\'s winter camp of 872–873, where the Fossdyke meets the Trent. Excavation and metal-detecting have found thousands of finds: hack silver, weights and lead gaming pieces.'),
     dict(name='Fossdyke', lat=53.2690, lon=-0.6640, on='lincoln', text='A canal joining the Trent at Torksey to the Witham at Lincoln, probably Roman and still navigable.'),
     dict(name='Gainsborough', lat=53.3990, lon=-0.7750, on='main', text='On the Trent north of Torksey. Sweyn Forkbeard, king of Denmark, made it his base when he conquered England in 1013 and died there in 1014.'),
-    dict(name='Lincoln', lat=53.2290, lon=-0.5450, on='lincoln', text='One of the Five Boroughs, with a busy Viking-age mint. The Lincoln and Humber variant leaves north along Ermine Street, the Roman road to the Humber.'),
+    dict(name='Lincoln', lat=53.2290, lon=-0.5450, on='lincoln', text='One of the Five Boroughs, with a busy Viking-age mint. The Lincoln and Humber variant leaves north-east for Grimsby and the Humber coast.'),
     dict(name='Stamford', lat=52.6530, lon=-0.4800, on='coast', text='The fifth of the Five Boroughs, on the Welland, with a Danish fortified borough north of the river. The coast route turns down the Welland here.'),
     dict(name='Crowland', lat=52.6760, lon=-0.1680, on='coast', text='Crowland Abbey stands in the Fens by the Welland. Later medieval chronicles claimed the Danes burned it in 870, though that account is now thought unreliable.'),
     dict(name='Skegness', lat=53.1440, lon=0.3390, on='coast', text='Its name is Old Norse: Skeggi\'s ness, the headland of a man called Skeggi.'),
     dict(name='Lincolnshire Wolds', lat=53.4020, lon=-0.2600, on='coast', text='Tealby, Normanby, Grimsby and dozens more: Lincolnshire has more Old Norse -by place names than any other English county, many of them strung along these chalk hills. The route runs close to the Viking Way footpath from here to Barton.'),
     dict(name='Barton-upon-Humber', lat=53.6845, lon=-0.4390, on='lincoln', text='The old ferry town on the south bank of the Humber. St Peter\'s Church has an Anglo-Saxon tower from around the end of the 10th century.'),
-    dict(name='Grimsby', lat=53.5650, lon=-0.0750, on=None, text='Off the route, on the Humber coast: by tradition named after Grim, a Danish fisherman, with the Old Norse -by for farm or village.'),
+    dict(name='Grimsby', lat=53.5670, lon=-0.0810, on='lincoln', text='On the Humber coast: by tradition named after Grim, a Danish fisherman, with the Old Norse -by for farm or village. The Lincoln and Humber variant reaches the sea here.'),
     dict(name='Humber', lat=53.7090, lon=-0.4500, on='lincoln', text='The estuary the Great Army crossed on its way to York in 866. The Lincoln and Humber variant crosses it on the Humber Bridge.'),
     dict(name='Leeds', lat=53.7945, lon=-1.5410, on='aire', text='Leeds Minster keeps a 10th-century Anglo-Scandinavian stone cross carved with Weland the Smith, a hero of Norse legend. Start of the Aire variant.'),
     dict(name='Castleford', lat=53.7255, lon=-1.3560, on='aire', text='In 948 the army of Viking York under Eric Bloodaxe caught King Eadred\'s rearguard here and slaughtered it, the Anglo-Saxon Chronicle records.'),
@@ -248,7 +252,13 @@ def main():
                                      ref=ref, speed=ms, near=min(places, key=lambda x: dist(x[1], pm))[0] if places else '',
                                      collisions=nc, lat=mid[0], lon=mid[1]))
             km = int(props['track-length']) / 1000
-            rstages.append(dict(n=sn, name=st['name'], note=st['note'], km=round(km, 1), ascent=int(props.get('filtered ascend', 0)),
+            # height profile: metres above sea level every 500 m along the stage
+            prof, acc, nxt = [], 0.0, 0.0
+            for a, b in zip(coords, coords[1:]):
+                if acc >= nxt and len(a) > 2: prof.append(round(a[2])); nxt += 500
+                acc += dist(P(a[1], a[0]), P(b[1], b[0]))
+            if len(coords[-1]) > 2: prof.append(round(coords[-1][2]))
+            rstages.append(dict(n=sn, name=st['name'], note=st['note'], km=round(km, 1), ascent=int(props.get('filtered ascend', 0)), profile=prof,
                                 mix={c: round(v / 1000, 1) for c, v in mix.items()}, via=st['via'],
                                 routes=[dict(name=k, km=round(v / 1000, 1)) for k, v in onroute.most_common(4) if v >= 1000],
                                 signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi,
