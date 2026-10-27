@@ -50,52 +50,6 @@
     "rename": {},
     "pct_region": "south-yorkshire"
   },
-  "hull": {
-    "name": "Hull",
-    "eyebrow": "City of Kingston upon Hull",
-    "in": "inside Hull",
-    "boundary_label": "Hull council boundary",
-    "gss": "E06000010",
-    "centre": [
-      53.76,
-      -0.35
-    ],
-    "stats19_lad": [
-      "E06000010"
-    ],
-    "dft_la": [
-      169
-    ],
-    "rivers": "Humber|Hull",
-    "water_label": "Humber & River Hull",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "humberside"
-  },
-  "york": {
-    "name": "York",
-    "eyebrow": "City of York",
-    "in": "inside York",
-    "boundary_label": "York council boundary",
-    "gss": "E06000014",
-    "centre": [
-      53.96,
-      -1.08
-    ],
-    "stats19_lad": [
-      "E06000014"
-    ],
-    "dft_la": [
-      202
-    ],
-    "rivers": "Ouse|Foss|Derwent",
-    "water_label": "Rivers Ouse & Foss",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "north-yorkshire"
-  },
   "kirklees-calderdale": {
     "name": "Kirklees & Calderdale",
     "eyebrow": "Huddersfield, Halifax & the Calder valley",
@@ -223,20 +177,25 @@
     "pct_region": "south-yorkshire"
   },
   "east-riding": {
-    "name": "East Riding of Yorkshire",
-    "eyebrow": "East Riding of Yorkshire (excluding Hull)",
-    "in": "inside the East Riding",
-    "boundary_label": "East Riding boundary",
-    "gss": "E06000011",
+    "name": "Hull & East Riding",
+    "eyebrow": "Kingston upon Hull and the East Riding of Yorkshire",
+    "in": "inside Hull & the East Riding",
+    "boundary_label": "Hull & East Riding boundaries",
+    "gss": [
+      "E06000011",
+      "E06000010"
+    ],
     "centre": [
       53.85,
-      -0.6
+      -0.55
     ],
     "stats19_lad": [
-      "E06000011"
+      "E06000011",
+      "E06000010"
     ],
     "dft_la": [
-      89
+      89,
+      169
     ],
     "rivers": "Humber|Hull|Derwent|Ouse|Gypsey Race",
     "water_label": "Humber, Ouse, Derwent & River Hull",
@@ -343,11 +302,14 @@
     "places": "town|city",
     "counters": "dft",
     "rename": {},
-    "name": "North Yorkshire",
-    "eyebrow": "North Yorkshire council area (excluding York)",
-    "in": "inside North Yorkshire",
-    "boundary_label": "North Yorkshire boundary",
-    "gss": "E06000065",
+    "name": "York & North Yorkshire",
+    "eyebrow": "City of York and North Yorkshire",
+    "in": "inside York & North Yorkshire",
+    "boundary_label": "York & North Yorkshire boundaries",
+    "gss": [
+      "E06000065",
+      "E06000014"
+    ],
     "stats19_lad": [
       "E06000065",
       "E10000023",
@@ -357,13 +319,15 @@
       "E07000166",
       "E07000167",
       "E07000168",
-      "E07000169"
+      "E07000169",
+      "E06000014"
     ],
     "dft_la": [
-      100
+      100,
+      202
     ],
-    "rivers": "Ouse|Swale|Ure|Nidd|Wharfe|Aire|Esk|Derwent|Rye|Tees|Ribble",
-    "water_label": "Rivers Ouse, Swale, Ure, Nidd & Esk",
+    "rivers": "Ouse|Swale|Ure|Nidd|Wharfe|Aire|Esk|Derwent|Rye|Tees|Ribble|Foss",
+    "water_label": "Rivers Ouse, Swale, Ure, Nidd, Foss & Esk",
     "pct_region": "north-yorkshire"
   },
   "middlesbrough-redcar": {

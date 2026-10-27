@@ -2,26 +2,24 @@
 
 **[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
 
-An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: fifteen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
 | **Leeds** | City of Leeds district |
 | **Sheffield** | City of Sheffield |
-| **Hull** | Kingston upon Hull |
-| **York** | City of York |
 | **Kirklees & Calderdale** | Kirklees (Huddersfield) and Calderdale (Halifax) |
 | **Bradford** | City of Bradford district |
 | **Wakefield** | Wakefield district |
 | **Doncaster & Barnsley** | Doncaster and Barnsley districts |
 | **Rotherham** | Rotherham district |
-| **East Riding of Yorkshire** | East Riding (Beverley, Bridlington, Goole) |
+| **Hull & East Riding** | Kingston upon Hull and the East Riding of Yorkshire (Hull, Beverley, Bridlington, Goole) |
 | **Lincolnshire** | Lincolnshire county, North Lincolnshire and North East Lincolnshire (Lincoln, Boston, Grantham, Skegness, Grimsby, Immingham, Scunthorpe) |
 | **Nottingham & Nottinghamshire** | Nottingham city and Nottinghamshire county (Mansfield, Worksop, Newark, Hucknall, Beeston, West Bridgford) |
 | **Derby & Derbyshire** | Derby city and Derbyshire county (Chesterfield, Buxton, Matlock, Ilkeston, Long Eaton) |
 | **Leicester & Leicestershire** | Leicester city and Leicestershire county (Loughborough, Hinckley, Coalville, Melton Mowbray, Market Harborough) |
 | **Rutland** | Rutland county (Oakham, Uppingham, Rutland Water) |
-| **North Yorkshire** | North Yorkshire council area (Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
+| **York & North Yorkshire** | City of York and the North Yorkshire council area (York, Harrogate, Scarborough, Selby, Skipton, Northallerton, Richmond, Whitby) |
 | **Middlesbrough & Redcar** | Middlesbrough and Redcar & Cleveland |
 
 | Tab | What it ranks | Source |
@@ -29,6 +27,7 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 | **Routes & paths** | The 10 longest signed cycle routes and the 10 longest dedicated cycle paths (cycleways and bike-designated paths), measured inside the area, plus the suggested Danelaw Cycle Network routes that cross it (dashed; `danelaw_lines.py` writes their outlines to `data/danelaw-lines.json`) | OpenStreetMap, Danelaw Cycle Network |
 | **Safety** | Where cyclists are hurt and safer alternatives, on one map: the most dangerous roads (the 10 with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1, merged with the 10 with the most collisions per million km cycled), the roads with 150+ bikes a day and the fewest collisions per km cycled, cycle paths, and every collision | DfT STATS19 2021–2025 + DfT traffic counts + OpenStreetMap |
 | **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
+| **Towns & health** | The area's flat and gently sloping towns, sortable by how many more people would cycle at Hull and York levels or by health gain (health need × room for cycling to grow), with Hull and York as the benchmark; each town links to its roads to improve on `towns.html` | `data/towns.json`, `data/health.json` |
 
 The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Safety tab says what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
 
