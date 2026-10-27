@@ -146,6 +146,98 @@ and school, and where a path is missing on the direct line. Paths built on those
 they open. That answers the complaint directly, and it gives every council a success story to point to before
 moving on to towns on gentle slopes.
 
+### 8. Collisions follow shops and side roads, not traffic
+
+*Added 27 October 2026, across the 15 areas including the North West and North East.*
+
+What do the safest busy roads have in common, and what do the roads with the most collisions share? The summary's
+top 10s were extended to the top 100 of each:
+
+- **Safe & busy:** 150+ bikes a day and the lowest collision rate.
+- **Most collisions:** ranked by collision count.
+- **Busy, highest rate:** a third group, 150+ bikes a day ranked by collisions per bike-km, so it isn't swayed by
+  length.
+
+Each road was then measured against OpenStreetMap:
+
+- shops, cafés, pubs and takeaways within 40 m;
+- side roads joining it;
+- bus stops and traffic signals;
+- cycle paths running alongside;
+- its road class and speed limit.
+
+| Median per road | Safe & busy | Most collisions | Busy, highest rate |
+|---|---|---|---|
+| Length | 1.2 km | 2.9 km | 1.4 km |
+| Shops and cafés per km | 0.4 | 1.9 | 3.0 |
+| Side roads per km | 2.4 | 2.0 | 3.3 |
+| Cycle path alongside | 17% of length | 2% | 3% |
+| Shared pavement (mean) | 30% | 10% | 17% |
+| 40 mph or more (mean share) | 36% | 10% | 9% |
+| Deprivation decile (1 = most deprived) | 5 | 3 | 3.5 |
+| Households with no car | 27% | 40% | 39% |
+
+The safest busy roads are **distributor roads**: inner ring roads, dock roads and bypasses like Tower Road
+(Birkenhead docks), Trafford Road (Salford Quays), Sheaf Street (Sheffield) and Frederick Ward Way (Grimsby). They have
+few shops, often a path alongside so people cycle off the carriageway, and faster limits. The roads with the most
+collisions are **radial high streets**: Wilmslow Road (Rusholme), Otley Road and Headingley Lane, Smithdown Road, and
+Hull's Anlaby, Beverley and Holderness Roads. They are lined with shops and bus stops and run through deprived,
+car-free neighbourhoods. They top the list partly because they are long and busy: their rate per bike-km is close to
+average.
+
+Top-100 lists pick out extremes, so the pattern was checked across every busy counted stretch (452 stretches, 1,832
+collisions, 2021–25). Rates are pooled cycle collisions per million bike-km (95% bootstrap interval):
+
+| Along the road | Stretches | Collisions per million bike-km | Killed or seriously injured |
+|---|---|---|---|
+| All busy counted stretches | 452 | 3.5 | 0.91 |
+| Shops and cafés: under 0.5 per km | 163 | 2.1 | 0.58 |
+| 0.5–2 per km | 126 | 3.5 | 0.87 |
+| 2–6 per km | 107 | 4.8 | 1.25 |
+| 6 or more per km | 56 | 6.6 (5.4–8.1) | 1.79 |
+| Side roads: under 1.5 per km | 138 | 2.7 | 0.70 |
+| 6 or more per km | 48 | 6.3 (4.7–8.2) | 1.43 |
+| Bus stops: under 0.5 per km | 97 | 2.6 | 0.72 |
+| 3 or more per km | 39 | 6.2 (4.5–8.1) | 1.67 |
+| Distributor: under 0.5 shops and under 3 side roads per km | 125 | 1.9 | 0.53 |
+| High street: 2+ shops and 3+ side roads per km | 101 | 5.7 | 1.39 |
+
+- **Frontage matters most.** Each step up in shops, side roads and bus stops raises the rate. A high street has about
+  three times the collisions per kilometre cycled of a distributor road, and about two and a half times the serious
+  ones. The same holds on 30 mph roads alone: 2.8 with almost no shops against 7.1 with six or more per km. So it is
+  not just the speed limit.
+- **Traffic volume makes little difference.** Rates are about the same at 150 bikes a day and at 700+, so busier
+  cycling roads are not more dangerous per rider.
+- **A path alongside helps on distributor roads (1.7 with one, 2.3 without), but not on high streets (5.6 against
+  5.8).** On a high street, people on bikes still cross every side road, shop entrance and bus stop. This fits finding
+  3: paint and partial protection change little where the conflicts are at junctions and the kerbside.
+- **Higher limits look safer (0.8 per million bike-km at 50 mph+), but that is misleading.** These are bypasses where
+  most people ride on a path beside the road, while the DfT count is taken on the carriageway.
+- **Deprived and car-free neighbourhoods have higher rates:** 4.3 in deciles 1–2 against 2.8 in deciles 8–10, and 4.2
+  where 40%+ of households have no car against 2.7 under 20%. Much of this overlaps with the high streets running
+  through them.
+
+**Chance plays a big part in the safe list.** At the average rate, a typical safe-list stretch would expect only 1.6
+collisions in five years. Across the 452 stretches, about 63 would have none by luck alone, against 91 that do. So
+any one road with zero collisions is not proven safe. What holds up is the pattern across all of them.
+
+**What this means for building.** The hard places are the radial high streets, where cycling demand, deprivation and
+collisions meet. A path alongside a distributor road is cheap and works. On a high street it needs Dutch-style
+protection that carries through junctions:
+
+- continuous footways across side roads;
+- protected junctions;
+- bus stop bypasses;
+- loading moved off the cycle track.
+
+Limits:
+- OpenStreetMap coverage of shops and side roads varies by area.
+- DfT counts are often single-day or estimated.
+- Collisions snap to the nearest named road.
+- Shops are counted within 40 m of the road's centre line.
+
+The analysis scripts are not in the pipeline yet.
+
 ## The Danelaw Cycle Network
 
 The [Danelaw Cycle Network](https://kevinmayfield.github.io/CycleStats/danelaw.html) brings the findings together as
