@@ -65,6 +65,17 @@ h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1;mar
 .mk{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--site);color:var(--panel);font:700 11px/1 var(--mono);box-shadow:0 0 0 2px var(--panel),0 1px 4px rgba(0,0,0,.35)}
 .mk.off{background:var(--panel);color:var(--site);box-shadow:0 0 0 2px var(--site)}
 .mk.st{background:var(--ink);color:var(--panel);border-radius:4px;font-size:10.5px}
+.why{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px}
+.why>div{border:1px solid var(--line);border-radius:8px;padding:14px;background:var(--bg);min-width:0}
+.why h3{margin:0 0 4px;font:700 18px/1.2 var(--display)}
+.why b{display:block;font:700 28px/1.1 var(--display);margin:6px 0;font-variant-numeric:tabular-nums}
+.why p,.whytxt p{margin:0;color:var(--muted);font-size:13px}
+.whytxt{padding:0 18px 16px;display:grid;gap:8px;max-width:110ch}.whytxt p{color:var(--ink);font-size:14px}
+.use{justify-self:start;align-self:start;font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.04em;padding:4px 7px;border-radius:4px;background:var(--soft);color:var(--accent)}
+.use.destination{background:transparent;box-shadow:inset 0 0 0 1px var(--site);color:var(--site)}
+.opt .tw{font-size:12px;color:var(--muted)}.opt .tw b{font:600 12px/1.3 var(--sans,inherit);color:var(--ink)}
+.ogrp{padding:14px 18px 0;font:600 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+@media (max-width:760px){.why{grid-template-columns:1fr}}
 .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:14px}
 .opt{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;display:grid;gap:6px}
 .opt:hover,.opt[aria-pressed="true"]{border-color:var(--accent)}
@@ -112,20 +123,28 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
 <div class="wrap">
   <header>
     <div>
-      <div class="eyebrow">CycleStats · a proposed long-distance route · Repton to Stamford Bridge</div>
+      <div class="eyebrow">CycleStats · routes where cycling is likely to succeed · Repton to Stamford Bridge</div>
       <h1>The Danelaw Way</h1>
-      <p class="lede">A direct route along the rivers of the Danelaw, the part of England under Danish rule from the late 9th century: from the Great Army's camp at Repton and the Viking cemetery at Heath Wood, through Derby and down the Trent past the Great Army's winter camp at Torksey and Sweyn Forkbeard's base at Gainsborough, across to Howden, then up the Ouse to Viking York and on to the battlefield of 1066 at Stamford Bridge. The Lindsey Ridings loop from Torksey brings in Lincoln, Grimsby, the Humber and Scunthorpe (by the Fossdyke, the edge of the Wolds and Trent Falls) and rejoins the Way at Gainsborough, variants bring in Leicester down the Soar and Leeds down the Aire, the Boroughs of Leicester and Stamford plus Holland route runs by the Welland to the Wash, the Lindsey South and North Riding Coastal route carries on by Skegness and the Lincolnshire coast to the Humber, keeping off the Wolds, and a Skegness route leaves the Trent at Newark for Lincoln, Woodhall Spa and the sea, all on low ground. It follows the rivers rather than wandering between villages, and shows where a proper traffic-free path has to be built so nobody rides beside a busy road. England's answer to Denmark's <a href="https://denmark.letapeseries.com/">DGI Hærvejsløbet</a>, and far flatter.</p>
+      <p class="lede">A network of flat, safe cycle routes along the rivers of the Danelaw, the part of England under Danish rule from the late 9th century. The Way itself runs from the Great Army's camp at Repton down the Trent past Torksey and Gainsborough, across to Howden and up the Ouse to Viking York and the battlefield of 1066 at Stamford Bridge. Around it, shorter routes bring in Leicester, Leeds, Doncaster, Lincoln, Grimsby, Stamford and the Lincolnshire coast: some for getting to work, some worth riding for their own sake. They follow the rivers rather than wandering between villages, and show where a proper traffic-free path has to be built so nobody rides beside a busy road. England's answer to Denmark's <a href="https://denmark.letapeseries.com/">DGI Hærvejsløbet</a>, and far flatter.</p>
     </div>
     <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="towns.html">Where Dutch infrastructure should work</a></nav>
   </header>
   <div class="facts" id="facts"></div>
   <section>
-    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (L, S, A, H, C and K for the variants, Holland, the Lindsey coast and the Skegness route); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Hover for details. Select a ride or stage below to pick it out on the map (select it again to show everything), or a road or site to zoom to it.</p></div>
+    <div class="sh"><h2>What these routes are for</h2><p>The rest of CycleStats looks for the places where cycling infrastructure is most likely to work. These routes bring those findings together: each one is tested against three things.</p></div>
+    <div class="why" id="why"></div>
+    <div class="whytxt">
+      <p>They are meant for a wider set of people than keen cyclists. Some are for <b>getting to work</b>: they join towns by the most direct flat line, with no scenic detours, because a commute that is longer than it needs to be does not get ridden. Others are <b>destination rides</b>, worth making for their own sake: the Lindsey coast and the Skegness route are flat all the way and would suit older riders on e-bikes as much as anyone. The Trent Valley is both, but getting to work comes first.</p>
+      <p>That is a different aim from much of the National Cycle Network, which often seems to have been planned to complete a network on the map rather than to carry the most riders, winding between villages to find quiet lanes. Here the test is use: where the direct line runs beside traffic, the answer is to build a proper path there, not to send riders the long way round.</p>
+    </div>
+  </section>
+  <section>
+    <div class="sh"><h2>The route, and what is there today</h2><p>Coloured by riding conditions, checked every 25 m against OpenStreetMap: green and blue are away from traffic, amber and red are on B/C and A roads where a proper path is needed. Numbered squares mark stage starts (letters for the other routes: L Lindsey Ridings, S Soar, A Aire, D Don, T Tadcaster, H Holland, C Lindsey coast, K Skegness); purple circles are Danelaw sites (hollow ones are off the route); small dots are police-reported cycle collisions. Hover for details. Select a ride or stage below to pick it out on the map (select it again to show everything), or a road or site to zoom to it.</p></div>
     <div class="legend" id="legend"></div>
     <div id="map" role="img" aria-label="Map of the Danelaw Way and its variants, coloured by what exists along the line today"></div>
   </section>
   <section>
-    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the variants and coastal routes bring Lincoln, Grimsby, Leicester, Leeds, Stamford and the Lincolnshire coast into the network. Each ride shows its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
+    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the other routes bring Lincoln, Grimsby, Leicester, Leeds, Doncaster, Stamford and the Lincolnshire coast into the network. Rides for getting to work come first, then destination rides. Each ride shows the towns of 10,000 people or more it links, and its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
     <div class="opts" id="opts"></div>
   </section>
   <section>
@@ -153,7 +172,7 @@ const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim
 const nf=n=>Math.round(n).toLocaleString('en-GB');
 const CLS={path:['Traffic-free path','--path',4.5,null],quiet:['Quiet road','--quiet',4,null],track:['Track, towpath or unnamed lane','--quiet',4,'6 6'],main:['B or C road: path needed','--main',4.5,null],busy:['A road: path needed','--busy',6,null]};
 const ORDER=['path','quiet','track','main','busy'];
-const RNAME={main:'Main Way',lincoln:'The Lindsey Ridings',soar:'Soar variant',aire:'Aire variant',holland:'Boroughs of Leicester and Stamford plus Holland',coast:'Lindsey South and North Riding Coastal',skegness:'Skegness route'};
+const RNAME={main:'Main Way',lincoln:'The Lindsey Ridings',soar:'Soar variant',aire:'Aire variant',holland:'Boroughs of Leicester and Stamford plus Holland',coast:'Lindsey South and North Riding Coastal',don:'Don variant',tadcaster:'Tadcaster route',skegness:'Skegness route'};
 function isDark(){const th=document.documentElement.dataset.theme;return th?th==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
 let D,map;
 const pct=(v,t)=>Math.round((v||0)/t*100);
@@ -171,7 +190,7 @@ function drawMap(){
     s.line=L.polyline(s.pts,{color:css(c[1]),weight:c[2],opacity:.95,dashArray:c[3],lineCap:c[3]?'butt':'round'})
       .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${c[0]} · ${s.km} km`,{sticky:true,className:'tt'}).addTo(map)});
   D.routes.forEach(r=>r.stages.forEach(st=>{const first=D.segments.find(s=>s.route===r.id&&s.stage===st.n);if(!first)return;
-    const lab=r.id==='main'?st.n:({lincoln:'L',soar:'S',aire:'A',holland:'H',coast:'C',skegness:'K'}[r.id]||'')+(r.stages.length>1?st.n:'');
+    const lab=r.id==='main'?st.n:({lincoln:'L',soar:'S',aire:'A',holland:'H',coast:'C',skegness:'K',don:'D',tadcaster:'T'}[r.id]||'')+(r.stages.length>1?st.n:'');
     st.marker=L.marker(first.pts[0],{zIndexOffset:900,icon:L.divIcon({className:'',html:`<span class="mk st">${lab}</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
       .bindTooltip(`<b>${esc(r.name)}: ${esc(st.name)}</b><br>${st.km} km · ${pct(ride(st.mix),st.km)}% rideable today`,{className:'tt'}).on('click',()=>zoom(r.id,[st.n])).addTo(map)}));
   D.sites.forEach(s=>{s.marker=L.marker([s.lat,s.lon],{zIndexOffset:1000,icon:L.divIcon({className:'',html:`<span class="mk${s.on?'':' off'}">ᚱ</span>`,iconSize:[22,22],iconAnchor:[11,11]})})
@@ -200,22 +219,36 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <div class="fact"><b>${pct(ride(M.mix),M.km)}%</b><span>of the main Way can be ridden today away from traffic: ${pct(M.mix.path,M.km)}% traffic-free path, ${pct((M.mix.quiet||0)+(M.mix.track||0),M.km)}% quiet roads, lanes and tracks</span></div>
     <div class="fact"><b style="color:var(--busy)">${pct(roads(M.mix),M.km)}%</b><span>of the main Way (${nf(roads(M.mix))} km) is on A, B or C roads, where a proper path should be built. ${nf(onRoads)} km across all the routes.</span></div>
     <div class="fact"><b>${M.signed}%</b><span>of the main Way follows signed cycle routes today</span></div>
-    <div class="fact"><b>${nf(allKm-M.km)} km</b><span>of variants and other routes: ${V.map(r=>`${esc(r.name)} (${nf(r.km)} km)`).join(', ')}</span></div>`;
+    <div class="fact"><b>${nf(allKm-M.km)} km</b><span>on ${V.length} more routes: ${nf(V.filter(r=>r.use==='work').reduce((t,r)=>t+r.km,0))} km for getting to work and ${nf(V.filter(r=>r.use!=='work').reduce((t,r)=>t+r.km,0))} km of destination rides</span></div>`;
   document.getElementById('legend').innerHTML=ORDER.map(c=>`<span><i style="background:${CLS[c][3]?`repeating-linear-gradient(90deg,var(${CLS[c][1]}) 0 7px,transparent 7px 12px)`:`var(${CLS[c][1]})`}"></i>${CLS[c][0]}</span>`).join('')+`<span><i class="dot" style="background:var(--site)"></i>Danelaw site</span>`;
+  // the three tests, across every route
+  const allUp=d.routes.reduce((t,r)=>t+r.ascent,0),tws=Object.values(d.towns),trav=tws.reduce((t,x)=>t+x.travel,0);
+  const cyc=tws.reduce((t,x)=>t+x.travel*x.cycle,0)/trav,dut=tws.reduce((t,x)=>t+x.travel*x.dutch,0)/trav;
+  const lowRides=d.routes.filter(r=>Math.max(...r.stages.flatMap(s=>s.profile||[0]))<100).length;
+  document.getElementById('why').innerHTML=`
+    <div><h3>Flat</h3><b>${nf(allUp/allKm*100)} m</b><p>of climbing per 100 km across all ${d.routes.length} routes, against about 830 m on Hærvejsløbet. ${lowRides} of the ${d.routes.length} never rise above 100 m. In the town figures, hillier towns cycle less.</p></div>
+    <div><h3>Safe</h3><b>${pct(allKm-onRoads,allKm)}%</b><p>of the network can be ridden away from traffic today. The other ${nf(onRoads)} km is on A, B or C roads, and that is where a proper path has to be built: the list below says where.</p></div>
+    <div><h3>Connects towns</h3><b>${tws.length} towns</b><p>of 10,000 people or more are linked, where ${nf(trav)} people travel to work. ${cyc.toFixed(1)}% of them cycle today; the Go Dutch scenario puts it at ${dut.toFixed(0)}% with Dutch-standard routes.</p></div>`;
   // ride options: the whole Way, its halves, and each variant
   const part=(r,a,b)=>r.stages.slice(a-1,b).reduce((t,s)=>t+s.km,0);
-  const OPTS=[['The Danelaw Way','Repton to Stamford Bridge','main',1,M.stages.length],['Trent Valley and the Boroughs of Derby and Nottingham','Repton to Gainsborough','main',1,4],['Gainsborough to Jorvik','Gainsborough to York and Stamford Bridge by Howden','main',5,M.stages.length],
-    ...V.map(r=>[r.name,`${r.sub}, joining the Way at ${r.joins}`,r.id,1,r.stages.length])];
+  const OPTS=[['Trent Valley and the Boroughs of Derby and Nottingham','Repton to Gainsborough: getting to work along the Trent first, and a day ride too','main',1,4,'both'],
+    ...V.filter(r=>r.use==='work').map(r=>[r.name,`${r.sub}, joining the Way at ${r.joins}`,r.id,1,r.stages.length,r.use]),
+    ['The Danelaw Way','Repton to Stamford Bridge','main',1,M.stages.length,'destination'],['Gainsborough to Jorvik','Gainsborough to York and Stamford Bridge by Howden','main',5,M.stages.length,'destination'],
+    ...V.filter(r=>r.use!=='work').map(r=>[r.name,`${r.sub}, joining the Way at ${r.joins}`,r.id,1,r.stages.length,r.use])];
+  const USE={work:'Getting to work',both:'Work first · leisure too',destination:'Destination ride'};
+  const rtowns=(r,a,b)=>[...new Set(r.stages.slice(a-1,b).flatMap(s=>s.towns||[]))];
   // height profile of each ride, all drawn on one vertical scale so flat rides look flat next to hilly ones
   const prof=(r,a,b)=>r.stages.slice(a-1,b).flatMap(s=>s.profile||[]);
   const ymax=Math.max(50,...OPTS.map(([,,rid,a,b])=>Math.max(...prof(d.routes.find(x=>x.id===rid),a,b))));
   const spark=p=>{if(p.length<2)return '';const W=200,H=44,x=i=>i/(p.length-1)*W,y=v=>H-2-Math.max(0,v)/ymax*(H-4);
     const ln=p.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join('');
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="ar" d="${ln}L${W} ${H}L0 ${H}Z"/><path class="ln" d="${ln}" vector-effect="non-scaling-stroke"/></svg>`};
-  document.getElementById('opts').innerHTML=OPTS.map(([n,t,rid,a,b])=>{const r=d.routes.find(x=>x.id===rid),p=prof(r,a,b),up=r.stages.slice(a-1,b).reduce((s,x)=>s+x.ascent,0);
-    return `<button class="opt" data-r="${rid}" data-a="${a}" data-b="${b}" aria-pressed="false"><span class="t">${esc(n)}</span><b>${nf(part(r,a,b))} km</b>
+  const card=([n,t,rid,a,b,use])=>{const r=d.routes.find(x=>x.id===rid),p=prof(r,a,b),up=r.stages.slice(a-1,b).reduce((s,x)=>s+x.ascent,0),tw=rtowns(r,a,b).map(i=>d.towns[i]);
+    return `<button class="opt" data-r="${rid}" data-a="${a}" data-b="${b}" aria-pressed="false"><span class="use ${use}">${USE[use]}</span><span class="t">${esc(n)}</span><b>${nf(part(r,a,b))} km</b>
       <span class="el" aria-label="${nf(up)} metres of climbing, highest point ${p.length?Math.max(...p):0} metres"><span><b>${nf(up)} m</b> climbing</span><span>highest <b>${p.length?Math.max(...p):0} m</b></span></span>
-      ${spark(p)}<small>${esc(t)}</small></button>`}).join('');
+      ${spark(p)}<span class="tw">${tw.length?`Links <b>${tw.map(x=>esc(x.name)).join(', ')}</b>: ${nf(tw.reduce((s,x)=>s+x.travel,0))} people travel to work there`:'Links no towns of 10,000 or more'}</span><small>${esc(t)}</small></button>`};
+  document.getElementById('opts').outerHTML=`<div class="ogrp">For getting to work</div><div class="opts">${OPTS.filter(o=>o[5]!=='destination').map(card).join('')}</div>
+    <div class="ogrp">Destination rides</div><div class="opts">${OPTS.filter(o=>o[5]==='destination').map(card).join('')}</div>`;
   document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const was=o.getAttribute('aria-pressed')==='true';document.querySelectorAll('.opt,.stage').forEach(x=>x.setAttribute('aria-pressed',!was&&x===o));if(was)return zoom();const a=+o.dataset.a,b=+o.dataset.b;zoom(o.dataset.r,Array.from({length:b-a+1},(_,i)=>a+i))});
   document.getElementById('stages').innerHTML=d.routes.map(r=>`<div class="grp">${esc(r.name)} · ${esc(r.sub)}${r.joins?` · joins at ${esc(r.joins)}`:''}</div><div class="stages">${
     r.stages.map(st=>`<button class="stage" data-r="${r.id}" data-n="${st.n}" aria-pressed="false"><span class="n">${r.id==='main'?'Stage '+st.n:esc(r.name)}</span><h3>${esc(st.name)}</h3>

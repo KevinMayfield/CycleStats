@@ -113,6 +113,21 @@ ROUTES = [
             ('Castleford', 53.7255, -1.3560), ('Knottingley', 53.7080, -1.2470), ('Snaith', 53.6920, -1.0280), ('Rawcliffe', 53.6910, -0.9630),
             ('Airmyn', 53.7190, -0.9010)]),
     ]),
+    dict(id='don', name='Don variant', sub='Doncaster to Goole down the Don by Bentley, Stainforth and Thorne', joins='Goole', stages=[
+        dict(name='Doncaster to Thorne', note='Down the Don and the Don Navigation by Bentley, Kirk Sandall, Barnby Dun and Stainforth', pts=[
+            ('Doncaster', 53.5228, -1.1330), ('Bentley', 53.5440, -1.1500), ('Kirk Sandall', 53.5600, -1.0750), ('Barnby Dun', 53.5730, -1.0700),
+            ('Stainforth', 53.5960, -1.0230), ('Thorne', 53.6110, -0.9590)]),
+        dict(name='Thorne to Goole', note='North across the flat levels to the Dutch River and Goole', pts=[
+            ('Thorne', 53.6110, -0.9590), ('Rawcliffe Bridge', 53.6630, -0.9330), ('Goole', 53.7030, -0.8740)]),
+    ]),
+    dict(id='tadcaster', name='Tadcaster route', sub='Leeds to York by Garforth and Tadcaster, the direct line between the two cities', joins='York', stages=[
+        dict(name='Leeds to Tadcaster', note='East out of Leeds by Cross Gates and Garforth, then over the low ridge by Aberford to the Wharfe', pts=[
+            ('Leeds', 53.7945, -1.5410), ('Cross Gates', 53.8060, -1.4500), ('Garforth', 53.7930, -1.3880), ('Aberford', 53.8280, -1.3450),
+            ('Tadcaster', 53.8850, -1.2620)]),
+        dict(name='Tadcaster to York', note='Across the Vale of York by Bilbrough and Copmanthorpe', pts=[
+            ('Tadcaster', 53.8850, -1.2620), ('Bilbrough', 53.9100, -1.1930), ('Copmanthorpe', 53.9150, -1.1420), ('Dringhouses', 53.9420, -1.1150),
+            ('York', 53.9620, -1.0815)]),
+    ]),
 ]
 
 SITES = [
@@ -140,11 +155,29 @@ SITES = [
     dict(name='Riccall', lat=53.8330, lon=-1.0590, on='main', text='Harald Hardrada\'s fleet came up the Ouse and landed here in September 1066, the last great Viking invasion of England.'),
     dict(name='Fulford', lat=53.9370, lon=-1.0710, on='main', text='Harald Hardrada beat the northern earls here on 20 September 1066, five days before his defeat at Stamford Bridge.'),
     dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='main', text='Where the Way ends, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
+    dict(name='Barnby Dun', lat=53.5730, lon=-1.0700, on='don', text='Old Norse names line the Don below Doncaster: Barnby is Bjarni\'s farm, with the Norse -by, and Kirk Sandall takes the Norse kirkja, church.'),
+    dict(name='Tadcaster', lat=53.8850, lon=-1.2620, on='tadcaster', text='Harold Godwinson gathered his army here on 24 September 1066 after marching north from London, then went through York to beat Harald Hardrada at Stamford Bridge the next day.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
 ]
 
 K = math.cos(math.radians(53.3)) * 111320; KY = 110574
 P = lambda la, lo: ((lo + 1.0) * K, (la - 53.3) * KY)
+# what each route is for: 'work' routes keep to the most direct line between towns, 'destination' routes are rides
+# worth making for their own sake, for a wider set of people than regular cyclists; 'both' puts getting to work first
+USE = dict(
+    main=('both', 'The spine of the network: getting to work between the Trent and Ouse towns first, and a long-distance ride from Repton to Stamford Bridge'),
+    lincoln=('destination', 'A touring loop through Lindsey for regular riders, and the one route here that climbs over the edge of the Wolds'),
+    soar=('work', 'Getting to work between Leicester, Loughborough and Long Eaton, so it keeps to the most direct line down the valley'),
+    holland=('destination', 'A destination ride by Rutland Water, Stamford and the Fens to the Wash, with Spalding and Boston for shorter trips'),
+    coast=('destination', 'A flat destination ride along the seaside towns, for a wider set of people: older riders on e-bikes among them'),
+    skegness=('destination', 'A flat destination ride from the Trent to the sea for day trips and holidays, linking Lincoln, Woodhall Spa and Coningsby on the way'),
+    don=('work', 'Getting to work: Doncaster, Bentley, Stainforth and Thorne to Goole along the flat Don valley'),
+    tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
+    aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, with no scenic detours'),
+)
+TOWN_REACH = 300   # m: a route serves a town if it passes through its built-up area or within this distance of its edge
+
+
 def dist(a, b): return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
@@ -239,6 +272,29 @@ def main():
         hw = rinfo[k][2].replace('_link', '')
         return ('busy' if hw in ('motorway', 'trunk', 'primary') else 'main' if hw in ('secondary', 'tertiary') else 'quiet'), k
 
+    # towns of about 10,000 people or more (from towns.py), in the projected metres used above
+    towns = json.load(open(os.path.join(HERE, '..', 'data', 'towns.json')))['towns']
+    tgrid = collections.defaultdict(list)
+    for t in towns:
+        rings = [[P(la, lo) for la, lo in ring] for ring in (t.get('shape') or [])]
+        if not rings: continue
+        xs = [q[0] for ring in rings for q in ring]; ys = [q[1] for ring in rings for q in ring]
+        box = (min(xs) - TOWN_REACH, min(ys) - TOWN_REACH, max(xs) + TOWN_REACH, max(ys) + TOWN_REACH)
+        for gi in range(int(box[0] // 2000), int(box[2] // 2000) + 1):
+            for gj in range(int(box[1] // 2000), int(box[3] // 2000) + 1): tgrid[(gi, gj)].append((t['id'], box, rings))
+
+    def inside(p, ring):
+        c = False
+        for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+            if (y1 > p[1]) != (y2 > p[1]) and p[0] < x1 + (p[1] - y1) * (x2 - x1) / (y2 - y1): c = not c
+        return c
+
+    def town_at(p):
+        for tid, box, rings in tgrid.get((int(p[0] // 2000), int(p[1] // 2000)), ()):
+            if box[0] <= p[0] <= box[2] and box[1] <= p[1] <= box[3]:
+                if any(inside(p, ring) for ring in rings) or any(dist(p, q) < TOWN_REACH for ring in rings for q in ring):
+                    yield tid
+
     # 4. measure every 25 m
     out_routes, segs, coll_all = [], [], {}
     for r in ROUTES:
@@ -249,9 +305,11 @@ def main():
             for a, b in zip(coords, coords[1:]):
                 L = dist(P(a[1], a[0]), P(b[1], b[0])); k = max(1, int(L // 25))
                 for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k, L / k))
-            mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None
+            mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None; served = []
             for s in samples:
                 p = P(s[0], s[1]); w = s[2]; cls, k = classify(p)
+                for t in town_at(p):
+                    if t not in served: served.append(t)
                 mix[cls] += w
                 rid = near(ncn, p, 15)
                 if rid: onroute[ninfo[rid]] += w
@@ -287,22 +345,27 @@ def main():
             rstages.append(dict(n=sn, name=st['name'], note=st['note'], km=round(km, 1), ascent=int(props.get('filtered ascend', 0)), profile=prof,
                                 mix={c: round(v / 1000, 1) for c, v in mix.items()}, via=st['via'],
                                 routes=[dict(name=k, km=round(v / 1000, 1)) for k, v in onroute.most_common(4) if v >= 1000],
-                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi,
+                                signed=round(sum(onroute.values()) / max(1, sum(mix.values())) * 100), collisions=len(seen), ksi=ksi, towns=served,
                                 todo=sorted(todo, key=lambda t: -t['km'])))
         tot = collections.Counter()
         for s in rstages:
             for c, v in s['mix'].items(): tot[c] += v
         kmr = sum(s['km'] for s in rstages)
-        out_routes.append(dict(id=r['id'], name=r['name'], sub=r['sub'], joins=r.get('joins'), km=round(kmr, 1),
+        rtowns = []
+        for s in rstages: rtowns += [t for t in s['towns'] if t not in rtowns]
+        out_routes.append(dict(id=r['id'], name=r['name'], sub=r['sub'], joins=r.get('joins'), use=USE[r['id']][0], who=USE[r['id']][1], towns=rtowns, km=round(kmr, 1),
                                ascent=sum(s['ascent'] for s in rstages), mix={c: round(v, 1) for c, v in tot.items()},
                                signed=round(sum(s['signed'] * s['km'] for s in rstages) / max(kmr, 1)), stages=rstages))
     for s in segs:
         s.pop('keys', None); s['km'] = round(s['km'], 2)
         s['pts'] = s['pts'][::3] + ([s['pts'][-1]] if len(s['pts']) % 3 != 1 else [])
-    out = dict(routes=out_routes, segments=segs, collisions=list(coll_all.values()), sites=SITES)
+    used = {t for r in out_routes for t in r['towns']}
+    out = dict(routes=out_routes, segments=segs, collisions=list(coll_all.values()), sites=SITES,
+               towns={t['id']: dict(name=t['name'], travel=t['travel'], cycle=t['cycle21'], dutch=t['dutch'], tier=t['tier']) for t in towns if t['id'] in used})
     json.dump(out, open(os.path.join(HERE, '..', 'data', 'danelaw.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     for r in out_routes:
         print(f"{r['name']}: {r['km']} km, {r['ascent']} m up, signed {r['signed']}%, {r['mix']}")
+        print('   towns:', ', '.join(out['towns'][t]['name'] for t in r['towns']))
         for s in r['stages']:
             print(f"   {s['n']}. {s['name']}: {s['km']} km {s['mix']} to do: {[(t['road'], t['km']) for t in s['todo'][:4]]}")
 
