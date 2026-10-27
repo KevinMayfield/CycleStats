@@ -24,15 +24,39 @@
   "name": "York & North Yorkshire"
  },
  {
-  "id": "middlesbrough-redcar",
-  "name": "Middlesbrough & Redcar"
- },
- {
   "id": "leicestershire",
   "name": "Leicester & Leicestershire"
  },
  {
   "id": "rutland",
   "name": "Rutland"
+ },
+ {
+  "id": "greater-manchester",
+  "name": "Greater Manchester"
+ },
+ {
+  "id": "liverpool-city-region",
+  "name": "Liverpool City Region"
+ },
+ {
+  "id": "lancashire",
+  "name": "Lancashire"
+ },
+ {
+  "id": "cheshire-warrington",
+  "name": "Cheshire & Warrington"
+ },
+ {
+  "id": "cumbria",
+  "name": "Cumbria"
+ },
+ {
+  "id": "north-east",
+  "name": "North East"
+ },
+ {
+  "id": "tees-valley",
+  "name": "Tees Valley"
  }
 ]

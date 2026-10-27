@@ -38,7 +38,8 @@ RAW = os.path.join(HERE, '..', 'raw')
 H = os.path.join(RAW, 'health')
 DATA = os.path.join(HERE, '..', 'data')
 # NHS integrated care boards (2022 boundaries) by council, using the 2011 council names in the PCT zone files.
-# North East and North Cumbria is covered except North Cumbria, which sits in the PCT's North West region.
+# Cumbria's 2011 districts split between two boards: Allerdale, Carlisle, Copeland and Eden in North East and North
+# Cumbria, Barrow-in-Furness and South Lakeland in Lancashire and South Cumbria.
 ICB = {
     'NHS West Yorkshire': ['Bradford', 'Calderdale', 'Kirklees', 'Leeds', 'Wakefield'],
     'NHS South Yorkshire': ['Barnsley', 'Doncaster', 'Rotherham', 'Sheffield'],
@@ -51,9 +52,16 @@ ICB = {
     'NHS Leicester, Leicestershire and Rutland': ['Leicester', 'Blaby', 'Charnwood', 'Harborough', 'Hinckley and Bosworth', 'Melton',
                                                   'North West Leicestershire', 'Oadby and Wigston', 'Rutland'],
     'NHS North East and North Cumbria': ['County Durham', 'Darlington', 'Gateshead', 'Hartlepool', 'Middlesbrough', 'Newcastle upon Tyne',
-                                         'North Tyneside', 'Redcar and Cleveland', 'South Tyneside', 'Stockton-on-Tees', 'Sunderland'],
+                                         'North Tyneside', 'Redcar and Cleveland', 'South Tyneside', 'Stockton-on-Tees', 'Sunderland',
+                                         'Northumberland', 'Allerdale', 'Carlisle', 'Copeland', 'Eden'],
+    'NHS Lancashire and South Cumbria': ['Blackburn with Darwen', 'Blackpool', 'Burnley', 'Chorley', 'Fylde', 'Hyndburn', 'Lancaster',
+                                         'Pendle', 'Preston', 'Ribble Valley', 'Rossendale', 'South Ribble', 'West Lancashire', 'Wyre',
+                                         'Barrow-in-Furness', 'South Lakeland'],
+    'NHS Greater Manchester': ['Bolton', 'Bury', 'Manchester', 'Oldham', 'Rochdale', 'Salford', 'Stockport', 'Tameside', 'Trafford', 'Wigan'],
+    'NHS Cheshire and Merseyside': ['Cheshire East', 'Cheshire West and Chester', 'Warrington', 'Halton', 'Knowsley', 'Liverpool',
+                                    'Sefton', 'St. Helens', 'Wirral'],
 }
-ICB_NOTE = {'NHS North East and North Cumbria': 'excluding North Cumbria'}
+ICB_NOTE = {}
 FT = [(93015, 501, 'inactive'), (93088, 501, 'overweight'), (241, 501, 'diabetes'), (93107, 3, 'child_obese')]
 
 
@@ -171,7 +179,14 @@ def main():
     for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
         if r[0].startswith('E01'): lad_name[r[2]] = r[3]
     name_icb = {('North Yorkshire' if l in ny else l): n for n, ls in ICB.items() for l in ls}
+    # the Cumbrian councils since 2023: Cumberland is all North Cumbria; Westmorland and Furness straddles the two boards
+    # (Eden in one, Barrow and South Lakeland in the other) and is counted with Lancashire and South Cumbria
+    name_icb.update({'Cumberland': 'NHS North East and North Cumbria', 'Westmorland and Furness': 'NHS Lancashire and South Cumbria'})
     code_icb = {c: name_icb[n] for c, n in lad_name.items() if n in name_icb}
+    # STATS19 keeps the old district codes for collisions before the 2023 reorganisation
+    code_icb.update({c: 'NHS Humber and North Yorkshire' for c in ('E07000163', 'E07000164', 'E07000165', 'E07000166', 'E07000167', 'E07000168', 'E07000169')})
+    code_icb.update({c: 'NHS North East and North Cumbria' for c in ('E07000026', 'E07000028', 'E07000029', 'E07000030')})
+    code_icb.update({c: 'NHS Lancashire and South Cumbria' for c in ('E07000027', 'E07000031')})
     cl = os.path.join(H, 'cycle_collision_lad.csv')
     if not os.path.exists(cl):
         ids = {r['collision_index'] for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'cycle_cas.csv'))) if r['casualty_type'] == '1'}
