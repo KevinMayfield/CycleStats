@@ -120,6 +120,15 @@ ROUTES = [
         dict(name='Thorne to Goole', note='North across the flat levels to the Dutch River and Goole', pts=[
             ('Thorne', 53.6110, -0.9590), ('Rawcliffe Bridge', 53.6630, -0.9330), ('Goole', 53.7030, -0.8740)]),
     ]),
+    # routed by the shortest legal line rather than the touring profile, which winds round the lanes to avoid the A1079
+    dict(id='beverley', name='Beverley route', sub='Hull to York by Beverley, the Hudson Way and Pocklington, the direct line between the two cities', joins='York', profile='shortest', stages=[
+        dict(name='Hull to Market Weighton', note='North by Cottingham to Beverley, then west on the Hudson Way, the old railway through the Wolds', pts=[
+            ('Hull', 53.7440, -0.3360), ('Cottingham', 53.7820, -0.4060), ('Beverley', 53.8420, -0.4350), ('Kiplingcotes', 53.8630, -0.5970),
+            ('Market Weighton', 53.8640, -0.6650)]),
+        dict(name='Market Weighton to York', note='Along the foot of the Wolds by Pocklington, then across the Vale of York by Wilberfoss and Dunnington', pts=[
+            ('Market Weighton', 53.8640, -0.6650), ('Shiptonthorpe', 53.8800, -0.7050), ('Pocklington', 53.9300, -0.7790), ('Barmby Moor', 53.9330, -0.8200),
+            ('Wilberfoss', 53.9470, -0.8870), ('Kexby', 53.9510, -0.9370), ('Dunnington', 53.9650, -0.9850), ('York', 53.9620, -1.0815)]),
+    ]),
     dict(id='tadcaster', name='Tadcaster route', sub='Leeds to York by Garforth and Tadcaster, the direct line between the two cities', joins='York', stages=[
         dict(name='Leeds to Tadcaster', note='East out of Leeds by Cross Gates and Garforth, then over the low ridge by Aberford to the Wharfe', pts=[
             ('Leeds', 53.7945, -1.5410), ('Cross Gates', 53.8060, -1.4500), ('Garforth', 53.7930, -1.3880), ('Aberford', 53.8280, -1.3450),
@@ -156,6 +165,7 @@ SITES = [
     dict(name='Fulford', lat=53.9370, lon=-1.0710, on='main', text='Harald Hardrada beat the northern earls here on 20 September 1066, five days before his defeat at Stamford Bridge.'),
     dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='main', text='Where the Way ends, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
     dict(name='Barnby Dun', lat=53.5730, lon=-1.0700, on='don', text='Old Norse names line the Don below Doncaster: Barnby is Bjarni\'s farm, with the Norse -by, and Kirk Sandall takes the Norse kirkja, church.'),
+    dict(name='Beverley', lat=53.8395, lon=-0.4265, on='beverley', text='The Minster stands on the monastery of St John of Beverley, which by tradition the Danes destroyed around 866. Later kings of England, Athelstan first, honoured his shrine as they fought to win back the North.'),
     dict(name='Tadcaster', lat=53.8850, lon=-1.2620, on='tadcaster', text='Harold Godwinson gathered his army here on 24 September 1066 after marching north from London, then went through York to beat Harald Hardrada at Stamford Bridge the next day.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
 ]
@@ -172,6 +182,7 @@ USE = dict(
     coast=('destination', 'A flat destination ride along the seaside towns, for a wider set of people: older riders on e-bikes among them'),
     skegness=('destination', 'A flat destination ride from the Trent to the sea for day trips and holidays, linking Lincoln, Woodhall Spa and Coningsby on the way'),
     don=('work', 'Getting to work: Doncaster, Bentley, Stainforth and Thorne to Goole along the flat Don valley'),
+    beverley=('work', 'Getting to work between Hull, Beverley and York, by the most direct line that avoids the high Wolds'),
     tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
     aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, with no scenic detours'),
 )
@@ -188,11 +199,11 @@ def fetch(url, data=None, tries=4):
     sys.exit('download failed: ' + url[:80])
 
 
-def brouter(pts):
-    key = hashlib.md5(json.dumps(pts).encode()).hexdigest()[:12]; path = os.path.join(CACHE, f'link_{key}.geojson')
+def brouter(pts, profile='trekking'):
+    key = hashlib.md5(json.dumps(pts if profile == 'trekking' else [profile, pts]).encode()).hexdigest()[:12]; path = os.path.join(CACHE, f'link_{key}.geojson')
     if not os.path.exists(path):
         lonlats = '|'.join(f'{lo},{la}' for _, la, lo in pts)
-        json.dump(json.loads(fetch(f'https://brouter.de/brouter?lonlats={urllib.parse.quote(lonlats, safe=",|")}&profile=trekking&alternativeidx=0&format=geojson')), open(path, 'w'))
+        json.dump(json.loads(fetch(f'https://brouter.de/brouter?lonlats={urllib.parse.quote(lonlats, safe=",|")}&profile={profile}&alternativeidx=0&format=geojson')), open(path, 'w'))
         time.sleep(2)
     return json.load(open(path))
 
@@ -226,7 +237,7 @@ def main():
     # 2. route each stage with BRouter (cached)
     for r in ROUTES:
         for st in r['stages']:
-            st['geo'] = brouter(st['pts'])
+            st['geo'] = brouter(st['pts'], r.get('profile', 'trekking'))
 
     # 3. OpenStreetMap and collision data for the areas the routes cross
     paths, roads, ncn = Grid(50), Grid(50), Grid(50); rinfo, ninfo, places = {}, {}, []
