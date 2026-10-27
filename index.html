@@ -13,7 +13,7 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
   --land:#eceee9; --land-in:#f9faf7; --road:#c9cdc6; --road-major:#b3b8b0; --water:#8fb8d6; --label:#4b5450;
-  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e; --dep:#6b2fa0; --dep-soft:#efe6f6;
+  --accent:#0f6b5c; --accent-soft:#e2f0ec; --danger:#c3322b; --danger-soft:#fbe9e7; --amber:#d98a1c; --safe:#1d8a4e; --safe-soft:#e3f3e9; --count:#2f6fd6; --count-soft:#e6eefb; --offroad:#1d8a4e; --dep:#6b2fa0; --dep-soft:#efe6f6; --dane:#3a2f6b;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -21,11 +21,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
   --land:#161b19; --land-in:#1e2422; --road:#353d3a; --road-major:#46504c; --water:#3f6f92; --label:#a7b1ac;
-  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; color-scheme:dark}
+  --accent:#4cc3a8; --accent-soft:#183a33; --danger:#ff6b5e; --danger-soft:#3a1d1a; --amber:#f0a73a; --safe:#5fd08e; --safe-soft:#173326; --count:#7aa7ff; --count-soft:#1c2a44; --offroad:#5fd08e; --dep:#c48ef0; --dep-soft:#2e2140; --dane:#c9bdf5; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -50,6 +50,8 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .sec{font:700 16px/1.2 var(--display);margin:12px 12px 2px;display:flex;gap:8px;align-items:center}
 .sec i{width:18px;height:5px;border-radius:2px;flex:none}
 .sec+.blurb{padding-top:2px}
+.blurb a{color:var(--accent)}
+.sec i.dash{background:repeating-linear-gradient(90deg,var(--dane) 0 6px,transparent 6px 10px)!important}
 .tab[data-k="counts"][aria-selected="true"]{border-bottom-color:var(--count)}
 .list.counts .item:hover,.list.counts .item.on{background:var(--count-soft)}
 .use{font-family:var(--mono);font-size:11.5px;color:var(--ink);margin-top:4px}
@@ -144,8 +146,9 @@ const PAL=['#2f6fd6','#e0752d','#1f9d74','#a24bc9','#d23a6c','#6b8e23','#0aa2c0'
 const SAFE=['#0b5e33','#0f6b3b','#137843','#18854b','#1d8a4e','#2b975a','#3aa367','#4aae74','#5bb981','#6cc38e'];
 const DANGER=['#8e1a14','#a4231c','#b52b22','#c3322b','#cd4a33','#d6603c','#de7546','#e58a52','#ea9d60','#eeae70'];
 const BLURB={
-  routes:'Signed, waymarked cycle routes and dedicated cycle paths from OpenStreetMap, measured '+M.in+'. Routes share some streets, so lines can overlap.',
+  routes:'Signed, waymarked cycle routes and dedicated cycle paths from OpenStreetMap, and the suggested Danelaw Cycle Network routes, measured '+M.in+'. Routes share some streets, so lines can overlap.',
   route_sec:'Ranked by how many kilometres run '+M.in+'.',
+  dane_sec:'Suggested routes from the <a href="danelaw.html">Danelaw Cycle Network</a>, along the rivers. They are not built or signed yet; the Danelaw page shows where each one needs a proper path. Kilometres are measured '+M.in+'.',
   path_sec:'Cycleways and bike-designated paths, joined up by name and ranked by length. Unnamed tracks alongside a road take that road’s name.',
   danger:'Where cyclists are getting hurt '+M.in+', and busy roads nearby that are safer. Dots show every police-reported cycle collision, 2021–25; dashed lines are cycle paths, an alternative where one runs the same way. Off-road paths are not covered by police data.',
   bad_sec:'Roads with the most injury collisions involving a bicycle (fatal ×10, serious ×3, slight ×1), and roads with the most collisions for the cycling on them (per million km cycled, using DfT bikes a day; roads with 5+ collisions and a DfT count). Busy roads rank high on the first partly because more people cycle there.',
@@ -195,8 +198,8 @@ bad.sort((a,b)=>b.score-a.score).forEach((d,j)=>d._j=j);
 ROWS.danger=[...bad,...DATA.safe.map((d,j)=>({...d,_k:'good',_j:j}))];
 // routes skip PAL's greens: green is kept for cycle paths
 const RPAL=['#2f6fd6','#e0752d','#a24bc9','#d23a6c','#0aa2c0','#b8860b','#5b5bd6','#c2532d','#8a5a44','#5d7a8c'];
-const colOf=r=>r._k==='route'?RPAL[r._j%10]:r._k==='path'?css('--offroad'):r._k==='good'?SAFE[r._j%10]:DANGER[Math.min(r._j,9)];
-const baseW=r=>r._k==='route'?3.6:r._k==='path'?4:6;
+const colOf=r=>r._k==='dane'?css('--dane'):r._k==='route'?RPAL[r._j%10]:r._k==='path'?css('--offroad'):r._k==='good'?SAFE[r._j%10]:DANGER[Math.min(r._j,9)];
+const baseW=r=>r._k==='route'?3.6:r._k==='path'||r._k==='dane'?4:6;
 ROWS.routes.forEach((r,i)=>{
   const fg=L.featureGroup();
   r.geom.forEach(g=>{
@@ -207,6 +210,35 @@ ROWS.routes.forEach((r,i)=>{
   fg.on('click',()=>select('routes',i,false));
   fg.addTo(groups.routes);feats.routes.push(fg);
 });
+// Danelaw Cycle Network: suggested routes (danelaw.html), clipped to this area and added as a third section of the
+// routes list once data/danelaw-lines.json has loaded
+let daneReady=false;
+function inArea(la,lo){return DATA.boundary.some(r=>{let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const [y1,x1]=r[i],[y2,x2]=r[j];if((y1>la)!==(y2>la)&&lo<(x2-x1)*(la-y1)/(y2-y1)+x1)c=!c}return c})}
+const kmBetween=(a,b)=>{const k=Math.cos(a[0]*Math.PI/180)*111.32;return Math.hypot((b[1]-a[1])*k,(b[0]-a[0])*110.574)};
+fetch('data/danelaw-lines.json').then(r=>r.ok?r.json():null).then(D=>{
+  daneReady=true;if(!D){if(cur==='routes')render('routes');return}
+  const bb=L.latLngBounds(DATA.boundary.flat()),rows=[];
+  D.routes.forEach(r=>{
+    const pieces=[];let tot=0;
+    r.lines.forEach(pts=>{let run=[];
+      pts.forEach(p=>{if(bb.contains(p)&&inArea(p[0],p[1])){if(run.length)tot+=kmBetween(run[run.length-1],p);run.push(p)}
+        else{if(run.length>1)pieces.push(run);run=[]}});
+      if(run.length>1)pieces.push(run)});
+    if(tot>=1) rows.push({id:r.id,name:r.name,sub:r.sub,full:r.km,km:tot,geom:pieces,_k:'dane'});
+  });
+  rows.sort((a,b)=>b.km-a.km).forEach((r,j)=>{
+    r._j=j;const i=ROWS.routes.length;ROWS.routes.push(r);
+    const fg=L.featureGroup();
+    r.geom.forEach(g=>{
+      L.polyline(g,{color:'#fff',weight:9,opacity:.0001,interactive:true}).addTo(fg);
+      L.polyline(g,{color:colOf(r),weight:baseW(r),opacity:.92,dashArray:'8 6',lineCap:'butt'}).addTo(fg);
+    });
+    fg.bindTooltip(`<b>Danelaw: ${r.name}</b><br>${r.sub}<br>${fmt(r.km)} km ${M.in}, of ${fmt(r.full)} km · suggested, not yet built or signed`,{sticky:true,className:'tt'});
+    fg.on('click',()=>select('routes',i,false));
+    fg.addTo(groups.routes);feats.routes.push(fg);
+  });
+  if(cur==='routes'){render('routes');if(sel!=null)select('routes',sel,false)}
+}).catch(()=>{daneReady=true});
 // all collision dots (context for the safety tab)
 const allDots=L.layerGroup();
 const SEVC=()=>({1:css('--danger'),2:css('--amber'),3:css('--muted')});
@@ -258,17 +290,18 @@ function render(k){
   if(k==='counts') return renderCounts();
   if(k==='towns'||k==='health') return renderTownTab(k);
   const rows=ROWS[k],hurt=k==='danger';
-  const SECS=k==='routes'?[['route','Signed cycle routes',BLURB.route_sec],['path','Cycle paths',BLURB.path_sec]]
+  const SECS=k==='routes'?[['route','Signed cycle routes',BLURB.route_sec],['path','Cycle paths',BLURB.path_sec],...(daneReady&&rows.some(r=>r._k==='dane')?[['dane','Danelaw Cycle Network: suggested routes',BLURB.dane_sec]]:[])]
     :[['bad','Most dangerous roads',BLURB.bad_sec],['good','Safer busy roads: alternatives',BLURB.good_sec]];
   const EMPTY={route:'No signed cycle routes here.',path:'No named cycle paths here.',bad:'No road here has enough cycle collisions to rank.',good:'No road here has a DfT cycle count high enough to rank.'};
   let h=`<p class="blurb">${BLURB[k]}</p>`+(hurt&&M.dep?depStat():'');
   SECS.forEach(([sk,title,blurb])=>{
     const part=rows.map((r,i)=>[r,i]).filter(([r])=>r._k===sk),val=r=>sk==='bad'?r.score:sk==='good'?r.aadf:r.km,mx=Math.max(1,...part.map(([r])=>val(r)));
-    h+=`<div class="sec"><i style="background:${part.length?colOf(part[0][0]):'var(--line)'}"></i>${title}</div><p class="blurb">${blurb}</p>`;
+    h+=`<div class="sec"><i class="${sk==='dane'?'dash':''}" style="background:${part.length?colOf(part[0][0]):'var(--line)'}"></i>${title}</div><p class="blurb">${blurb}</p>`;
     if(!part.length) h+=`<p class="blurb"><b>${EMPTY[sk]}</b></p>`;
     part.forEach(([r,i])=>{
       const col=colOf(r);let sub,fig,chips='';
       if(sk==='route'){sub=[r.ref&&r.ref!==r.name?r.ref:null,{ncn:'National Cycle Network',rcn:'Regional route',lcn:'Local route'}[r.network]].filter(Boolean).join(' · ');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
+      else if(sk==='dane'){sub=`${r.sub} · ${fmt(r.full)} km in all`;fig=`${fmt(r.km)}<small>KM HERE</small>`;}
       else if(sk==='path'){sub=r.kind+(r.segregated==='yes'?' · segregated from walkers':'');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
       else{sub=`${r.ref?r.ref+' · ':''}${fmt(r.km,1)} km stretch`;
         fig=sk==='good'?`${r.aadf}<small>BIKES/DAY</small>`:`${r.n}<small>COLLISIONS</small>`;
@@ -284,7 +317,7 @@ function render(k){
   const s=DATA.stats;
   legend.innerHTML=hurt
     ?`<div class="r"><span class="sw" style="background:${DANGER[0]}"></span>Dangerous road (darker = worse)</div><div class="r"><span class="sw" style="background:${SAFE[0]}"></span>Safer busy road</div><div class="r"><span class="sw" style="border-top:3px dotted var(--accent);height:0"></span>Cycle path</div><div class="r"><span class="dot" style="background:var(--accent);border-radius:1px;transform:rotate(45deg);width:8px;height:8px"></span>DfT cycle count point</div><div class="r"><span class="dot" style="background:var(--danger)"></span>Fatal (${s.fatal})</div><div class="r"><span class="dot" style="background:var(--amber)"></span>Serious (${s.serious})</div><div class="r"><span class="dot" style="background:var(--muted)"></span>Slight (${s.n-s.fatal-s.serious})</div><div class="r" style="color:var(--muted)">${s.n.toLocaleString()} cycle collisions, 2021–25</div>`
-    :`<div class="r"><span class="sw" style="background:linear-gradient(90deg,${RPAL.slice(0,4).join(',')})"></span>Signed route (each its own colour)</div><div class="r"><span class="sw" style="background:var(--offroad)"></span>Cycle path</div><div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
+    :`<div class="r"><span class="sw" style="background:linear-gradient(90deg,${RPAL.slice(0,4).join(',')})"></span>Signed route (each its own colour)</div><div class="r"><span class="sw" style="background:var(--offroad)"></span>Cycle path</div>${ROWS.routes.some(r=>r._k==='dane')?`<div class="r"><span class="sw" style="background:repeating-linear-gradient(90deg,var(--dane) 0 6px,transparent 6px 10px)"></span>Danelaw route (suggested)</div>`:''}<div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
   legend.innerHTML+=nbhLegend();
 }
 // --- neighbourhood layer: IMD 2025 deciles, Indoors (housing condition) deciles, Census 2021 households with no car ---
