@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Which flat and gently sloping towns have health problems linked to too little exercise, how many people cycle there, and where more cycling would do most for health.">
+<title>Health and Active Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: hero with headline figures, a scatter of health need against cycling, the league table, then the method */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
+  --accent:#0f6b5c; --soft:#e2f0ec;
+  /* terrain, categorical slots in fixed order (validated): flat, gentle slopes, Hull and York, hilly */
+  --t-flat:#2a78d6; --t-gentle:#eb6834; --t-bench:#1baf7a; --t-hilly:#eda100;
+  /* health against England: better, about the same, worse */
+  --good:#1b8a6b; --warn:#b07a0c; --bad:#c8372d;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
+  --accent:#4cc3a8; --soft:#183a33;
+  --t-flat:#3987e5; --t-gentle:#d95926; --t-bench:#199e70; --t-hilly:#c98500;
+  --good:#2fa483; --warn:#d6a33a; --bad:#e0564a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431;
+  --accent:#4cc3a8; --soft:#183a33;
+  --t-flat:#3987e5; --t-gentle:#d95926; --t-bench:#199e70; --t-hilly:#c98500;
+  --good:#2fa483; --warn:#d6a33a; --bad:#e0564a; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;margin:6px 0 10px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:72ch;font-size:15px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.fact b{display:block;font:700 32px/1 var(--display);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:12.5px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.sh h2{margin:0 0 4px;font:700 24px/1.1 var(--display)}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:110ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 18px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chart{position:relative;padding:8px 12px 12px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--line)}
+.chart .axis text{fill:var(--muted);font:11px var(--mono)}
+.chart .ref line{stroke:var(--muted);stroke-dasharray:4 4}
+.chart .ref text{fill:var(--muted);font:11px var(--body)}
+.chart circle{stroke:var(--panel);stroke-width:1.5;cursor:pointer}
+.chart circle.hl{stroke:var(--ink);stroke-width:2}
+.chart .lab{fill:var(--ink);font:500 11px var(--body);pointer-events:none}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:min(300px,78vw);display:none;z-index:5}
+.tip b{display:block;font-size:13px}
+.tw{overflow-x:auto;padding:4px 12px 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font:600 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line);vertical-align:bottom}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--muted);font-size:11.5px}
+.tier{display:inline-flex;align-items:center;gap:5px;font:600 10.5px/1 var(--mono);white-space:nowrap;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.tier i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip{font:500 11px/1 var(--mono);padding:3px 5px;border-radius:3px;border:1px solid var(--line);white-space:nowrap}
+.chip.bad{border-color:var(--bad);color:var(--bad)}.chip.warn{border-color:var(--warn);color:var(--warn)}.chip.good{border-color:var(--good);color:var(--good)}
+.cyc{min-width:140px}
+.cyc .bar{position:relative;height:10px;background:var(--bg);border-radius:0 4px 4px 0;margin:3px 0}
+.cyc .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0}
+.cyc .bar i.d{background:var(--soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.cyc .bar i.n{background:var(--accent)}
+.method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px}
+.method p{margin:0}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;padding:10px 18px 0}
+.ctl button{font:600 12px/1 var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.ctl button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+@media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · health and active travel · first look</div>
+      <h1>Health and Active Travel</h1>
+      <p class="lede">Where would more cycling do most for health? This page compares the flat and gently sloping towns, where cycling is most likely to take off, on health problems linked to too little exercise: inactive adults, overweight and obesity, diabetes, obese children and poor health. It then sets that against how many people cycle to work there now and how many could. The league table puts first the towns where health is worst and most of the potential for cycling is unused.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Area maps</a><a href="summary.html">All-area summary</a><a href="priorities.html">Where to build</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="danelaw.html">Danelaw Cycle Network</a></nav>
+  </header>
+  <div class="facts" id="facts"></div>
+  <section>
+    <div class="sh"><h2>Health need against cycling to work</h2><p>Each dot is a town of about 10,000 people or more, sized by the people who travel to work there. Up is less healthy than England (100 = England's level; the index is explained below); right is more cycling to work (Census 2021). The towns that matter most here are high and to the left: unhealthy and hardly cycling, but flat enough to change. Hover or tap a dot for its figures.</p></div>
+    <div class="ctl" role="group" aria-label="Towns shown"><button data-f="fg" aria-pressed="true">Flat and gentle towns</button><button data-f="all" aria-pressed="false">All towns</button></div>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Where active travel should improve health most</h2><p>Flat and gently sloping towns, with Hull and York, ranked by a health gain score: the health need index (as a share of England's) times the gap between cycling to work today and the Propensity to Cycle Tool's Go Dutch scenario. Coloured figures are against England: red worse by 10% or more, amber within 10%, green better. Deaths avoided and their value are the tool's own estimates (WHO HEAT method) for commuting alone, if the town reached Go Dutch.</p></div>
+    <div class="tw"><table id="league"></table></div>
+  </section>
+  <section>
+    <div class="sh"><h2>How this was worked out</h2></div>
+    <div class="method" id="method"></div>
+  </section>
+</div>
+<script>
+const nf=v=>v==null?'–':Math.round(v).toLocaleString('en-GB');
+const p1=v=>v==null?'–':(+v).toFixed(1);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TIER={flat:['Flat','--t-flat'],gentle:['Gentle slopes','--t-gentle'],bench:['Hull & York','--t-bench'],hilly:['Hilly','--t-hilly']};
+const M={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived'};
+const ML={inactive:'Physically inactive adults',overweight:'Adults overweight or obese',diabetes:'Diagnosed diabetes',child_obese:'Children obese in Year 6 (age 10–11)',health_dep:'Neighbourhoods in England\'s most health-deprived fifth'};
+const rag=r=>r>=110?'bad':r<=90?'good':'warn';
+let D,filt='fg';
+fetch('data/health.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
+  D=d;const T=d.towns.filter(t=>t.need!=null),E=d.england;
+  const fg=T.filter(t=>t.tier!=='hilly'),worse=fg.filter(t=>t.need>=110&&t.tier!=='bench');
+  const lg=fg.slice().sort((a,b)=>b.score-a.score);
+  const sum=(xs,k)=>xs.reduce((s,t)=>s+(t[k]||0),0);
+  document.getElementById('facts').innerHTML=`
+    <div class="fact"><b>${fg.length-2}</b><span>flat and gently sloping towns compared, with Hull and York as the benchmarks</span></div>
+    <div class="fact"><b style="color:var(--bad)">${worse.length}</b><span>of them have health need 10% or more above England's, from inactivity, obesity, diabetes and health deprivation</span></div>
+    <div class="fact"><b>${nf(sum(fg,'deaths'))}</b><span>premature deaths a year the Propensity to Cycle Tool estimates would be avoided across these towns if commuting reached Go Dutch levels</span></div>
+    <div class="fact"><b>£${(sum(fg,'value')/1e6).toFixed(0)}m</b><span>a year in health benefits from that cycling to work alone (deaths and sickness avoided), before school, shopping or leisure trips</span></div>`;
+  document.getElementById('legend').innerHTML=Object.entries(TIER).map(([k,[n,c]])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+`<span>Dot size: people travelling to work</span>`;
+  document.querySelectorAll('.ctl button').forEach(b=>b.onclick=()=>{filt=b.dataset.f;document.querySelectorAll('.ctl button').forEach(x=>x.setAttribute('aria-pressed',x===b));chart()});
+  chart();
+  // league table
+  document.getElementById('league').innerHTML=`<thead><tr><th class="n">#</th><th>Town</th><th class="n">Health need<br>(England 100)</th><th>What drives it (England 100)</th><th>Cycle to work: today and Go Dutch</th><th class="n">Health gain score</th><th class="n">Deaths avoided a year</th><th class="n">Health value a year</th></tr></thead><tbody>${
+    lg.slice(0,30).map((t,i)=>`<tr><td class="n">${i+1}</td><td><b>${esc(t.name)}</b><small>${esc(t.area_name)}</small><span class="tier"><i style="background:var(${TIER[t.tier][1]})"></i>${TIER[t.tier][0]}</span></td>
+      <td class="n"><b style="color:var(--${rag(t.need)})">${t.need}</b></td>
+      <td><div class="chips">${Object.keys(M).map(k=>`<span class="chip ${rag(t.ratios[k])}" title="${esc(ML[k])}: ${p1(t[k])}% (England ${p1(E[k])}%)">${M[k]} ${p1(t[k])}%</span>`).join('')}</div></td>
+      <td class="cyc"><div class="bar" aria-label="${p1(t.cycle)}% cycle to work now, ${p1(t.dutch)}% under Go Dutch"><i class="d" style="width:${t.dutch/40*100}%"></i><i class="n" style="width:${t.cycle/40*100}%"></i></div><small>${p1(t.cycle)}% now · ${p1(t.dutch)}% Go Dutch</small></td>
+      <td class="n"><b>${p1(t.score)}</b></td><td class="n">${t.deaths.toFixed(1)}</td><td class="n">£${nf(t.value/1000)}k</td></tr>`).join('')}</tbody>`;
+  // method
+  const P=d.periods;
+  document.getElementById('method').innerHTML=`
+    <p><b>Health need index.</b> Five measures, each as a share of England's level and capped at twice England so no single one swamps the rest, then averaged (100 = England):</p>
+    <ul style="margin:0;padding-left:20px">
+      <li>physically inactive adults, under 30 minutes of activity a week (Active Lives, ${esc(P.inactive)}; England ${p1(E.inactive)}%)</li>
+      <li>adults overweight or obese (${esc(P.overweight)}; England ${p1(E.overweight)}%)</li>
+      <li>diagnosed diabetes, QOF (${esc(P.diabetes)}; England ${p1(E.diabetes)}%)</li>
+      <li>children obese in Year 6, aged 10–11 (National Child Measurement Programme, ${esc(P.child_obese)}; England ${p1(E.child_obese)}%)</li>
+      <li>share of the town's neighbourhoods in England's most deprived fifth for health and disability (IMD 2025; England 20%)</li>
+    </ul>
+    <p>The first three are only published for whole council areas, so every town in a council shares them; child obesity is by neighbourhood (MSOA) and health deprivation by small area (LSOA), so they tell towns within a council apart. Sources: OHID Fingertips and the Ministry of Housing, Communities and Local Government. Raw Census 2021 ill health is not used because it rises with age; the IMD health domain is built from standardised rates.</p>
+    <p><b>Cycling.</b> Cycling to work from the Census 2021, and the Go Dutch scenario from the Propensity to Cycle Tool (2011 commuting patterns), as on the <a href="towns.html">towns page</a>. Health gain score = need ÷ 100 × (Go Dutch − today), in percentage points.</p>
+    <p><b>Deaths avoided and value.</b> The Propensity to Cycle Tool's health estimates by small area (WHO Health Economic Assessment Tool), summed over each town: premature deaths a year avoided, and the value of deaths and sickness avoided, if commuting matched Go Dutch. They count cycling to work only.</p>
+    <p><b>Limits.</b> These are town averages and associations, not proof that cycling would fix any one measure. Council-wide measures blur differences between towns. Inactivity and obesity have many causes, and active travel is one lever among several. This is a first look: next steps could add school travel, age-standardised illness and the routes that would carry the trips.</p>`;
+}).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/health.json (${esc(e.message)})</span></div>`});
+
+function chart(){
+  const el=document.getElementById('chart'),tip=document.getElementById('tip');
+  el.querySelector('svg')?.remove();
+  const T=D.towns.filter(t=>t.need!=null&&(filt==='all'||t.tier!=='hilly'));
+  const W=Math.max(320,el.clientWidth-24),H=Math.round(Math.min(520,Math.max(320,W*.55))),m={l:44,r:16,t:12,b:36};
+  const xmax=14,ymin=60,ymax=Math.max(160,Math.ceil(Math.max(...T.map(t=>t.need))/10)*10);
+  const x=v=>m.l+Math.min(v,xmax)/xmax*(W-m.l-m.r),y=v=>m.t+(ymax-v)/(ymax-ymin)*(H-m.t-m.b),r=t=>Math.max(4,Math.sqrt(t.travel)/14);
+  const gx=[0,2,4,6,8,10,12,14],gy=[];for(let v=ymin;v<=ymax;v+=20)gy.push(v);
+  // label the top of the league, the biggest towns and the benchmarks, best first, skipping any that would collide
+  const want=[...T.filter(t=>t.tier==='bench'),...T.slice().sort((a,b)=>b.score-a.score).slice(0,10),...T.slice().sort((a,b)=>b.travel-a.travel).slice(0,6)];
+  const nm=t=>t.name.replace(/ \(.*\)$/,'').replace('Kingston upon Hull','Hull'),labs=[],seen=new Set();
+  const placed=T.filter(t=>r(t)>9).map(t=>({x:x(t.cycle)-r(t),y:y(t.need)-r(t),w:2*r(t),h:2*r(t)}));   // big dots are obstacles too
+  const hit=b=>placed.some(p=>b.x<p.x+p.w&&b.x+b.w>p.x&&b.y<p.y+p.h&&b.y+b.h>p.y)||b.x<m.l||b.x+b.w>W-m.r;
+  for(const t of want){if(seen.has(t.id))continue;seen.add(t.id);const w=nm(t).length*6.2,cx=x(t.cycle),cy=y(t.need),rr=r(t);
+    for(const [bx,anchor] of [[cx+rr+3,'start'],[cx-rr-3-w,'end']]){const b={x:bx,y:cy-7,w,h:13};if(!hit(b)){placed.push(b);labs.push(`<text class="lab" x="${anchor==='start'?bx:bx+w}" y="${cy+4}" text-anchor="${anchor}">${esc(nm(t))}</text>`);break}}}
+  const svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of health need index against cycling to work for ${T.length} towns">
+    <g class="grid">${gy.map(v=>`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/>`).join('')}</g>
+    <g class="ref"><line x1="${m.l}" x2="${W-m.r}" y1="${y(100)}" y2="${y(100)}"/><text x="${W-m.r}" y="${y(100)-5}" text-anchor="end">England = 100</text></g>
+    <g class="axis">${gx.map(v=>`<text x="${x(v)}" y="${H-m.b+16}" text-anchor="middle">${v}%</text>`).join('')}<text x="${(W+m.l)/2}" y="${H-4}" text-anchor="middle">Cycle to work, Census 2021</text>
+      ${gy.map(v=>`<text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`).join('')}<text transform="translate(11 ${(H-m.b+m.t)/2}) rotate(-90)" text-anchor="middle">Health need</text></g>
+    <g>${T.slice().sort((a,b)=>b.travel-a.travel).map(t=>`<circle data-id="${t.id}" cx="${x(t.cycle)}" cy="${y(t.need)}" r="${r(t)}" fill="var(${TIER[t.tier][1]})" fill-opacity=".85"/>`).join('')}</g>
+    <g>${labs.join('')}</g></svg>`;
+  el.insertAdjacentHTML('beforeend',svg);
+  const show=(c,ev)=>{const t=D.towns.find(z=>z.id===c.dataset.id);el.querySelectorAll('circle.hl').forEach(z=>z.classList.remove('hl'));c.classList.add('hl');
+    tip.innerHTML=`<b>${esc(t.name)}</b>${TIER[t.tier][0]} · ${esc(t.area_name)}<br>Health need ${t.need} (England 100)<br>Cycle to work ${p1(t.cycle)}% now, ${p1(t.dutch)}% Go Dutch<br>Inactive adults ${p1(t.inactive)}% · obese at 10–11 ${p1(t.child_obese)}%`;
+    const b=el.getBoundingClientRect(),cx=ev.clientX-b.left,cy=ev.clientY-b.top;tip.style.display='block';
+    tip.style.left=Math.min(cx+12,b.width-tip.offsetWidth-4)+'px';tip.style.top=Math.max(4,cy-tip.offsetHeight-10)+'px'};
+  el.querySelectorAll('circle').forEach(c=>{c.addEventListener('mousemove',e=>show(c,e));c.addEventListener('click',e=>show(c,e));c.addEventListener('mouseleave',()=>{tip.style.display='none';c.classList.remove('hl')})});
+}
+addEventListener('resize',()=>{if(D)chart()});
+</script>
+</body>
+</html>
