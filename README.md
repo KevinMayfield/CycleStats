@@ -2,7 +2,7 @@
 
 **[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
 
-An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, six views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
+An interactive map of cycling across all of Yorkshire (West, South, East and North, plus Middlesbrough and Redcar), Lincolnshire, Nottinghamshire, Derbyshire and Leicestershire: seventeen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
 |---|---|
@@ -27,14 +27,11 @@ An interactive map of cycling across all of Yorkshire (West, South, East and Nor
 
 | Tab | What it ranks | Source |
 |---|---|---|
-| **Routes** | The 10 longest signed cycle routes, measured inside the area | OpenStreetMap |
-| **Paths** | The 10 longest dedicated cycle paths (cycleways and bike-designated paths) | OpenStreetMap |
-| **Collisions** | The 10 named roads with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1 | DfT STATS19, 2021–2025 |
-| **Risk/rider** | Collisions per million km cycled, using bikes per day × road length | STATS19 + DfT traffic counts |
-| **Safe & busy** | Roads with 150+ bikes a day and the fewest collisions per km cycled | STATS19 + DfT traffic counts |
+| **Routes & paths** | The 10 longest signed cycle routes and the 10 longest dedicated cycle paths (cycleways and bike-designated paths), measured inside the area | OpenStreetMap |
+| **Safety** | Where cyclists are hurt and safer alternatives, on one map: the most dangerous roads (the 10 with the most cycle collisions, weighted fatal ×10, serious ×3, slight ×1, merged with the 10 with the most collisions per million km cycled), the roads with 150+ bikes a day and the fewest collisions per km cycled, cycle paths, and every collision | DfT STATS19 2021–2025 + DfT traffic counts + OpenStreetMap |
 | **Bike counts** | Leeds: every council automatic counter, including off-road paths. Other areas: the busiest DfT count points | Leeds City Council / DfT |
 
-The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Collisions and Risk/rider tabs say what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
+The **Neighbourhoods** layer shades each LSOA (about 1,500 residents) by its English Indices of Deprivation 2025 decile, its Indoors sub-domain decile (housing in poor condition) or the share of households with no car (Census 2021). The Safety tab says what share of cycle collisions happened in the most deprived fifth of neighbourhoods, and each listed road shows the deprivation decile where it runs.
 
 **Live site:** https://kevinmayfield.github.io/CycleStats/ (link to an area with `?area=` and its id from `pipeline/areas.json`, for example `?area=bradford`)
 

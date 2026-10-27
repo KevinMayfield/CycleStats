@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Cycle routes, cycle paths, collision hotspots, risk per rider and bike counts on one interactive map.">
+<meta name="description" content="Cycle routes and paths, where cyclists are hurt and safer alternatives, and bike counts on one interactive map.">
 <title>CycleStats area maps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -45,9 +45,11 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .tabs{display:flex;flex-wrap:wrap;gap:2px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;border-bottom:1px solid var(--line)}
 .tab{flex:1 0 auto;white-space:nowrap;font:600 14px/1.1 var(--display);letter-spacing:.01em;padding:11px 7px 10px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.tab[data-k="danger"][aria-selected="true"],.tab[data-k="risk"][aria-selected="true"]{border-bottom-color:var(--danger)}
-.tab[data-k="safe"][aria-selected="true"]{border-bottom-color:var(--safe)}
-.list.safe .item:hover,.list.safe .item.on{background:var(--safe-soft)}
+.tab[data-k="danger"][aria-selected="true"]{border-bottom-color:var(--danger)}
+.list.danger .item.good:hover,.list.danger .item.good.on{background:var(--safe-soft)}
+.sec{font:700 16px/1.2 var(--display);margin:12px 12px 2px;display:flex;gap:8px;align-items:center}
+.sec i{width:18px;height:5px;border-radius:2px;flex:none}
+.sec+.blurb{padding-top:2px}
 .tab[data-k="counts"][aria-selected="true"]{border-bottom-color:var(--count)}
 .list.counts .item:hover,.list.counts .item.on{background:var(--count-soft)}
 .use{font-family:var(--mono);font-size:11.5px;color:var(--ink);margin-top:4px}
@@ -59,7 +61,7 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
 .item{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:start;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:9px 10px;color:inherit;font:inherit;cursor:pointer}
 .item:hover{background:var(--accent-soft)}
 .item.on{background:var(--accent-soft)}
-.list.danger .item:hover,.list.danger .item.on,.list.risk .item:hover,.list.risk .item.on{background:var(--danger-soft)}
+.list.danger .item:hover,.list.danger .item.on{background:var(--danger-soft)}
 .rank{font:700 15px/26px var(--display);width:26px;height:26px;border-radius:50%;text-align:center;color:#fff}
 .nm{font-weight:600;font-size:14px;line-height:1.3}
 .sub{font-size:12px;color:var(--muted);margin-top:2px}
@@ -121,11 +123,8 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;ma
       <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="summary.html">All-area summary</a> <a class="sumlink" href="priorities.html">Where to build</a> <a class="sumlink" href="towns.html">Where Dutch infrastructure should work</a> <a class="sumlink" href="health.html">Health and active travel</a> <a class="sumlink" href="danelaw.html">Danelaw Cycle Network</a></div>
     </div>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes</button>
-      <button class="tab" role="tab" id="tab-paths" data-k="paths" aria-selected="false">Paths</button>
-      <button class="tab" role="tab" id="tab-danger" data-k="danger" aria-selected="false">Collisions</button>
-      <button class="tab" role="tab" id="tab-risk" data-k="risk" aria-selected="false">Risk/rider</button>
-      <button class="tab" role="tab" id="tab-safe" data-k="safe" aria-selected="false">Safe &amp; busy</button>
+      <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes &amp; paths</button>
+      <button class="tab" role="tab" id="tab-danger" data-k="danger" aria-selected="false">Safety</button>
       <button class="tab" role="tab" id="tab-counts" data-k="counts" aria-selected="false">Bike counts</button>
       <button class="tab" role="tab" id="tab-towns" data-k="towns" aria-selected="false">Towns</button>
       <button class="tab" role="tab" id="tab-health" data-k="health" aria-selected="false">Health</button>
@@ -145,11 +144,12 @@ const PAL=['#2f6fd6','#e0752d','#1f9d74','#a24bc9','#d23a6c','#6b8e23','#0aa2c0'
 const SAFE=['#0b5e33','#0f6b3b','#137843','#18854b','#1d8a4e','#2b975a','#3aa367','#4aae74','#5bb981','#6cc38e'];
 const DANGER=['#8e1a14','#a4231c','#b52b22','#c3322b','#cd4a33','#d6603c','#de7546','#e58a52','#ea9d60','#eeae70'];
 const BLURB={
-  routes:'Signed, waymarked cycle routes from OpenStreetMap, ranked by how many kilometres run '+M.in+'. Routes share some streets, so lines can overlap.',
-  paths:'Dedicated cycle paths (cycleways and bike-designated paths), joined up by name and ranked by length. Unnamed tracks alongside a road take that road’s name.',
-  danger:'Named roads ranked by injury collisions involving a bicycle, weighted fatal ×10, serious ×3, slight ×1. Dots show every recorded cycle collision '+M.in+'. Police-reported collisions only, so off-road paths are not covered. Busy roads rank high partly because more people cycle on them: see Risk per rider.',
-  risk:'The same collisions divided by how much cycling happens there: collisions per million km cycled, using DfT traffic count bikes per day (2021–25 average) × road length. Only roads with 5+ collisions and a DfT cycle count are ranked. Diamonds mark the count points. Counts are often single-day manual counts carried forward, so treat the order as indicative.',
-  safe:'Well-used roads ('+(M.safe_min||150)+'+ bikes a day on DfT counts) with the fewest cycle collisions per million km cycled, 2021–25. Low collision numbers swing easily, so read this as a shortlist. Off-road paths like the canal towpath have no DfT counts and police data does not cover them, so they cannot be ranked here. For off-road usage see Bike counts.',
+  routes:'Signed, waymarked cycle routes and dedicated cycle paths from OpenStreetMap, measured '+M.in+'. Routes share some streets, so lines can overlap.',
+  route_sec:'Ranked by how many kilometres run '+M.in+'.',
+  path_sec:'Cycleways and bike-designated paths, joined up by name and ranked by length. Unnamed tracks alongside a road take that road’s name.',
+  danger:'Where cyclists are getting hurt '+M.in+', and busy roads nearby that are safer. Dots show every police-reported cycle collision, 2021–25; dashed lines are cycle paths, an alternative where one runs the same way. Off-road paths are not covered by police data.',
+  bad_sec:'Roads with the most injury collisions involving a bicycle (fatal ×10, serious ×3, slight ×1), and roads with the most collisions for the cycling on them (per million km cycled, using DfT bikes a day; roads with 5+ collisions and a DfT count). Busy roads rank high on the first partly because more people cycle there.',
+  good_sec:'Well-used roads ('+(M.safe_min||150)+'+ bikes a day on DfT counts) with the fewest cycle collisions per million km cycled. Low numbers swing easily, so read this as a shortlist. Counts are often single-day manual counts, so treat both rankings as indicative.',
   counts:M.counts_blurb,
   towns:'Flat and gently sloping towns '+M.in+', ranked by how many more people would cycle to work if they matched Hull and York. These are the places Dutch-style routes are most likely to work. <a href="towns.html">Where Dutch infrastructure should work</a> has each town’s suggested roads.',
   health:'The same towns ranked by where more cycling would do most for health: a health need index (inactivity, overweight, diabetes, child obesity and health deprivation against England, 100 = England) times the room for cycling to grow. <a href="health.html">Health and active travel</a> explains the method.'
@@ -183,21 +183,31 @@ function lbls(){map.getZoom()>=12.5?subs.addTo(map):subs.remove()}
 map.on('zoomend',lbls);
 // layers per tab
 const fmt=(n,d=1)=>n.toFixed(d);
-const groups={routes:L.featureGroup(),paths:L.featureGroup(),danger:L.featureGroup(),risk:L.featureGroup(),safe:L.featureGroup(),counts:L.featureGroup(),towns:L.featureGroup(),health:L.featureGroup()};
-const feats={routes:[],paths:[],danger:[],risk:[],safe:[],counts:[],towns:[],health:[]};
-['routes','paths'].forEach(k=>{
-  DATA[k].forEach((r,i)=>{
-    const fg=L.featureGroup();
-    r.geom.forEach(g=>{
-      L.polyline(g,{color:'#fff',weight:7,opacity:.0001,interactive:true}).addTo(fg); // fat hit target
-      L.polyline(g,{color:PAL[i],weight:k==='routes'?3.6:4,opacity:.92,lineCap:'round'}).addTo(fg);
-    });
-    fg.bindTooltip(`<b>${i+1}. ${r.name}</b><br>${fmt(r.km)} km ${M.in}`,{sticky:true,className:'tt'});
-    fg.on('click',()=>select(k,i,false));
-    fg.addTo(groups[k]);feats[k].push(fg);
+const groups={routes:L.featureGroup(),danger:L.featureGroup(),counts:L.featureGroup(),towns:L.featureGroup(),health:L.featureGroup()};
+const feats={routes:[],danger:[],counts:[],towns:[],health:[]};
+// one list per tab, in sections: routes then paths; dangerous roads (most collisions, and most per km cycled, merged
+// where they are the same road) then the busy roads with fewest collisions, as alternatives. _j is the rank in a section
+const ROWS={routes:[...DATA.routes.map((r,j)=>({...r,_k:'route',_j:j})),...DATA.paths.map((r,j)=>({...r,_k:'path',_j:j}))]};
+const bad=DATA.danger.map((d,i)=>({...d,_k:'bad',top:i+1}));
+DATA.risk.forEach((d,i)=>{const m=bad.find(b=>b.name===d.name&&(b.ref||'')===(d.ref||''));
+  if(m){m.riskTop=i+1;if(m.aadf==null){m.aadf=d.aadf;m.rate=d.rate;m.match=d.match}}else bad.push({...d,_k:'bad',riskTop:i+1})});
+bad.sort((a,b)=>b.score-a.score).forEach((d,j)=>d._j=j);
+ROWS.danger=[...bad,...DATA.safe.map((d,j)=>({...d,_k:'good',_j:j}))];
+// routes skip PAL's greens: green is kept for cycle paths
+const RPAL=['#2f6fd6','#e0752d','#a24bc9','#d23a6c','#0aa2c0','#b8860b','#5b5bd6','#c2532d','#8a5a44','#5d7a8c'];
+const colOf=r=>r._k==='route'?RPAL[r._j%10]:r._k==='path'?css('--offroad'):r._k==='good'?SAFE[r._j%10]:DANGER[Math.min(r._j,9)];
+const baseW=r=>r._k==='route'?3.6:r._k==='path'?4:6;
+ROWS.routes.forEach((r,i)=>{
+  const fg=L.featureGroup();
+  r.geom.forEach(g=>{
+    L.polyline(g,{color:'#fff',weight:7,opacity:.0001,interactive:true}).addTo(fg); // fat hit target
+    L.polyline(g,{color:colOf(r),weight:baseW(r),opacity:.92,lineCap:'round'}).addTo(fg);
   });
+  fg.bindTooltip(`<b>${r._k==='route'?'Route':'Path'} ${r._j+1}. ${r.name}</b><br>${fmt(r.km)} km ${M.in}`,{sticky:true,className:'tt'});
+  fg.on('click',()=>select('routes',i,false));
+  fg.addTo(groups.routes);feats.routes.push(fg);
 });
-// all collision dots (context for danger tab)
+// all collision dots (context for the safety tab)
 const allDots=L.layerGroup();
 const SEVC=()=>({1:css('--danger'),2:css('--amber'),3:css('--muted')});
 function drawDots(){
@@ -206,26 +216,28 @@ function drawDots(){
 }
 drawDots();
 const useTxt=d=>d.aadf==null?'No DfT cycle count on this road':`~${d.aadf} bikes/day · ${d.rate} per million km cycled`;
-const colOf=(k,i)=>k==='safe'?SAFE[i]:k==='danger'||k==='risk'?DANGER[i]:PAL[i];
-['danger','risk','safe'].forEach(k=>{
-  const dots=L.layerGroup().addTo(groups[k]);groups[k].on('add',()=>allDots.addTo(dots));
+{
+  const dots=L.layerGroup().addTo(groups.danger);groups.danger.on('add',()=>allDots.addTo(dots));
+  // cycle paths underneath the roads: off-road alternatives
+  DATA.paths.forEach(p=>p.geom.forEach(g=>L.polyline(g,{color:css('--accent'),weight:3,opacity:.7,dashArray:'2 6',lineCap:'round'})
+    .bindTooltip(`<b>Cycle path: ${p.name}</b><br>${fmt(p.km)} km · ${p.kind}`,{sticky:true,className:'tt'}).addTo(groups.danger)));
   const cps=new Set();
-  DATA[k].forEach((d,i)=>{
+  ROWS.danger.forEach((d,i)=>{
     const fg=L.featureGroup();
     d.geom.forEach(g=>{
       L.polyline(g,{color:'#000',weight:12,opacity:.0001}).addTo(fg);
-      L.polyline(g,{color:colOf(k,i),weight:6,opacity:.85,lineCap:'round'}).addTo(fg);
+      L.polyline(g,{color:colOf(d),weight:6,opacity:.85,lineCap:'round'}).addTo(fg);
     });
-    fg.bindTooltip(`<b>${i+1}. ${d.name}${d.ref?' ('+d.ref+')':''}</b><br>${d.n} cycle collisions · ${d.ksi} killed/serious<br>${useTxt(d)}`,{sticky:true,className:'tt'});
-    fg.on('click',()=>select(k,i,false));
-    fg.addTo(groups[k]);feats[k].push(fg);
+    fg.bindTooltip(`<b>${d._k==='good'?'Safer busy road':'Dangerous road'} ${d._j+1}. ${d.name}${d.ref?' ('+d.ref+')':''}</b><br>${d.n} cycle collisions · ${d.ksi} killed/serious<br>${useTxt(d)}`,{sticky:true,className:'tt'});
+    fg.on('click',()=>select('danger',i,false));
+    fg.addTo(groups.danger);feats.danger.push(fg);
     (d.cp_pts||[]).forEach(([la,lo,v,id])=>{
       if(cps.has(id))return;cps.add(id);
       L.marker([la,lo],{pane:'lbl',icon:L.divIcon({className:'',html:'<div class="cp"></div>',iconSize:[0,0]})})
-        .bindTooltip(`DfT count point ${id}<br><b>${v} bikes/day</b> (2021–25 average)`,{className:'tt'}).addTo(groups[k]);
+        .bindTooltip(`DfT count point ${id}<br><b>${v} bikes/day</b> (2021–25 average)`,{className:'tt'}).addTo(groups.danger);
     });
   });
-});
+}
 // bike counters
 const cmax=Math.max(...DATA.counts.map(c=>c.avg));
 function drawCounts(){
@@ -245,29 +257,34 @@ function render(k){
   list.className='list '+k;
   if(k==='counts') return renderCounts();
   if(k==='towns'||k==='health') return renderTownTab(k);
-  const hurt=k==='danger'||k==='risk'||k==='safe',val=r=>k==='danger'?r.score:k==='risk'?r.rate:k==='safe'?r.aadf:r.km;
-  const rows=DATA[k],mx=Math.max(...rows.map(val));
-  let h=`<p class="blurb">${BLURB[k]}</p>`+((k==='danger'||k==='risk')&&M.dep?depStat():'');
-  if(!rows.length) h+=`<p class="blurb"><b>${{risk:'No road here has both 5+ cycle collisions and a DfT cycle count, so none can be ranked.',safe:'No road here has a DfT cycle count high enough to rank.'}[k]||'Nothing to rank here.'}</b></p>`;
-  rows.forEach((r,i)=>{
-    const col=colOf(k,i);
-    let sub,fig,chips='';
-    if(k==='routes'){sub=[r.ref&&r.ref!==r.name?r.ref:null,{ncn:'National Cycle Network',rcn:'Regional route',lcn:'Local route'}[r.network]].filter(Boolean).join(' · ');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
-    else if(k==='paths'){sub=r.kind+(r.segregated==='yes'?' · segregated from walkers':'');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
-    else{sub=`${r.ref?r.ref+' · ':''}${fmt(r.km,1)} km stretch`;
-      fig=k==='risk'?`${fmt(r.rate)}<small>PER M KM</small>`:k==='safe'?`${r.aadf}<small>BIKES/DAY</small>`:`${r.n}<small>COLLISIONS</small>`;
-      const use=r.aadf==null?'<em>No DfT cycle count on this road</em>'
-        :`~${r.aadf} bikes/day${k==='risk'?` · ${r.n} collisions`:` · ${fmt(r.rate)} per M km`}${r.match!=='on road'?` <em>(count ${r.match})</em>`:''}`;
-      chips=`<div class="use">${use}</div><div class="chips">${r.fatal?`<span class="chip k">${r.fatal} fatal</span>`:''}<span class="chip">${r.serious} serious</span><span class="chip">${r.n-r.fatal-r.serious} slight</span>${depChips(r)}</div>`;}
-    const v=val(r);
-    h+=`<button class="item" id="it-${k}-${i}" data-i="${i}"><span class="rank" style="background:${col}">${i+1}</span><span style="min-width:0"><div class="nm">${r.name}</div><div class="sub">${sub}</div>${chips}<div class="bar"><i style="width:${(v/mx*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${fig}</span></button>`;
+  const rows=ROWS[k],hurt=k==='danger';
+  const SECS=k==='routes'?[['route','Signed cycle routes',BLURB.route_sec],['path','Cycle paths',BLURB.path_sec]]
+    :[['bad','Most dangerous roads',BLURB.bad_sec],['good','Safer busy roads: alternatives',BLURB.good_sec]];
+  const EMPTY={route:'No signed cycle routes here.',path:'No named cycle paths here.',bad:'No road here has enough cycle collisions to rank.',good:'No road here has a DfT cycle count high enough to rank.'};
+  let h=`<p class="blurb">${BLURB[k]}</p>`+(hurt&&M.dep?depStat():'');
+  SECS.forEach(([sk,title,blurb])=>{
+    const part=rows.map((r,i)=>[r,i]).filter(([r])=>r._k===sk),val=r=>sk==='bad'?r.score:sk==='good'?r.aadf:r.km,mx=Math.max(1,...part.map(([r])=>val(r)));
+    h+=`<div class="sec"><i style="background:${part.length?colOf(part[0][0]):'var(--line)'}"></i>${title}</div><p class="blurb">${blurb}</p>`;
+    if(!part.length) h+=`<p class="blurb"><b>${EMPTY[sk]}</b></p>`;
+    part.forEach(([r,i])=>{
+      const col=colOf(r);let sub,fig,chips='';
+      if(sk==='route'){sub=[r.ref&&r.ref!==r.name?r.ref:null,{ncn:'National Cycle Network',rcn:'Regional route',lcn:'Local route'}[r.network]].filter(Boolean).join(' · ');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
+      else if(sk==='path'){sub=r.kind+(r.segregated==='yes'?' · segregated from walkers':'');fig=`${fmt(r.km)}<small>KM</small>`;chips=cnt(r);}
+      else{sub=`${r.ref?r.ref+' · ':''}${fmt(r.km,1)} km stretch`;
+        fig=sk==='good'?`${r.aadf}<small>BIKES/DAY</small>`:`${r.n}<small>COLLISIONS</small>`;
+        const use=r.aadf==null?'<em>No DfT cycle count on this road</em>'
+          :`~${r.aadf} bikes/day · ${fmt(r.rate)} per million km cycled${r.match!=='on road'?` <em>(count ${r.match})</em>`:''}`;
+        const why=sk==='bad'?(r.top?`<span class="chip" style="background:var(--danger-soft);color:var(--danger)">#${r.top} for collisions</span>`:'')+(r.riskTop?`<span class="chip" style="background:var(--danger-soft);color:var(--danger)">#${r.riskTop} per km cycled</span>`:''):'';
+        chips=`<div class="use">${use}</div><div class="chips">${why}${r.fatal?`<span class="chip k">${r.fatal} fatal</span>`:''}<span class="chip">${r.serious} serious</span><span class="chip">${r.n-r.fatal-r.serious} slight</span>${depChips(r)}</div>`;}
+      h+=`<button class="item ${r._k}" id="it-${k}-${i}" data-i="${i}"><span class="rank" style="background:${col}">${r._j+1}</span><span style="min-width:0"><div class="nm">${r.name}</div><div class="sub">${sub}</div>${chips}<div class="bar"><i style="width:${(val(r)/mx*100).toFixed(1)}%;background:${col}"></i></div></span><span class="fig">${fig}</span></button>`;
+    });
   });
   list.innerHTML=h;
   list.querySelectorAll('.item').forEach(b=>b.onclick=()=>select(k,+b.dataset.i,true));
   const s=DATA.stats;
   legend.innerHTML=hurt
-    ?`<div class="r"><span class="sw" style="background:${colOf(k,0)}"></span>${k==='safe'?'Top 10 road (darker = safer)':'Top 10 road (darker = worse)'}</div><div class="r"><span class="dot" style="background:var(--accent);border-radius:1px;transform:rotate(45deg);width:8px;height:8px"></span>DfT cycle count point</div><div class="r"><span class="dot" style="background:var(--danger)"></span>Fatal (${s.fatal})</div><div class="r"><span class="dot" style="background:var(--amber)"></span>Serious (${s.serious})</div><div class="r"><span class="dot" style="background:var(--muted)"></span>Slight (${s.n-s.fatal-s.serious})</div><div class="r" style="color:var(--muted)">${s.n.toLocaleString()} cycle collisions, 2021–25</div>`
-    :`<div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
+    ?`<div class="r"><span class="sw" style="background:${DANGER[0]}"></span>Dangerous road (darker = worse)</div><div class="r"><span class="sw" style="background:${SAFE[0]}"></span>Safer busy road</div><div class="r"><span class="sw" style="border-top:3px dotted var(--accent);height:0"></span>Cycle path</div><div class="r"><span class="dot" style="background:var(--accent);border-radius:1px;transform:rotate(45deg);width:8px;height:8px"></span>DfT cycle count point</div><div class="r"><span class="dot" style="background:var(--danger)"></span>Fatal (${s.fatal})</div><div class="r"><span class="dot" style="background:var(--amber)"></span>Serious (${s.serious})</div><div class="r"><span class="dot" style="background:var(--muted)"></span>Slight (${s.n-s.fatal-s.serious})</div><div class="r" style="color:var(--muted)">${s.n.toLocaleString()} cycle collisions, 2021–25</div>`
+    :`<div class="r"><span class="sw" style="background:linear-gradient(90deg,${RPAL.slice(0,4).join(',')})"></span>Signed route (each its own colour)</div><div class="r"><span class="sw" style="background:var(--offroad)"></span>Cycle path</div><div class="r"><span class="sw" style="background:var(--road-major)"></span>Main roads</div><div class="r"><span class="sw" style="background:var(--water)"></span>${M.water_label}</div><div class="r"><span class="sw" style="border-top:1.5px dashed var(--muted);height:0"></span>${M.boundary_label}</div>`;
   legend.innerHTML+=nbhLegend();
 }
 // --- neighbourhood layer: IMD 2025 deciles, Indoors (housing condition) deciles, Census 2021 households with no car ---
@@ -399,16 +416,15 @@ function setTab(k){
   render(k);
   try{localStorage.setItem('leedsTab',k)}catch(e){}
   if(location.hash.slice(1)!==k) history.replaceState(null,'','#'+k);
-  const b=k==='counts'||k==='towns'||k==='health'?groups[k].getBounds():L.latLngBounds(DATA[k].flatMap(d=>d.geom.flat()));
+  const b=ROWS[k]?L.latLngBounds(ROWS[k].flatMap(d=>d.geom.flat())):groups[k].getBounds();
   fit(b.isValid()?b:L.latLngBounds(DATA.boundary.flat()),{padding:[24,24]});
 }
 function select(k,i,zoom){
   if(k!==cur) setTab(k);
   sel=sel===i&&zoom?null:i;
-  const hurt=k==='danger'||k==='risk'||k==='safe';
   if(k==='counts') feats.counts.forEach((fg,j)=>fg.eachLayer(l=>l.setStyle({fillOpacity:sel==null||sel===j?.85:.2})));
   else if(k==='towns'||k==='health') feats[k].forEach((fg,j)=>fg.eachLayer(l=>l.setStyle({fillOpacity:sel==null||sel===j?.55:.12,opacity:sel==null||sel===j?.9:.3,weight:sel===j?3:1.5})));
-  else feats[k].forEach((fg,j)=>fg.eachLayer(l=>{if(l.options.opacity>.01)l.setStyle({opacity:sel==null||sel===j?.92:.18,weight:(sel===j?(hurt?8:6):(hurt?6:k==='routes'?3.6:4))})}));
+  else feats[k].forEach((fg,j)=>fg.eachLayer(l=>{if(l.options.opacity>.01)l.setStyle({opacity:sel==null||sel===j?.92:.18,weight:baseW(ROWS[k][j])+(sel===j?2:0)})}));
   if(sel!=null) feats[k][sel].bringToFront();
   list.querySelectorAll('.item').forEach(b=>b.classList.toggle('on',+b.dataset.i===sel));
   if(sel!=null){
@@ -421,8 +437,10 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.k));
 function retheme(){drawCtx();drawDots();drawCounts();drawNbh();}
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',retheme);
 new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-let start=location.hash.slice(1);
-if(!groups[start]){try{start=localStorage.getItem('leedsTab')}catch(e){}}
+// tabs merged in Oct 2026: old links and remembered tabs go to the tab that now holds them
+const ALIAS={paths:'routes',risk:'danger',safe:'danger'},tab=t=>ALIAS[t]||t;
+let start=tab(location.hash.slice(1));
+if(!groups[start]){try{start=tab(localStorage.getItem('leedsTab'))}catch(e){}}
 setTab(groups[start]?start:'routes');lbls();
 }
 // area: ?area= in the link, else the last one viewed, else Leeds
