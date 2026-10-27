@@ -1,6 +1,6 @@
 """The Danelaw Way: a long-distance route from Derby to York along the rivers of the Danelaw, with the Lindsey Ridings
 (Torksey to Howden by Lincoln, Grimsby and the Humber), variants from Leicester down the Soar and from Leeds down the Aire, and a coast route from Leicester by
-Stamford, the Wash, Skegness and the Lincolnshire Wolds. Writes data/danelaw.json for danelaw.html.
+Stamford, the Wash, Skegness and the Lincolnshire coast to the Humber. Writes data/danelaw.json for danelaw.html.
 
 Each stage is routed with BRouter's touring profile ('trekking') through hand-picked villages on one bank of the
 river, so it follows the river without crossing back and forth or wandering off along signed routes between
@@ -24,7 +24,10 @@ AREAS = ['rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolns
 
 # routes, stages and legs. Points are (name, lat, lon); link legs may add via points after the end point.
 ROUTES = [
-    dict(id='main', name='The Danelaw Way', sub='Derby to York', stages=[
+    dict(id='main', name='The Danelaw Way', sub='Repton to Stamford Bridge', stages=[
+        dict(name='Repton to Derby', note='From the Great Army camp at Repton past the Viking cemetery at Heath Wood, over the Trent at Swarkestone Bridge', pts=[
+            ('Repton', 52.8390, -1.5500), ('Ingleby', 52.8290, -1.4950), ('Swarkestone', 52.8530, -1.4520), ('Chellaston', 52.8700, -1.4400),
+            ('Derby', 52.9255, -1.4740)]),
         dict(name='Derby to Long Eaton', note='Down the Derwent valley to the Trent', pts=[
             ('Derby', 52.9255, -1.4740), ('Borrowash', 52.9050, -1.3830), ('Draycott', 52.8950, -1.3350), ('Long Eaton', 52.8980, -1.2710)]),
         dict(name='Long Eaton to Newark', note='Down the Trent past Nottingham', pts=[
@@ -45,6 +48,8 @@ ROUTES = [
         dict(name='Selby to York', note='Up the Ouse past Riccall and Fulford to Jorvik', pts=[
             ('Selby', 53.7840, -1.0670), ('Riccall', 53.8330, -1.0590), ('Naburn', 53.9135, -1.0875), ('Fulford', 53.9370, -1.0710),
             ('York', 53.9620, -1.0815)]),
+        dict(name='York to Stamford Bridge', note='East from Jorvik to the battlefield of 1066', pts=[
+            ('York', 53.9620, -1.0815), ('Osbaldwick', 53.9600, -1.0300), ('Dunnington', 53.9650, -0.9850), ('Stamford Bridge', 53.9920, -0.9140)]),
     ]),
     dict(id='lincoln', name='The Lindsey Ridings', sub='Torksey to Howden through Lindsey, by Lincoln, Grimsby and the Humber', joins='Torksey and Howden', stages=[
         dict(name='Torksey to Lincoln', note='Along the Fossdyke, the Roman canal, into Lincoln', pts=[
@@ -59,21 +64,12 @@ ROUTES = [
             ('Barton-upon-Humber', 53.6840, -0.4390), ('Hessle', 53.7230, -0.4380), ('North Ferriby', 53.7210, -0.5040), ('Brough', 53.7290, -0.5720),
             ('Howden', 53.7450, -0.8680)]),
     ]),
-    dict(id='repton', name='Repton extension', sub='Derby to Repton by Heath Wood', joins='Derby', stages=[
-        dict(name='Derby to Repton', note='Over the Trent at Swarkestone Bridge to the Viking cemetery at Heath Wood and the Great Army camp at Repton', pts=[
-            ('Derby', 52.9255, -1.4740), ('Chellaston', 52.8700, -1.4400), ('Swarkestone', 52.8530, -1.4520), ('Ingleby', 52.8290, -1.4950),
-            ('Repton', 52.8390, -1.5500)]),
-    ]),
-    dict(id='stamfordbridge', name='Stamford Bridge extension', sub='York to Stamford Bridge', joins='York', stages=[
-        dict(name='York to Stamford Bridge', note='East from Jorvik to the battlefield of 1066', pts=[
-            ('York', 53.9620, -1.0815), ('Osbaldwick', 53.9600, -1.0300), ('Dunnington', 53.9650, -0.9850), ('Stamford Bridge', 53.9920, -0.9140)]),
-    ]),
     dict(id='soar', name='Soar variant', sub='Leicester to Long Eaton', joins='Long Eaton', stages=[
         dict(name='Leicester to Long Eaton', note='Down the Soar from Leicester, one of the Five Boroughs, to the Trent', pts=[
             ('Leicester', 52.6340, -1.1430), ('Birstall', 52.6760, -1.1200), ('Barrow upon Soar', 52.7530, -1.1500), ('Loughborough', 52.7720, -1.2050),
             ('Normanton on Soar', 52.8050, -1.2400), ('Kegworth', 52.8330, -1.2740), ('Long Eaton', 52.8980, -1.2710)]),
     ]),
-    dict(id='coast', name='Coast route', sub='Leicester to Barton-upon-Humber by the Wash and the Wolds', joins='Barton-upon-Humber', stages=[
+    dict(id='coast', name='Coast route', sub='Leicester to Barton-upon-Humber by the Wash and the Lincolnshire coast', joins='Barton-upon-Humber', stages=[
         dict(name='Leicester to Stamford', note='East through Oakham and round Rutland Water to Stamford, the fifth of the Five Boroughs', pts=[
             ('Leicester', 52.6340, -1.1430), ('Houghton on the Hill', 52.6240, -1.0130), ('Oakham', 52.6700, -0.7280), ('Manton', 52.6330, -0.6850),
             ('Edith Weston', 52.6380, -0.6250), ('Empingham', 52.6680, -0.5960), ('Stamford', 52.6530, -0.4800)]),
@@ -83,12 +79,26 @@ ROUTES = [
         dict(name='Round the Wash to Wainfleet', note='By Boston and the sea banks at Freiston Shore', pts=[
             ('Fosdyke', 52.8745, -0.0450), ('Kirton', 52.9250, -0.0650), ('Boston', 52.9760, -0.0250), ('Freiston Shore', 52.9620, 0.0850),
             ('Wrangle', 53.0380, 0.1170), ('Wainfleet', 53.1060, 0.2340)]),
-        dict(name='Wainfleet to Alford', note='Along the coast by Gibraltar Point to Skegness, then inland', pts=[
-            ('Wainfleet', 53.1060, 0.2340), ('Gibraltar Point', 53.1030, 0.3300), ('Skegness', 53.1440, 0.3390), ('Alford', 53.2610, 0.1780)]),
-        dict(name='Alford to Tealby', note='Into the Lincolnshire Wolds by Louth', pts=[
-            ('Alford', 53.2610, 0.1780), ('Louth', 53.3660, -0.0060), ('Tealby', 53.4020, -0.2600)]),
-        dict(name='Tealby to Barton-upon-Humber', note='Along the Wolds by Caistor to the Humber, close to the Viking Way footpath', pts=[
-            ('Tealby', 53.4020, -0.2600), ('Caistor', 53.4970, -0.3180), ('Barton-upon-Humber', 53.6840, -0.4390)]),
+        dict(name='Wainfleet to Mablethorpe', note='By Gibraltar Point and Skegness, then north along the coast by Ingoldmells and Sutton on Sea', pts=[
+            ('Wainfleet', 53.1060, 0.2340), ('Gibraltar Point', 53.1030, 0.3300), ('Skegness', 53.1440, 0.3390), ('Ingoldmells', 53.1920, 0.3410),
+            ('Chapel St Leonards', 53.2240, 0.3360), ('Sutton on Sea', 53.3110, 0.2830), ('Mablethorpe', 53.3410, 0.2610)]),
+        dict(name='Mablethorpe to Cleethorpes', note='Along the marsh coast by Saltfleet and Donna Nook to the mouth of the Humber', pts=[
+            ('Mablethorpe', 53.3410, 0.2610), ('Theddlethorpe', 53.3650, 0.2290), ('Saltfleet', 53.4210, 0.1780), ('North Somercotes', 53.4510, 0.1380),
+            ('Tetney', 53.4910, -0.0170), ('Humberston', 53.5320, -0.0300), ('Cleethorpes', 53.5600, -0.0290)]),
+        dict(name='Cleethorpes to Barton-upon-Humber', note='Through Grimsby and along the south bank of the Humber by Immingham and Goxhill', pts=[
+            ('Cleethorpes', 53.5600, -0.0290), ('Grimsby', 53.5670, -0.0810), ('Stallingborough', 53.5880, -0.1880), ('Immingham', 53.6120, -0.2180),
+            ('East Halton', 53.6550, -0.3100), ('Goxhill', 53.6760, -0.3360), ('Barrow upon Humber', 53.6780, -0.3830), ('Barton-upon-Humber', 53.6840, -0.4390)]),
+    ]),
+    dict(id='skegness', name='Skegness route', sub='Newark to Skegness by Lincoln, the Witham and Woodhall Spa, keeping to the low ground', joins='Newark, a day from Nottingham along the Trent', stages=[
+        dict(name='Newark to Lincoln', note='Across the flat Brant and Witham valleys by Bassingham, avoiding the Lincoln Edge', pts=[
+            ('Newark', 53.0770, -0.8130), ('Coddington', 53.0820, -0.7580), ('Stapleford', 53.0950, -0.7020), ('Bassingham', 53.1290, -0.6350),
+            ('Aubourn', 53.1750, -0.5960), ('North Hykeham', 53.1840, -0.5800), ('Lincoln', 53.2307, -0.5406)]),
+        dict(name='Lincoln to Woodhall Spa', note='Down the Witham by the Water Rail Way, past Bardney Abbey', pts=[
+            ('Lincoln', 53.2307, -0.5406), ('Washingborough', 53.2260, -0.4810), ('Bardney', 53.2080, -0.3390), ('Southrey', 53.1890, -0.2880),
+            ('Stixwould', 53.1700, -0.2420), ('Woodhall Spa', 53.1530, -0.2180)]),
+        dict(name='Woodhall Spa to Skegness', note='Across the East Fen below the southern end of the Wolds, to the sea', pts=[
+            ('Woodhall Spa', 53.1530, -0.2180), ('Tattershall', 53.1000, -0.1920), ('Coningsby', 53.1070, -0.1720), ('New Bolingbroke', 53.1080, -0.0450),
+            ('Stickney', 53.0980, 0.0060), ('Firsby', 53.1690, 0.1690), ('Burgh le Marsh', 53.1610, 0.2450), ('Skegness', 53.1440, 0.3390)]),
     ]),
     dict(id='aire', name='Aire variant', sub='Leeds to the Ouse', joins='Airmyn, on the Ouse near Howden', stages=[
         dict(name='Leeds to Castleford', note='Down the Aire and the Aire and Calder Navigation', pts=[
@@ -101,8 +111,8 @@ ROUTES = [
 
 SITES = [
     dict(name='Leicester', lat=52.6340, lon=-1.1430, on='soar', text='One of the Five Boroughs of the Danelaw, and the start of the Soar variant. Æthelflæd of Mercia took it back from the Danes in 918.'),
-    dict(name='Heath Wood, Ingleby', lat=52.8270, lon=-1.5070, on='repton', text='The only known Viking cremation cemetery in Britain: around 60 barrows in the wood above the Trent, on the Repton extension.'),
-    dict(name='Repton', lat=52.8390, lon=-1.5500, on='repton', text='At the end of the Repton extension, up the Trent from Derby. The Great Heathen Army wintered here in 873–874 and drove out the Mercian king; a Viking camp and burials have been excavated by the church.'),
+    dict(name='Heath Wood, Ingleby', lat=52.8270, lon=-1.5070, on='main', text='The only known Viking cremation cemetery in Britain: around 60 barrows in the wood above the Trent, on the first stage of the Way.'),
+    dict(name='Repton', lat=52.8390, lon=-1.5500, on='main', text='Where the Way begins, up the Trent from Derby. The Great Heathen Army wintered here in 873–874 and drove out the Mercian king; a Viking camp and burials have been excavated by the church.'),
     dict(name='Derby', lat=52.9255, lon=-1.4740, on='main', text='One of the Five Boroughs. Its name is Old Norse, Djúrabý, "deer farm". Æthelflæd, Lady of the Mercians, took it back from the Danes in 917.'),
     dict(name='Nottingham', lat=52.9370, lon=-1.1460, on='main', text='Another of the Five Boroughs. The Great Heathen Army wintered here in 867–868.'),
     dict(name='Stow Minster', lat=53.3270, lon=-0.6760, on=None, text='Off the route, 5 km from Torksey. A great Anglo-Saxon minster with the earliest known carving of a Viking ship in England scratched into a pillar.'),
@@ -112,8 +122,9 @@ SITES = [
     dict(name='Lincoln', lat=53.2290, lon=-0.5450, on='lincoln', text='One of the Five Boroughs, with a busy Viking-age mint. Lincoln was the chief town of Lindsey, the old kingdom that the Danes divided into three ridings, from the Old Norse þriðjungr, a third: the Lindsey Ridings take their name from them. The Lindsey Ridings leaves north-east for Grimsby and the Humber coast.'),
     dict(name='Stamford', lat=52.6530, lon=-0.4800, on='coast', text='The fifth of the Five Boroughs, on the Welland, with a Danish fortified borough north of the river. The coast route turns down the Welland here.'),
     dict(name='Crowland', lat=52.6760, lon=-0.1680, on='coast', text='Crowland Abbey stands in the Fens by the Welland. Later medieval chronicles claimed the Danes burned it in 870, though that account is now thought unreliable.'),
-    dict(name='Skegness', lat=53.1440, lon=0.3390, on='coast', text='Its name is Old Norse: Skeggi\'s ness, the headland of a man called Skeggi.'),
-    dict(name='Lincolnshire Wolds', lat=53.4020, lon=-0.2600, on='coast', text='Tealby, Normanby, Grimsby and dozens more: Lincolnshire has more Old Norse -by place names than any other English county, many of them strung along these chalk hills. The route runs close to the Viking Way footpath from here to Barton.'),
+    dict(name='Bardney Abbey', lat=53.2130, lon=-0.3330, on='skegness', text='A royal monastery of Lindsey and Mercia, the shrine of St Oswald. It was destroyed by the Danes around 870 and not refounded until after the Norman Conquest.'),
+    dict(name='Skegness', lat=53.1440, lon=0.3390, on='coast', text='Where the coast route and the Skegness route meet the sea. Its name is Old Norse: Skeggi\'s ness, the headland of a man called Skeggi.'),
+    dict(name='Lincolnshire Wolds', lat=53.4970, lon=-0.3180, on='lincoln', text='Tealby, Normanby, Grimsby and dozens more: Lincolnshire has more Old Norse -by place names than any other English county, many of them strung along these chalk hills. The Lindsey Ridings cross their western edge at Caistor, close to the Viking Way footpath.'),
     dict(name='Barton-upon-Humber', lat=53.6845, lon=-0.4390, on='lincoln', text='The old ferry town on the south bank of the Humber. St Peter\'s Church has an Anglo-Saxon tower from around the end of the 10th century.'),
     dict(name='Grimsby', lat=53.5670, lon=-0.0810, on='lincoln', text='On the Humber coast: by tradition named after Grim, a Danish fisherman, with the Old Norse -by for farm or village. The Lindsey Ridings reaches the sea here.'),
     dict(name='Humber', lat=53.7090, lon=-0.4500, on='lincoln', text='The estuary the Great Army crossed on its way to York in 866. The Lindsey Ridings crosses it on the Humber Bridge.'),
@@ -122,7 +133,7 @@ SITES = [
     dict(name='Selby', lat=53.7845, lon=-1.0640, on='main', text='A name of Old Norse origin, probably "willow farm", like many -by places along the Way.'),
     dict(name='Riccall', lat=53.8330, lon=-1.0590, on='main', text='Harald Hardrada\'s fleet came up the Ouse and landed here in September 1066, the last great Viking invasion of England.'),
     dict(name='Fulford', lat=53.9370, lon=-1.0710, on='main', text='Harald Hardrada beat the northern earls here on 20 September 1066, five days before his defeat at Stamford Bridge.'),
-    dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='stamfordbridge', text='At the end of the Stamford Bridge extension, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
+    dict(name='Stamford Bridge', lat=53.9920, lon=-0.9140, on='main', text='Where the Way ends, east of York. Harold Godwinson defeated and killed Harald Hardrada here on 25 September 1066, the end of the Viking Age in England.'),
     dict(name='York', lat=53.9580, lon=-1.0850, on='main', text='Jorvik. The Great Heathen Army took it on 1 November 866, and it was the capital of a Viking kingdom until Eric Bloodaxe was driven out in 954.'),
 ]
 
@@ -231,13 +242,13 @@ def main():
             samples = []
             for a, b in zip(coords, coords[1:]):
                 L = dist(P(a[1], a[0]), P(b[1], b[0])); k = max(1, int(L // 25))
-                for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k))
+                for i in range(k): samples.append((a[1] + (b[1] - a[1]) * i / k, a[0] + (b[0] - a[0]) * i / k, L / k))
             mix = collections.Counter(); onroute = collections.Counter(); seen = set(); ksi = 0; runs = []; cur = None
             for s in samples:
-                p = P(*s); cls, k = classify(p)
-                mix[cls] += 25
+                p = P(s[0], s[1]); w = s[2]; cls, k = classify(p)
+                mix[cls] += w
                 rid = near(ncn, p, 15)
-                if rid: onroute[ninfo[rid]] += 25
+                if rid: onroute[ninfo[rid]] += w
                 for di in (-1, 0, 1):
                     for dj in (-1, 0, 1):
                         for ci, q, la, lo, sev in cg.get((int(p[0] // 100) + di, int(p[1] // 100) + dj), ()):
@@ -247,7 +258,7 @@ def main():
                     if cur: cur['pts'].append([round(s[0], 5), round(s[1], 5)])
                     cur = dict(cls=cls, route=r['id'], stage=sn, pts=[], km=0, keys=collections.Counter())
                     runs.append(cur); segs.append(cur)
-                cur['pts'].append([round(s[0], 5), round(s[1], 5)]); cur['km'] += 0.025
+                cur['pts'].append([round(s[0], 5), round(s[1], 5)]); cur['km'] += w / 1000
                 if k: cur['keys'][k] += 1
             # where a proper path is needed: A-road stretches of 300 m or more, B and C road stretches of 1 km or more
             todo = []
