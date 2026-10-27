@@ -96,34 +96,6 @@
     "rename": {},
     "pct_region": "north-yorkshire"
   },
-  "grimsby-scunthorpe": {
-    "name": "Grimsby, Immingham & Scunthorpe",
-    "eyebrow": "North East Lincolnshire & North Lincolnshire",
-    "in": "inside the two councils",
-    "boundary_label": "North East & North Lincolnshire boundaries",
-    "gss": [
-      "E06000012",
-      "E06000013"
-    ],
-    "centre": [
-      53.6,
-      -0.4
-    ],
-    "stats19_lad": [
-      "E06000012",
-      "E06000013"
-    ],
-    "dft_la": [
-      131,
-      130
-    ],
-    "rivers": "Humber|Trent|Ancholme|Freshney",
-    "water_label": "Humber, Trent & Ancholme",
-    "places": "town|suburb|city|village",
-    "counters": "dft",
-    "rename": {},
-    "pct_region": "humberside"
-  },
   "kirklees-calderdale": {
     "name": "Kirklees & Calderdale",
     "eyebrow": "Huddersfield, Halifax & the Calder valley",
@@ -275,26 +247,37 @@
   },
   "lincolnshire": {
     "name": "Lincolnshire",
-    "eyebrow": "Lincolnshire county (excluding North & North East Lincs)",
+    "eyebrow": "Lincolnshire, North Lincolnshire and North East Lincolnshire",
     "in": "inside Lincolnshire",
-    "boundary_label": "Lincolnshire county boundary",
-    "gss": "E10000019",
+    "boundary_label": "Lincolnshire, North & North East Lincolnshire boundaries",
+    "gss": [
+      "E10000019",
+      "E06000012",
+      "E06000013"
+    ],
     "centre": [
-      53.1,
-      -0.2
+      53.25,
+      -0.3
     ],
     "stats19_lad": [
-      "E10000019"
+      "E10000019",
+      "E06000012",
+      "E06000013"
     ],
     "dft_la": [
-      99
+      99,
+      131,
+      130
     ],
-    "rivers": "Witham|Trent|Welland|Steeping|Glen|Bain",
-    "water_label": "Rivers Witham, Trent & Welland",
+    "rivers": "Witham|Trent|Welland|Steeping|Glen|Bain|Humber|Ancholme|Freshney",
+    "water_label": "Humber, Trent, Witham & Welland",
     "places": "town|city",
     "counters": "dft",
     "rename": {},
-    "pct_region": "lincolnshire"
+    "pct_region": [
+      "lincolnshire",
+      "humberside"
+    ]
   },
   "nottinghamshire": {
     "name": "Nottingham & Nottinghamshire",

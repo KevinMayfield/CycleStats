@@ -352,8 +352,8 @@ function renderCounts(){
 const TIERC={flat:'#2a78d6',gentle:'#eb6834',bench:'#1baf7a'},TIERN={flat:'Flat',gentle:'Gentle slopes',bench:'Hull & York benchmark'};
 const ICB_OF={leeds:'West Yorkshire',bradford:'West Yorkshire','kirklees-calderdale':'West Yorkshire',wakefield:'West Yorkshire',
   sheffield:'South Yorkshire',rotherham:'South Yorkshire','doncaster-barnsley':'South Yorkshire',
-  hull:'Humber and North Yorkshire','east-riding':'Humber and North Yorkshire','grimsby-scunthorpe':'Humber and North Yorkshire',york:'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
-  lincolnshire:'Lincolnshire',nottinghamshire:'Nottingham and Nottinghamshire',derbyshire:'Derby and Derbyshire',
+  hull:'Humber and North Yorkshire','east-riding':'Humber and North Yorkshire',york:'Humber and North Yorkshire','north-yorkshire':'Humber and North Yorkshire',
+  lincolnshire:['Lincolnshire','Humber and North Yorkshire'],nottinghamshire:'Nottingham and Nottinghamshire',derbyshire:'Derby and Derbyshire',
   leicestershire:'Leicester, Leicestershire and Rutland',rutland:'Leicester, Leicestershire and Rutland','middlesbrough-redcar':'North East and North Cumbria'};
 const MEAS={inactive:'Inactive',overweight:'Overweight',diabetes:'Diabetes',child_obese:'Obese at 10–11',health_dep:'Health-deprived areas'};
 const ragC=r=>r>=110?css('--danger'):r<=90?css('--safe'):css('--amber');
@@ -366,7 +366,7 @@ const exLoad=Promise.all(['towns','health'].map(f=>fetch(`data/${f}.json`).then(
     // Hull and York are the benchmark the other towns are measured against, so they are not in the towns page's lists
     const tl=[...T.flat_low,...T.gentle_low].map(i=>byId[i]).filter(t=>t&&here(t)).concat(T.towns.filter(t=>here(t)&&t.tier==='bench'));
     const hl=H.towns.filter(t=>here(t)&&t.tier!=='hilly'&&t.score!=null).sort((a,b)=>b.score-a.score);
-    EX={T,H,byId,tl,hl,icb:(H.icbs||[]).find(x=>x.name==='NHS '+ICB_OF[M.id]),hilly:T.towns.filter(t=>here(t)&&t.tier==='hilly').length};
+    EX={T,H,byId,tl,hl,icbs:[ICB_OF[M.id]].flat().map(n=>(H.icbs||[]).find(x=>x.name==='NHS '+n)).filter(Boolean),hilly:T.towns.filter(t=>here(t)&&t.tier==='hilly').length};
     const shape=(t,col,tip,k,i)=>{const fg=L.featureGroup((byId[t.id]?.shape||[]).map(r=>L.polygon(r,{color:col,weight:1.5,opacity:.9,fillColor:col,fillOpacity:.55})));
       fg.bindTooltip(tip,{sticky:true,className:'tt'});fg.on('click',()=>select(k,i,false));fg.addTo(groups[k]);feats[k].push(fg)};
     // build both layers off the map (adding outlines to a layer already on the map before it has settled fails), then
@@ -382,8 +382,9 @@ function renderTownTab(k){
     exLoad.then(()=>{if(cur===k){render(k);const b=groups[k].getBounds();if(b.isValid())fit(b,{padding:[24,24]})}});return}
   const rows=k==='towns'?EX.tl:EX.hl,T=EX.T,H=EX.H;
   let h=`<p class="blurb">${BLURB[k]}</p>`;
-  if(k==='health'&&EX.icb){const x=EX.icb,m=v=>'£'+(v/1e6).toFixed(1)+'m';
-    h+=`<p class="depstat" style="background:var(--accent-soft)"><b style="color:var(--accent)">${x.name}</b>: cycling to work is already worth <b style="color:var(--accent)">${m(x.now_value)}</b> a year in health, and would be worth <b style="color:var(--accent)">${m(x.value)}</b> more at Go Dutch levels (about ${x.deaths.toFixed(0)} premature deaths avoided a year). On its roads, about ${p1(x.killed)} cyclists are killed and ${nf(x.serious)} seriously injured a year: ${p1(x.ksi_rate)} per 1,000 people who cycle to work${x.note?` (${x.note})`:''}.</p>`}
+  // Lincolnshire spans two NHS boards: North and North East Lincolnshire are in Humber and North Yorkshire
+  if(k==='health') EX.icbs.forEach(x=>{const m=v=>'£'+(v/1e6).toFixed(1)+'m';
+    h+=`<p class="depstat" style="background:var(--accent-soft)"><b style="color:var(--accent)">${x.name}</b>: cycling to work is already worth <b style="color:var(--accent)">${m(x.now_value)}</b> a year in health, and would be worth <b style="color:var(--accent)">${m(x.value)}</b> more at Go Dutch levels (about ${x.deaths.toFixed(0)} premature deaths avoided a year). On its roads, about ${p1(x.killed)} cyclists are killed and ${nf(x.serious)} seriously injured a year: ${p1(x.ksi_rate)} per 1,000 people who cycle to work${x.note?` (${x.note})`:''}.</p>`});
   if(!rows.length) h+=`<p class="blurb"><b>No flat or gently sloping towns of about 10,000 people or more ${M.in}${EX.hilly?`: all ${EX.hilly} towns here are hilly`:''}.</b></p>`;
   const mx=Math.max(1,...rows.map(t=>k==='towns'?t.missing:t.score));
   rows.forEach((t,i)=>{
@@ -445,8 +446,10 @@ setTab(groups[start]?start:'routes');lbls();
 }
 // area: ?area= in the link, else the last one viewed, else Leeds
 let AREA=new URLSearchParams(location.search).get('area');
-if(AREA==='notts-derby') AREA='nottinghamshire';  // the corridor was merged into Nottingham & Nottinghamshire and Derby & Derbyshire
 if(!AREA){try{AREA=localStorage.getItem('area')}catch(e){}}
+// merged areas, for old links and remembered areas: the Notts-Derby corridor went into Nottingham & Nottinghamshire and
+// Derby & Derbyshire; Grimsby, Immingham & Scunthorpe into Lincolnshire (Oct 2026)
+AREA={'notts-derby':'nottinghamshire','grimsby-scunthorpe':'lincolnshire'}[AREA]||AREA;
 fetch('data/areas.json').then(r=>r.json()).then(list=>{
   if(!list.some(a=>a.id===AREA)) AREA=list[0].id;
   try{localStorage.setItem('area',AREA)}catch(e){}

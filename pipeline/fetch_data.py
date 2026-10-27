@@ -77,6 +77,11 @@ def bbox_of(paths_json, cfg):
     return [min(b['minlat'] for b in bs), min(b['minlon'] for b in bs), max(b['maxlat'] for b in bs), max(b['maxlon'] for b in bs)]
 
 
+def pct_regions(cfg):
+    """an area can span more than one Propensity to Cycle Tool region (pct_region as a list)"""
+    return cfg['pct_region'] if isinstance(cfg['pct_region'], list) else [cfg['pct_region']]
+
+
 def gss_codes(cfg):
     """an area can be one council area or several (gss as a list)"""
     return cfg['gss'] if isinstance(cfg['gss'], list) else [cfg['gss']]
@@ -210,7 +215,7 @@ def fetch_deprivation(areas):
 def fetch_pct(areas):
     """Propensity to Cycle Tool route networks (commute and school): cyclists per road segment now and in its
     'Go Dutch' and gender-equality scenarios. Stored with Git LFS in npct/pct-outputs-regional-notR."""
-    for region in sorted({c['pct_region'] for c in areas.values()}):
+    for region in sorted({r for c in areas.values() for r in pct_regions(c)}):
         for kind in ('commute', 'school'):
             path = os.path.join(RAW, 'pct', f'{region}_{kind}.geojson')
             if have(path): continue
@@ -267,7 +272,7 @@ def fetch_towns(areas):
         with open(path, 'w', newline='') as f:
             csv.writer(f).writerows([['lsoa', 'method', 'people']] + rows)
         print('  census travel to work', len(rows), 'rows')
-    for region in sorted({c['pct_region'] for c in areas.values()}):
+    for region in sorted({r for c in areas.values() for r in pct_regions(c)}):
         path = os.path.join(RAW, 'pct', f'{region}_z.csv')
         if have(path): continue
         save(path, f'https://media.githubusercontent.com/media/npct/pct-outputs-regional-notR/master/commute/lsoa/{region}/z_attributes.csv')

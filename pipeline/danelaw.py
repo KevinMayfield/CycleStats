@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
 CACHE = os.path.join(RAW, 'danelaw')
 UA = {'User-Agent': 'CycleStats/1.0 (https://github.com/KevinMayfield/CycleStats)'}
-AREAS = ['sheffield', 'rotherham', 'middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'grimsby-scunthorpe', 'east-riding', 'hull',
+AREAS = ['sheffield', 'rotherham', 'middlesbrough-redcar', 'rutland', 'leicestershire', 'derbyshire', 'nottinghamshire', 'lincolnshire', 'east-riding', 'hull',
          'north-yorkshire', 'york', 'leeds', 'wakefield', 'doncaster-barnsley']
 
 # routes, stages and legs. Points are (name, lat, lon); link legs may add via points after the end point.
@@ -405,7 +405,8 @@ def main():
         for st in r['stages']:
             for lo, la, *_ in st['geo']['features'][0]['geometry']['coordinates']:
                 q = P(la, lo); near_route.add((int(q[0] // 1000), int(q[1] // 1000)))
-    regions = sorted({json.load(open(os.path.join(HERE, 'areas.json')))[a]['pct_region'] for a in AREAS})
+    cfgs = json.load(open(os.path.join(HERE, 'areas.json')))
+    regions = sorted({r for a in AREAS for r in (cfgs[a]['pct_region'] if isinstance(cfgs[a]['pct_region'], list) else [cfgs[a]['pct_region']])})
     pgrid, pseg = Grid(100), {}
     for reg in regions:
         for kind in ('commute', 'school'):

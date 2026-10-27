@@ -45,7 +45,7 @@ for r in csv.DictReader(open(os.path.join(RAW, 'dft', 'collisions.csv'))):
     c['n'] += 1; c['ksi'] += r['collision_severity'] in ('1', '2')
     c['fast'] += r['speed_limit'].isdigit() and int(r['speed_limit']) >= 40
 pct = {}
-for region in {c['pct_region'] for c in AREAS.values()}:
+for region in {r for c in AREAS.values() for r in (c['pct_region'] if isinstance(c['pct_region'], list) else [c['pct_region']])}:
     for r in csv.DictReader(open(os.path.join(RAW, 'pct', f'{region}_z.csv'))):
         pct[r['geo_code']] = r
 
