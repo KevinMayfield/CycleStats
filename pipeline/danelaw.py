@@ -106,12 +106,15 @@ ROUTES = [
             ('Woodhall Spa', 53.1530, -0.2180), ('Tattershall', 53.1000, -0.1920), ('Coningsby', 53.1070, -0.1720), ('New Bolingbroke', 53.1080, -0.0450),
             ('Stickney', 53.0980, 0.0060), ('Firsby', 53.1690, 0.1690), ('Burgh le Marsh', 53.1610, 0.2450), ('Skegness', 53.1440, 0.3390)]),
     ]),
-    dict(id='aire', name='Aire variant', sub='Leeds to the Ouse', joins='Airmyn, on the Ouse near Howden', stages=[
+    dict(id='aire', name='Aire variant', sub='Leeds to Hull by the Aire, Howden and the north bank of the Humber', joins='Airmyn and Howden', stages=[
         dict(name='Leeds to Castleford', note='Down the Aire and the Aire and Calder Navigation', pts=[
             ('Leeds', 53.7945, -1.5410), ('Woodlesford', 53.7570, -1.4430), ('Allerton Bywater', 53.7450, -1.3700), ('Castleford', 53.7255, -1.3560)]),
         dict(name='Castleford to the Ouse', note='Past Knottingley and Snaith to the Ouse at Airmyn', pts=[
             ('Castleford', 53.7255, -1.3560), ('Knottingley', 53.7080, -1.2470), ('Snaith', 53.6920, -1.0280), ('Rawcliffe', 53.6910, -0.9630),
             ('Airmyn', 53.7190, -0.9010)]),
+        dict(name='Airmyn to Hull', note='By Howden, then east along the north bank of the Humber by Gilberdyke, Brough and Hessle', pts=[
+            ('Airmyn', 53.7190, -0.9010), ('Howden', 53.7450, -0.8680), ('Gilberdyke', 53.7480, -0.7340),
+            ('Brough', 53.7290, -0.5720), ('North Ferriby', 53.7210, -0.5040), ('Hessle', 53.7230, -0.4380), ('Hull', 53.7440, -0.3360)]),
     ]),
     dict(id='don', name='Don variant', sub='Doncaster to Goole down the Don by Bentley, Stainforth and Thorne', joins='Goole', stages=[
         dict(name='Doncaster to Thorne', note='Down the Don and the Don Navigation by Bentley, Kirk Sandall, Barnby Dun and Stainforth', pts=[
@@ -202,7 +205,7 @@ USE = dict(
     wolds=('destination', 'A destination ride from York over the Wolds by Pocklington, on to the sea at Bridlington'),
     driffield=('work', 'Getting to work between Beverley, Driffield and Bridlington, and with the Beverley route a flat line from Hull to the sea'),
     tadcaster=('work', 'Getting to work between Leeds and York, the two biggest cities on the network, by the most direct flat line'),
-    aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, with no scenic detours'),
+    aire=('work', 'Getting to work from Leeds to Castleford and the Aire towns, and along the Humber from Howden by Brough and Hessle to Hull, with no scenic detours'),
 )
 TOWN_REACH = 300
 PCT_REACH = 150    # m: the Propensity to Cycle Tool's flow on a road running the same way within this distance
