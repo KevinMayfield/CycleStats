@@ -92,8 +92,8 @@ levels its terrain allows.
   - **Potential:** 3.8% cycle to work today (about 8,400 people). The Go Dutch scenario puts the corridor at 23%,
     about 51,000.
   - **Why the route prediction is low:** two things hold it down.
-    - Risk of injury: Derby had 397 cycle collisions and Nottingham 581 in five years, and 31% of Long Eaton's killed
-      or seriously injured people. That keeps today's numbers low.
+    - Risk of injury: Derby had 397 cycle collisions and Nottingham 581 in five years, and 31% of Long Eaton's cycle
+      collisions killed or seriously injured someone. That keeps today's numbers low.
     - Missing data: the Propensity to Cycle Tool predicts flows on roads, and the river paths run well away from
       them. Between Derby and Newark, 70 of 154 half-kilometre stretches get under 25 predicted trips a day, and 30
       get none.
