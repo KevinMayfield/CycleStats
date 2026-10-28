@@ -87,6 +87,8 @@ table.rt tr.sep td{font:600 10.5px/1.2 var(--mono);letter-spacing:.05em;text-tra
 .leaflet-tooltip.lab:before{display:none}
 .legend i.ln{width:18px;height:0;border-radius:0;border-top:2px dashed var(--ink)}
 .legend i.sq{border-radius:2px}
+.legend i.sh{background:none!important;border:0!important;box-shadow:none!important;border-radius:0;width:12px;height:12px}.legend i.sh svg{display:block;width:12px;height:12px;fill:var(--muted)}
+.regnote{margin:0;padding:4px 18px 16px;font-size:13px;color:var(--muted);max-width:110ch}.regnote b{color:var(--ink)}
 tbody.net tr{cursor:pointer}
 tbody.net tr:hover td,tbody.net tr.on td{background:var(--band)}
 .chip{display:inline-block;font:500 11px/1.2 var(--body);padding:2px 7px;border-radius:999px;border:1px solid var(--line);margin:3px 4px 0 0;color:var(--ink);background:var(--panel)}
@@ -216,9 +218,10 @@ td.n small{text-align:right}
     <div class="ovmap" id="ovmap" role="img" aria-label="Map of the towns, shaded by hilliness, with networks of touching flat towns joined"></div>
   </section>
   <section>
-    <div class="sh"><h2>Deprivation against cycling to work</h2><p>Each dot is a town, coloured by how hilly it is; bigger dots have more people travelling to work. Across: the share of its neighbourhoods in England's most deprived fifth (IMD 2025), or the share of households with no car (Census 2021). Up: the share of people travelling to work who cycle. The dashed line is the trend across the flat and gently sloping towns, leaving out Hull and York.</p></div>
+    <div class="sh"><h2>Deprivation against cycling to work</h2><p>Each mark is a town, coloured by how hilly it is and shaped by region: circles in the East (Yorkshire, the East Midlands, Lincolnshire and Leicestershire), triangles in the West (Greater Manchester, Liverpool City Region, Lancashire, Cheshire and Warrington) and squares in the North (North East, Tees Valley and Cumbria). Bigger marks have more people travelling to work. Across: the share of its neighbourhoods in England's most deprived fifth (IMD 2025), or the share of households with no car (Census 2021). Up: the share of people travelling to work who cycle. The dashed line is the trend across the flat and gently sloping towns, leaving out Hull and York.</p></div>
     <div class="mbar"><div class="seg" id="socx" role="group" aria-label="Across"><button type="button" data-k="deprived" aria-pressed="true">Deprived neighbourhoods</button><button type="button" data-k="nocar" aria-pressed="false">No car</button></div><div class="legend" id="soclegend"></div></div>
     <div class="chart" id="socchart"></div>
+    <p class="regnote" id="socregion"></p>
   </section>
   <section id="networks"></section>
   <section id="flat"></section>
@@ -324,6 +327,16 @@ function draw(){
 }
 // deprivation (or no-car households) against cycling to work, every town coloured by hilliness tier
 let SOCX='deprived';
+// region by area: North (North East, Tees Valley, Cumbria), West (Greater Manchester, Liverpool City Region,
+// Lancashire, Cheshire & Warrington), East (Yorkshire, the East Midlands, Lincolnshire, Leicestershire, Rutland)
+const REGION=a=>({'north-east':'North','tees-valley':'North','cumbria':'North','greater-manchester':'West','liverpool-city-region':'West','lancashire':'West','cheshire-warrington':'West'})[a]||'East';
+// a mark of the same area for each region: circle East, triangle West, square North
+function mark(cx,cy,r,reg,attrs){
+  if(reg==='West'){const s=r*Math.sqrt(4*Math.PI/Math.sqrt(3)),h=s*Math.sqrt(3)/2;
+    return `<path d="M${(cx).toFixed(1)} ${(cy-h*2/3).toFixed(1)}L${(cx+s/2).toFixed(1)} ${(cy+h/3).toFixed(1)}L${(cx-s/2).toFixed(1)} ${(cy+h/3).toFixed(1)}Z" ${attrs}/>`}
+  if(reg==='North'){const s=r*Math.sqrt(Math.PI);return `<rect x="${(cx-s/2).toFixed(1)}" y="${(cy-s/2).toFixed(1)}" width="${s.toFixed(1)}" height="${s.toFixed(1)}" ${attrs}/>`}
+  return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" ${attrs}/>`;
+}
 function drawSoc(){
   const el=document.getElementById('socchart'),W=Math.max(320,el.clientWidth-20),H=Math.round(Math.min(520,Math.max(300,W*.48)));
   const m={l:46,r:16,t:14,b:40},iw=W-m.l-m.r,ih=H-m.t-m.b,k=SOCX;
@@ -342,7 +355,7 @@ function drawSoc(){
   const x0=Math.min(...fg.map(t=>t[k])),x1=Math.max(...fg.map(t=>t[k]));
   s+=`<line x1="${x(x0)}" y1="${y(my+b*(x0-mx))}" x2="${x(x1)}" y2="${y(my+b*(x1-mx))}" style="stroke:var(--ink);stroke-width:2;stroke-dasharray:6 5;opacity:.7"/>`;
   const order=[...D.towns].sort((a,b)=>(a.tier!=='hilly')-(b.tier!=='hilly')||(a.tier==='bench')-(b.tier==='bench')||b.travel-a.travel);
-  order.forEach(t=>{s+=`<circle cx="${x(t[k]).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${rad(t).toFixed(1)}" style="fill:${col(t)}" fill-opacity="${t.tier==='hilly'?.45:.85}"/>`});
+  order.forEach(t=>{s+=mark(x(t[k]),y(t.cycle21),rad(t),REGION(t.area),`style="fill:${col(t)};stroke:var(--panel);stroke-width:1" fill-opacity="${t.tier==='hilly'?.45:.85}"`)});
   // labels: Hull, York and the largest deprived flat towns
   const lab=[...D.bench.towns.map(b=>D.byId[b.id]),...D.towns.filter(t=>t.tier==='flat'&&t.deprived>=D.deprived_high).sort((a,b)=>b.travel-a.travel).slice(0,4)];
   const placed=[],hits=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
@@ -357,13 +370,17 @@ function drawSoc(){
   const tip=document.getElementById('soctip');
   el.querySelectorAll('circle.hit').forEach(c=>{
     c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
-      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)} · ${tierTxt[t.tier]}</span><div class="k">Cycling ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%</div><div class="k">${t.deprived}% of neighbourhoods deprived · ${t.nocar}% no car</div><div class="k">${collTxt(t)}</div><div class="k">${nf(t.travel)} travel to work</div>`;
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)} (${REGION(t.area)}) · ${tierTxt[t.tier]}</span><div class="k">Cycling ${p1(t.cycle21)}% · Go Dutch ${p1(t.dutch)}%</div><div class="k">${t.deprived}% of neighbourhoods deprived · ${t.nocar}% no car</div><div class="k">${collTxt(t)}</div><div class="k">${nf(t.travel)} travel to work</div>`;
       tip.hidden=false;const r=el.getBoundingClientRect(),bb=c.getBoundingClientRect();
       let lx=bb.left-r.left+bb.width/2+12,ly=bb.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
   });
   const per=k==='deprived'?10:5;
-  document.getElementById('soclegend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat</span><span><i style="background:var(--gentle)"></i>Gently sloping</span><span><i style="background:var(--other)"></i>Hilly</span><span><i class="ln"></i>Trend, flat and gentle towns: ${b>=0?'+':''}${(b*per).toFixed(1)} pts cycling per ${per} pts ${k==='deprived'?'deprived':'no car'}</span>`;
+  document.getElementById('soclegend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat</span><span><i style="background:var(--gentle)"></i>Gently sloping</span><span><i style="background:var(--other)"></i>Hilly</span><span><i class="ln"></i>Trend, flat and gentle towns: ${b>=0?'+':''}${(b*per).toFixed(1)} pts cycling per ${per} pts ${k==='deprived'?'deprived':'no car'}</span>`+
+    `<span><i class="sh"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/></svg></i>East</span><span><i class="sh"><svg viewBox="0 0 12 12"><path d="M6 1L11.5 11H0.5Z"/></svg></i>West</span><span><i class="sh"><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9"/></svg></i>North</span>`;
+  // flat towns by region, weighted by people travelling to work
+  const fr=['East','West','North'].map(r=>{const ts=D.towns.filter(t=>t.tier==='flat'&&REGION(t.area)===r),w=ts.reduce((a,t)=>a+t.travel,0);return [r,ts.length,w?ts.reduce((a,t)=>a+t.cycle21*t.travel,0)/w:0]});
+  document.getElementById('socregion').innerHTML=`<b>By region.</b> Flat towns cycle to work most in the East: ${fr.map(([r,n,v])=>`${r} ${p1(v)}% (${n} towns)`).join(', ')}, leaving out Hull and York. Comparing like with like across every town (holding gradient, deprived neighbourhoods, car ownership and town size equal), towns in the West cycle about a sixth less than similar towns in the East, and towns in the North about a fifth less. Something beyond terrain and poverty favours the East: possibly a longer cycling habit in its flat towns, or local factors such as routes and employers. These are comparisons between towns, not proof of a cause.`;
 }
 // percentage increase from the current share to a target share
 const inc=(now,to)=>now>0?'+'+nf(Math.round((to-now)/now*100))+'%':'n/a';
