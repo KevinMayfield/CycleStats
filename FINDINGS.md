@@ -238,6 +238,53 @@ Limits:
 
 The analysis scripts are not in the pipeline yet.
 
+### 9. Coalfield and steel towns: work is further away, but that is only part of it
+
+*Added 28 October 2026. See the [Industry and work page](https://kevinmayfield.github.io/CycleStats/industry.html).*
+
+Coalfield towns cycle about 24% less than similar towns elsewhere, and the iron, steel and shipbuilding towns about
+27% less. "Similar" means the same hills, deprivation, car ownership, size, region and surrounding conurbation. Three
+explanations were tested, each by adding it to that model:
+
+1. **The pits and works closed, so new work is too far to cycle to.**
+2. **Nationalisation and rehousing moved people onto new estates and broke an older cycling habit.**
+3. **The railway towns, where the railway age brought new settlers.**
+
+| Flat and gently sloping towns | Towns | Commutes under 5 km | Commutes 10 km or more | Homes built 1945–82, band A or B | Cyclists per 100 people with a commute under 5 km |
+|---|---|---|---|---|---|
+| Coalfield | 50 | 43.8% | 33.6% | 31.5% | 7.0 |
+| Iron, steel and shipbuilding | 13 | 53.3% | 26.4% | 31.3% | 6.2 |
+| Other | 186 | 50.2% | 29.1% | 22.3% | 8.9 |
+
+- **Distance explains about a fifth of the coalfield gap.** Coalfield towns have fewer short commutes and more long
+  ones. The share of commutes under 5 km is the strongest new factor: every 10 points more goes with 18% more cycling.
+  Allowing for it takes the coalfield gap from −24% to −20%.
+- **Distance does not explain the steel towns.** Their work is as close as anywhere (53% of commutes under 5 km), yet
+  they still cycle about 27% less.
+- **Short trips still go by other means.** Counting only people whose work is under 5 km away, coalfield towns have 7.0
+  cyclists per 100 and steel towns 6.2, against 8.9 elsewhere. Most of the gap is in how short journeys are made, not
+  where the work went.
+- **The post-war estates are there, but make no difference.** Coalfield and steel towns have more cheap (band A or B)
+  homes built 1945–82, mostly council estates: about 31% of homes against 22% elsewhere. With everything else held
+  equal, towns with more of them cycle no less (−1% per 10 points, likely −4% to +2%). Nor do the shares of homes built
+  before 1919 or since 1983, or of social renting today. The moves may still have broken older habits; housing age
+  cannot show that.
+- **Railway towns follow the coalfield, not the railway** (+8% overall, likely −10% to +27%). The big railway works
+  towns on flat land cycle more than their hills predict: Crewe +61%, March +36%, Peterborough +27% and Derby +23%. York,
+  the highest-cycling town, is a railway town too. Those on the coalfields cycle less: Doncaster −17%, Shildon −35% and
+  Newton-le-Willows −48%.
+- **Irish settlement can't be tested.** The Census does not record ancestry, and people born in Ireland today are mostly
+  recent arrivals.
+
+What is left is likely the culture and conditions of short local journeys: works and colliery buses, then the car;
+shift patterns; poorer health; and main roads through former pit villages. These are not measured here.
+
+Sources:
+- Census 2021 TS058, distance travelled to work.
+- Valuation Office Agency, Council Tax stock of properties 2024, table CTSOP 4.1: homes by build period and band, by
+  neighbourhood.
+- The page's cycling model, in `pipeline/industry.py`.
+
 ## The Danelaw Cycle Network
 
 The [Danelaw Cycle Network](https://kevinmayfield.github.io/CycleStats/danelaw.html) brings the findings together as

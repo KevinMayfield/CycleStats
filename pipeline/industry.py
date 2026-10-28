@@ -12,6 +12,12 @@ COVID-19: deaths registered due to COVID-19 in 2020 and 2021 by MSOA (ONS, death
 andwales2020, 2021 edition, sheet 7), summed to towns and set against residents (Census 2021). The model adds age
 (share aged 65+, TS007A), ethnicity (TS021), work from home and commutes of 10 km or more (TS058), the main industries
 (TS060) and the coalfield flag. Downloads are cached in raw/industry/; reading the ONS workbook needs openpyxl once.
+
+Why industrial towns cycle less, three ideas tested by adding each to the cycling model:
+  distance  share of commutes under 5 km (TS058): pits and works closed and new jobs are further away
+  housing   share of homes built 1945-82 in Council Tax band A or B, mostly council estates (VOA, CTSOP 4.1, 2024):
+            post-war rehousing broke up older communities and their habits
+  railway   the railway works and junction towns (RAIL)
 """
 import collections, csv, io, json, math, os, random, urllib.request, zipfile
 
@@ -24,6 +30,10 @@ COAL = {'Barnsley', 'Doncaster', 'Rotherham', 'Wakefield', 'Ashfield', 'Mansfiel
         'North West Leicestershire', 'County Durham', 'Northumberland', 'Sunderland', 'South Tyneside', 'Gateshead', 'Wigan',
         'St. Helens', 'Allerdale', 'Copeland'}
 STEEL = {'Middlesbrough', 'Redcar and Cleveland', 'Stockton-on-Tees', 'Hartlepool', 'North Lincolnshire', 'Sheffield', 'Barrow-in-Furness'}
+# railway works and junction towns: Crewe, Derby, Doncaster, Darlington, York, Shildon, Horwich, Earlestown, Peterborough, March...
+RAIL = {'Crewe', 'Derby', 'Doncaster', 'Darlington', 'York', 'Shildon', 'Horwich', 'Newton-le-Willows', 'Peterborough', 'March',
+        'Normanton', 'Carnforth', 'Gateshead', 'Earlestown'}
+VOA = 'https://assets.publishing.service.gov.uk/media/66854c5eab5fc5929851b930/CTSOP4-1-2020-2024.zip'
 COVID = ('https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/'
          'deathsduetocovid19registeredinenglandandwales2020/2021/covid2021reftables1.xlsx')
 
@@ -112,6 +122,14 @@ def main():
     for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'ttwdist2021.csv'))):
         b = lb.get(r['lsoa'])
         if b: agg[b]['d' + r['band']] += int(r['people'])
+    # homes by build period (VOA, 31 March 2024): all homes, and those built 1945-82 in band A or B
+    post = ('bp_1945_1954', 'bp_1955_1964', 'bp_1965_1972', 'bp_1973_1982'); num = lambda v: int(v) if v.isdigit() else 0
+    with zipfile.ZipFile(get(VOA, os.path.join(D, 'ctsop4_1.zip'))) as z:
+        for r in csv.DictReader(io.TextIOWrapper(z.open('CTSOP4_1_2024_03_31.csv'), encoding='utf-8-sig')):
+            b = lb.get(r['ecode']) if r['geography'] == 'LSOA' else None
+            if not b: continue
+            if r['band'] == 'All': agg[b]['homes'] += num(r['all_properties'])
+            elif r['band'] in ('A', 'B'): agg[b]['postwar'] += sum(num(r[k]) for k in post)
     pre = 'Industry (current): '
     for r in census('ts060', 'msoa'):
         t = m_town.get(r['geography code'])
@@ -131,7 +149,9 @@ def main():
                           covid=round(1e5 * a['deaths'] / a['pop'], 1), old=round(100 * a['old'] / a['res'], 1),
                           asian=round(100 * a['asian'] / a['eth'], 1), black=round(100 * a['black'] / a['eth'], 1),
                           wfh=round(100 * a['d9'] / a['d0'], 1), far=round(100 * sum(a[f'd{k}'] for k in (4, 5, 6, 7, 8)) / commute, 1) if commute else 0,
-                          manuf=round(100 * a['manuf'] / a['emp'], 1), care=round(100 * a['care'] / a['emp'], 1)))
+                          manuf=round(100 * a['manuf'] / a['emp'], 1), care=round(100 * a['care'] / a['emp'], 1),
+                          near=round(100 * (a['d1'] + a['d2']) / commute, 1) if commute else 0, near_n=a['d1'] + a['d2'], cyclists=tj['cyclists'],
+                          postwar=round(100 * a['postwar'] / a['homes'], 1) if a['homes'] else None, rail=t['name'].split(' (')[0] in RAIL))
     U = [t for t in towns if not t['skip'] and t['cycle'] > 0 and t['around'] is not None]
     gm = lambda ts: round(math.exp(sum(math.log(t['cycle'] / t['expected']) for t in ts) / len(ts)), 3)
     groups = []
@@ -146,6 +166,20 @@ def main():
     mining = dict(base=model(U, lambda t: math.log(t['cycle']), ctrl),
                   industry=model(U, lambda t: math.log(t['cycle']), ctrl + [('coal', lambda t: float(t['industry'] == 'coal')),
                                                                           ('steel', lambda t: float(t['industry'] == 'steel'))]))
+    # why: distance to work, post-war estates, railway towns, each added to the industry model
+    ind = ctrl + [('coal', lambda t: float(t['industry'] == 'coal')), ('steel', lambda t: float(t['industry'] == 'steel'))]
+    V = [t for t in U if t['postwar'] is not None]
+    wm = lambda ts, k: round(sum(t[k] * t['travel'] for t in ts) / sum(t['travel'] for t in ts), 1)
+    legacy = dict(
+        groups=[dict(industry=k, towns=len(ts), near=wm(ts, 'near'), far=wm(ts, 'far'), postwar=wm(ts, 'postwar'),
+                     short_cycle=round(100 * sum(t['cyclists'] for t in ts) / sum(t['near_n'] for t in ts), 1))
+                for k in ('coal', 'steel', 'other') for ts in [[t for t in V if t['industry'] == k and t['tier'] in ('flat', 'gentle')]]],
+        base=model(V, lambda t: math.log(t['cycle']), ind),
+        distance=model(V, lambda t: math.log(t['cycle']), ind + [('near', lambda t: t['near'] / 10)]),
+        housing=model(V, lambda t: math.log(t['cycle']), ind + [('postwar', lambda t: t['postwar'] / 10)]),
+        railway=model(V, lambda t: math.log(t['cycle']), ind + [('rail', lambda t: float(t['rail']))]),
+        rail_towns=[dict(name=t['name'], cycle=t['cycle'], expected=t['expected'], industry=t['industry'])
+                    for t in sorted([t for t in U if t['rail']], key=lambda t: -t['cycle'] / t['expected'])])
     C = [t for t in U if t['covid'] > 0]
     cv = [('cycling', lambda t: math.log(t['cycle'])), ('aged 65+', lambda t: t['old'] / 10), ('deprived', lambda t: t['deprived'] / 10),
           ('Asian', lambda t: t['asian'] / 10), ('Black', lambda t: t['black'] / 10), ('work from home', lambda t: t['wfh'] / 10),
@@ -159,10 +193,12 @@ def main():
     covid = dict(full=model(C, lambda t: math.log(t['covid']), cv), without_cycling=model(C, lambda t: math.log(t['covid']), cv[1:]),
                  corr={k: corr(k) for k in ('cycling', 'old', 'deprived', 'nocar', 'wfh', 'far', 'manuf', 'care', 'asian')},
                  median=round(sorted(t['covid'] for t in C)[len(C) // 2]))
-    json.dump(dict(towns=towns, groups=groups, mining=mining, covid=covid), open(os.path.join(DATA, 'industry.json'), 'w'),
+    for t in towns: del t['near_n'], t['cyclists']
+    json.dump(dict(towns=towns, groups=groups, mining=mining, legacy=legacy, covid=covid), open(os.path.join(DATA, 'industry.json'), 'w'),
               ensure_ascii=False, separators=(',', ':'))
     print(len(towns), 'towns'); print(json.dumps(groups)); print(json.dumps(mining['industry']['terms'][-2:]), mining['base']['terms'][5], mining['industry']['terms'][5])
     print(json.dumps(covid['full']), covid['corr'])
+    print(json.dumps(legacy['groups'])); print({k: [x for x in legacy[k]['terms'] if x['name'] in ('coal', 'steel', 'near', 'postwar', 'rail')] for k in ('base', 'distance', 'housing', 'railway')})
 
 
 if __name__ == '__main__':
