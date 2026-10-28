@@ -546,5 +546,81 @@
     "counters": "dft",
     "rename": {},
     "pct_region": "north-east"
+  },
+  "cambridgeshire-peterborough": {
+    "name": "Cambridgeshire & Peterborough",
+    "eyebrow": "Cambridgeshire county and Peterborough (the Cambridgeshire and Peterborough Combined Authority)",
+    "in": "inside Cambridgeshire & Peterborough",
+    "boundary_label": "Cambridgeshire & Peterborough boundaries",
+    "gss": [
+      "E10000003",
+      "E06000031"
+    ],
+    "centre": [
+      52.4,
+      -0.05
+    ],
+    "stats19_lad": [
+      "E10000003",
+      "E06000031",
+      "E07000008",
+      "E07000009",
+      "E07000010",
+      "E07000011",
+      "E07000012"
+    ],
+    "dft_la": [
+      97,
+      129
+    ],
+    "rivers": "Cam|Great Ouse|Ouse|Nene|Welland|Old West River|Old Bedford River|New Bedford River|Lark|Granta|Rhee",
+    "water_label": "Rivers Cam, Great Ouse & Nene",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": "cambridgeshire"
+  },
+  "norfolk-suffolk": {
+    "name": "Norfolk & Suffolk",
+    "eyebrow": "Norfolk and Suffolk counties",
+    "in": "inside Norfolk & Suffolk",
+    "boundary_label": "Norfolk & Suffolk boundaries",
+    "gss": [
+      "E10000020",
+      "E10000029"
+    ],
+    "centre": [
+      52.5,
+      1.0
+    ],
+    "stats19_lad": [
+      "E10000020",
+      "E10000029",
+      "E07000143",
+      "E07000144",
+      "E07000145",
+      "E07000146",
+      "E07000147",
+      "E07000148",
+      "E07000149",
+      "E07000200",
+      "E07000202",
+      "E07000203",
+      "E07000244",
+      "E07000245"
+    ],
+    "dft_la": [
+      154,
+      126
+    ],
+    "rivers": "Yare|Wensum|Bure|Waveney|Great Ouse|Little Ouse|Nar|Ant|Thet|Tas|Orwell|Stour|Gipping|Deben|Lark|Blyth|Alde|Ore",
+    "water_label": "Rivers Yare, Wensum, Waveney & Orwell",
+    "places": "town|city",
+    "counters": "dft",
+    "rename": {},
+    "pct_region": [
+      "norfolk",
+      "suffolk"
+    ]
   }
 }

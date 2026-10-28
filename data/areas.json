@@ -58,5 +58,13 @@
  {
   "id": "tees-valley",
   "name": "Tees Valley"
+ },
+ {
+  "id": "cambridgeshire-peterborough",
+  "name": "Cambridgeshire & Peterborough"
+ },
+ {
+  "id": "norfolk-suffolk",
+  "name": "Norfolk & Suffolk"
  }
 ]

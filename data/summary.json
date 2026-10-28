@@ -1,6 +1,54 @@
 {
  "popular": [
   {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1307",
+   "town": "Cambridge",
+   "avg": 5162,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 80889",
+   "period": "2021–2025",
+   "lat": 52.18282566,
+   "lon": 0.1406748
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1309",
+   "town": "Cambridge",
+   "avg": 2855,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 37632",
+   "period": "2021–2025",
+   "lat": 52.22211633,
+   "lon": 0.13597611
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1303",
+   "town": "Cambridge",
+   "avg": 2262,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 56478",
+   "period": "2021–2025",
+   "lat": 52.21330602,
+   "lon": 0.12091516
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A603",
+   "town": "Cambridge",
+   "avg": 2182,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 8703",
+   "period": "2021–2025",
+   "lat": 52.20109578,
+   "lon": 0.12984572
+  },
+  {
    "area": "north-yorkshire",
    "area_name": "York & North Yorkshire",
    "name": "Blossom Street (A1036)",
@@ -11,6 +59,42 @@
    "period": "2021–2025",
    "lat": 53.95451146,
    "lon": -1.09300698
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1307",
+   "town": "Cambridge",
+   "avg": 1771,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 27594",
+   "period": "2021–2025",
+   "lat": 52.17868711,
+   "lon": 0.14277253
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1134",
+   "town": "Cambridge",
+   "avg": 1697,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 47565",
+   "period": "2021–2025",
+   "lat": 52.21076994,
+   "lon": 0.13689546
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "Minor road",
+   "town": "Cambridge",
+   "avg": 1686,
+   "kind": "Road (DfT count point)",
+   "src": "DfT count point 803119",
+   "period": "2021–2025",
+   "lat": 52.21871373,
+   "lon": 0.13717435
   },
   {
    "area": "greater-manchester",
@@ -25,100 +109,16 @@
    "lon": -2.22233599
   },
   {
-   "area": "north-yorkshire",
-   "area_name": "York & North Yorkshire",
-   "name": "Monkgate (A1036)",
-   "town": "York",
-   "avg": 1409,
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "name": "A1134",
+   "town": "Cambridge",
+   "avg": 1463,
    "kind": "Road (DfT count point)",
-   "src": "DfT count point 28292",
+   "src": "DfT count point 37603",
    "period": "2021–2025",
-   "lat": 53.96406252,
-   "lon": -1.07606354
-  },
-  {
-   "area": "greater-manchester",
-   "area_name": "Greater Manchester",
-   "name": "Portland Street (A5103)",
-   "town": "Manchester",
-   "avg": 1311,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 18202",
-   "period": "2021–2025",
-   "lat": 53.47850235,
-   "lon": -2.23850781
-  },
-  {
-   "area": "greater-manchester",
-   "area_name": "Greater Manchester",
-   "name": "Portland Street (A6)",
-   "town": "Manchester",
-   "avg": 1169,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 77003",
-   "period": "2021–2025",
-   "lat": 53.48039619,
-   "lon": -2.23532399
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "George Street (A165)",
-   "town": "Hull",
-   "avg": 1167,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 18583",
-   "period": "2021–2025",
-   "lat": 53.74733076,
-   "lon": -0.33314169
-  },
-  {
-   "area": "east-riding",
-   "area_name": "Hull & East Riding",
-   "name": "Holderness Road (A165)",
-   "town": "Hull",
-   "avg": 1096,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 6713",
-   "period": "2021–2025",
-   "lat": 53.7544922,
-   "lon": -0.31236626
-  },
-  {
-   "area": "greater-manchester",
-   "area_name": "Greater Manchester",
-   "name": "Peter Street (A34)",
-   "town": "Manchester",
-   "avg": 1060,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 96067",
-   "period": "2024–2025",
-   "lat": 53.47755603,
-   "lon": -2.24428843
-  },
-  {
-   "area": "leicestershire",
-   "area_name": "Leicester & Leicestershire",
-   "name": "London Road (A6)",
-   "town": "Leicester",
-   "avg": 1052,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 56161",
-   "period": "2021–2025",
-   "lat": 52.63053846,
-   "lon": -1.12469453
-  },
-  {
-   "area": "greater-manchester",
-   "area_name": "Greater Manchester",
-   "name": "Oxford Street (A34)",
-   "town": "Manchester",
-   "avg": 1015,
-   "kind": "Road (DfT count point)",
-   "src": "DfT count point 38034",
-   "period": "2021–2025",
-   "lat": 53.4766958,
-   "lon": -2.24298775
+   "lat": 52.1841067,
+   "lon": 0.11952496
   }
  ],
  "collisions": [
@@ -259,6 +259,23 @@
    "lon": -2.9265239
   },
   {
+   "area": "norfolk-suffolk",
+   "area_name": "Norfolk & Suffolk",
+   "name": "Dereham Road",
+   "ref": "A1074",
+   "town": "Norwich",
+   "km": 14.8,
+   "n": 26,
+   "fatal": 0,
+   "serious": 3,
+   "ksi": 3,
+   "aadf": 309,
+   "rate": 3.1,
+   "match": "on road",
+   "lat": 52.6386,
+   "lon": 1.24653
+  },
+  {
    "area": "west-yorkshire",
    "area_name": "West Yorkshire",
    "name": "Headingley Lane",
@@ -274,23 +291,6 @@
    "match": "same road, 0.6 km away",
    "lat": 53.81564,
    "lon": -1.56413
-  },
-  {
-   "area": "west-yorkshire",
-   "area_name": "West Yorkshire",
-   "name": "Kirkstall Road",
-   "ref": "A65",
-   "town": "Leeds",
-   "km": 4.51,
-   "n": 24,
-   "fatal": 0,
-   "serious": 9,
-   "ksi": 9,
-   "aadf": 314,
-   "rate": 9.3,
-   "match": "on road",
-   "lat": 53.8059161,
-   "lon": -1.5810828
   }
  ],
  "risk": [
@@ -630,6 +630,13 @@
    "n": 852
   },
   {
+   "area": "norfolk-suffolk",
+   "area_name": "Norfolk & Suffolk",
+   "coll": 23,
+   "pop": 12,
+   "n": 1747
+  },
+  {
    "area": "liverpool-city-region",
    "area_name": "Liverpool City Region",
    "coll": 52,
@@ -712,6 +719,13 @@
    "coll": 16,
    "pop": 17,
    "n": 331
+  },
+  {
+   "area": "cambridgeshire-peterborough",
+   "area_name": "Cambridgeshire & Peterborough",
+   "coll": 11,
+   "pop": 12,
+   "n": 1388
   }
  ],
  "areas": [
@@ -774,6 +788,14 @@
   {
    "id": "tees-valley",
    "name": "Tees Valley"
+  },
+  {
+   "id": "cambridgeshire-peterborough",
+   "name": "Cambridgeshire & Peterborough"
+  },
+  {
+   "id": "norfolk-suffolk",
+   "name": "Norfolk & Suffolk"
   }
  ],
  "busy": 150

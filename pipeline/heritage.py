@@ -9,8 +9,9 @@ classed by its name:
                      Danish east of them, as historians usually read the two settlements
   English            everything else
 Each town (data/towns.json) gets the share of places within 10 km in each class and a heritage group: Holland (the
-Boston and South Holland council areas: the drained Fens, a different landscape), Danish, Norse via Ireland, English,
-or mixed. Cycling is compared with what the town's gradient alone predicts (the towns page's fitted curve), and a
+Boston and South Holland council areas: the drained Fens, a different landscape); Danish for the Five Boroughs
+(Derby, Nottingham, Leicester, Lincoln, Stamford); otherwise the class of the town's own name where that is Norse
+(Derby, Selby, Kirkby); otherwise Danish, Norse via Ireland, English or mixed by the places around it. Cycling is compared with what the town's gradient alone predicts (the towns page's fitted curve), and a
 regression within the East checks whether Danish names add anything once gradient, deprivation, car ownership and
 size are held equal.
 
@@ -28,7 +29,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw', 'heritage')
 DATA = os.path.join(HERE, '..', 'data')
 BUA = 'https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/BUA_2022_GB/FeatureServer/0/query'
-BOX = '-3.7,52.4,0.4,55.9'    # the North of England, from the Scottish border to the south of Leicestershire
+BOX = '-3.7,51.9,1.8,55.9'    # the North of England, the East Midlands and East Anglia, from the Scottish border to Suffolk
 NEAR_KM = 10
 WEST_LON = -2.15              # rough Pennine watershed
 NORW = re.compile(r"(thwaite|scales?|gill|fell|keld|breck|erg|ergh|argh|arke)$", re.I)
@@ -37,6 +38,11 @@ SHARED = re.compile(r"(by|bie|holme|hulme|beck|garth)$|^kirk", re.I)
 REGION = {**{a: 'North' for a in ('north-east', 'tees-valley', 'cumbria')},
           **{a: 'West' for a in ('greater-manchester', 'liverpool-city-region', 'lancashire', 'cheshire-warrington')}}
 HOLLAND = ('Boston', 'South Holland')
+# the Five Boroughs, the fortified towns of the Danelaw in the East Midlands: Danish by history whatever the names round them
+FIVE_BOROUGHS = ('Derby', 'Nottingham', 'Leicester', 'Lincoln', 'Stamford')
+# Cambridge, a university city where 30% cycle to work, is in a class of its own: like Hull and York it is shown on the
+# maps but left out of the averages and tests, which it would otherwise swamp
+OUTLIERS = ('Cambridge (Cambridge)',)
 
 
 def places():
@@ -129,7 +135,7 @@ def industrial(out):
         a = agg[t['id']]
         t['pt'] = round(100 * a['pt'] / a['commute'], 1) if a['commute'] else None
         t['around'] = sum(u['travel'] for u in out if u is not t and km(t['lat'], t['lon'], u['lat'], u['lon']) <= NEAR_KM)
-    fg = [t for t in out if t['tier'] in ('flat', 'gentle') and t['pt'] is not None]
+    fg = [t for t in out if t['tier'] in ('flat', 'gentle') and t['pt'] is not None and not t['skip']]
     regions = []
     for r in ('East', 'West', 'North'):
         ts = [t for t in fg if t['region'] == r]; w = sum(t['travel'] for t in ts)
@@ -139,14 +145,14 @@ def industrial(out):
     # predict (each town counted once, so Manchester and Liverpool don't swamp their bands)
     bands = []
     for lo, hi, label in ((0, 20000, 'On its own'), (20000, 60000, 'A few towns nearby'), (60000, 150000, 'Edge of a conurbation'), (150000, 10 ** 9, 'Inside a conurbation')):
-        ts = [t for t in fg if lo <= t['around'] < hi and t['tier'] != 'bench']; w = sum(t['travel'] for t in ts)
+        ts = [t for t in fg if lo <= t['around'] < hi and not t['skip']]; w = sum(t['travel'] for t in ts)
         if not ts: continue
         bands.append(dict(label=label, lo=lo, hi=hi, towns=len(ts), regions=dict(collections.Counter(t['region'] for t in ts)),
                           cycle=round(sum(t['cycle21'] * t['travel'] for t in ts) / w, 2), expected=round(sum(t['expected'] * t['travel'] for t in ts) / w, 2),
                           ratio=round(math.exp(sum(math.log(t['cycle21'] / t['expected']) for t in ts) / len(ts)), 3),
                           pt=round(sum(t['pt'] * t['travel'] for t in ts) / w, 1),
                           examples=[t['name'] for t in sorted(ts, key=lambda t: -t['travel'])[:4]]))
-    U = [t for t in out if t['tier'] != 'bench' and t['cycle21'] > 0 and t['pt'] is not None]
+    U = [t for t in out if not t['skip'] and t['cycle21'] > 0 and t['pt'] is not None]
     con = lambda t: math.log1p(t['around'] / 1000); pt = lambda t: t['pt'] / 10
     models = dict(base=fit(U, []), conurbation=fit(U, [con]), transport=fit(U, [pt]), both=fit(U, [con, pt]))
     return dict(regions=regions, bands=bands, models=models)
@@ -161,21 +167,24 @@ def main():
         near = [p['c'] for p in pl if km(t['lat'], t['lon'], p['lat'], p['lon']) <= NEAR_KM]
         k = len(near) or 1
         dan, iri = near.count('danish') / k, near.count('irish') / k
-        group = ('holland' if t['lad'] in HOLLAND else 'danish' if dan >= .15 and dan >= iri else 'irish' if iri >= .10
-                 else 'english' if dan + iri < .05 else 'mixed')
+        # a town's own Norse name, or its place among the Five Boroughs, outranks the names around it
+        own = name_class(t['name'].split(' (')[0], t['lon'])
+        group = ('holland' if t['lad'] in HOLLAND else 'danish' if t['name'] in FIVE_BOROUGHS else own if own != 'english'
+                 else 'danish' if dan >= .15 and dan >= iri else 'irish' if iri >= .10 else 'english' if dan + iri < .05 else 'mixed')
         out.append(dict(id=t['id'], name=t['name'], area_name=t['area_name'], region=REGION.get(t['area'], 'East'), tier=t['tier'],
                         lat=t['lat'], lon=t['lon'], travel=t['travel'], cycle21=t['cycle21'], expected=t['expected'], slope=t['slope'],
-                        deprived=t['deprived'], nocar=t['nocar'], danish=round(dan, 3), irish=round(iri, 3), places=len(near), group=group))
+                        deprived=t['deprived'], nocar=t['nocar'], danish=round(dan, 3), irish=round(iri, 3), places=len(near), group=group,
+                        skip=t['tier'] == 'bench' or t['name'] in OUTLIERS))
     # each group's cycling against what gradient alone predicts, weighted by people travelling to work (Hull and York left out)
     groups = []
     for g in ('danish', 'holland', 'mixed', 'english', 'irish'):
-        ts = [t for t in out if t['group'] == g and t['tier'] != 'bench']
+        ts = [t for t in out if t['group'] == g and not t['skip']]
         w = sum(t['travel'] for t in ts)
         now = sum(t['cycle21'] * t['travel'] for t in ts) / w; exp = sum(t['expected'] * t['travel'] for t in ts) / w
         groups.append(dict(group=g, towns=len(ts), cycle=round(now, 2), expected=round(exp, 2), ratio=round(now / exp, 3),
                            regions=dict(collections.Counter(t['region'] for t in ts)),
                            examples=[t['name'] for t in sorted(ts, key=lambda t: -t['travel'])[:5]]))
-    east = [t for t in out if t['region'] == 'East' and t['tier'] != 'bench' and t['cycle21'] > 0]
+    east = [t for t in out if t['region'] == 'East' and not t['skip'] and t['cycle21'] > 0]
     tests = dict(east=danish_effect(east), east_no_holland=danish_effect([t for t in east if t['group'] != 'holland']),
                  east_flat=danish_effect([t for t in east if t['tier'] != 'hilly' and t['group'] != 'holland']))
     villages = [[p['name'], p['lat'], p['lon'], p['c'][0]] for p in pl if p['c'] != 'english']

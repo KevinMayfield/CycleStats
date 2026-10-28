@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="The Danelaw Cycle Network and the towns flat enough for Dutch-style cycling, across the North of England and the East Midlands, on one map.">
+<meta name="description" content="The Danelaw Cycle Network and the towns flat enough for Dutch-style cycling, across the North of England, the East Midlands and East Anglia, on one map.">
 <title>CycleStats</title>
 <script>
 // the area maps moved to area.html in Oct 2026: send old links (index.html?area=…, #danger and other tabs) there
@@ -78,7 +78,7 @@ h2{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.1;mar
 <div class="wrap">
   <header>
     <div>
-      <div class="eyebrow">CycleStats · The North of England and the East Midlands</div>
+      <div class="eyebrow">CycleStats · The North of England, the East Midlands and East Anglia</div>
       <h1>Where cycling could work</h1>
       <p class="lede">The Danelaw Cycle Network, a set of flat routes along the rivers linking the towns, over every town shaded by how hilly its commute routes are. Many towns are as flat as Hull and York, two of England's highest-cycling places, yet few people cycle there.</p>
     </div>
@@ -151,7 +151,7 @@ Promise.all([get('data/areas.json'),get('data/towns.json'),get('data/danelaw-lin
       .on('click',()=>location.href='danelaw.html').addTo(m);
   });
   // area names, with a short label where the full name would crowd its neighbours (tooltips and cards keep the full name)
-  const SHORT={'east-midlands':'East Midlands','greater-manchester':'Manchester','liverpool-city-region':'Liverpool','cheshire-warrington':'Cheshire','leicestershire':'Leicestershire','east-riding':'East Riding','north-yorkshire':'North Yorkshire'};
+  const SHORT={'east-midlands':'East Midlands','greater-manchester':'Manchester','liverpool-city-region':'Liverpool','cheshire-warrington':'Cheshire','leicestershire':'Leicestershire','east-riding':'East Riding','north-yorkshire':'North Yorkshire','cambridgeshire-peterborough':'Cambs & Peterborough','norfolk-suffolk':'Norfolk & Suffolk'};
   T.outlines.filter(o=>names[o.id]).forEach(o=>{const r=o.rings.reduce((a,b)=>ringArea(b)>ringArea(a)?b:a);
     const c=r.reduce((s,p)=>[s[0]+p[0]/r.length,s[1]+p[1]/r.length],[0,0]);
     L.tooltip({permanent:true,direction:'center',className:'lab',interactive:false}).setLatLng(c).setContent(esc(SHORT[o.id]||names[o.id])).addTo(m)});
