@@ -13,8 +13,16 @@ Boston and South Holland council areas: the drained Fens, a different landscape)
 or mixed. Cycling is compared with what the town's gradient alone predicts (the towns page's fitted curve), and a
 regression within the East checks whether Danish names add anything once gradient, deprivation, car ownership and
 size are held equal.
+
+The industrial revolution: towns the conurbations grew around against towns that stayed separate. For each town,
+  around   people travelling to work in the other towns within 10 km (data/towns.json), a measure of how far it sits
+           inside a conurbation rather than on its own
+  pt       share commuting by bus, train, tram or metro (Census 2021 TS061 by LSOA, cached in raw/heritage/, matched to
+           towns with raw/imd/lsoa_bua.csv)
+and, holding hills, deprivation, car ownership and size equal, how much of the West's and North's gap to the East each
+explains.
 """
-import collections, json, math, os, random, re, urllib.parse, urllib.request
+import collections, csv, io, json, math, os, random, re, urllib.parse, urllib.request, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw', 'heritage')
@@ -84,6 +92,66 @@ def danish_effect(ts):
     return dict(n=len(ts), x=round(math.exp(c), 3), lo=round(math.exp(bs[int(.025 * len(bs))]), 3), hi=round(math.exp(bs[int(.975 * len(bs))]), 3))
 
 
+def fit(ts, extra):
+    """cycling multipliers for the West and North against the East (and for each extra measure), with 95% ranges"""
+    reg = lambda t: [float(t['region'] == 'West'), float(t['region'] == 'North')]
+    X = [[1.0, t['slope'], t['deprived'] / 10, t['nocar'] / 10, math.log(t['travel'])] + [f(t) for f in extra] + reg(t) for t in ts]
+    Y = [math.log(t['cycle21']) for t in ts]
+    c = lstsq(X, Y); random.seed(4); bs = []
+    for _ in range(500):
+        idx = [random.randrange(len(X)) for _ in X]
+        try: bs.append(lstsq([X[i] for i in idx], [Y[i] for i in idx]))
+        except ZeroDivisionError: pass
+    def est(j):
+        v = sorted(b[j] for b in bs)
+        return dict(x=round(math.exp(c[j]), 3), lo=round(math.exp(v[int(.025 * len(v))]), 3), hi=round(math.exp(v[int(.975 * len(v))]), 3))
+    n = len(extra)
+    return dict(west=est(5 + n), north=est(6 + n), extra=[est(5 + j) for j in range(n)])
+
+
+def industrial(out):
+    """conurbation and public transport around each town, by region and in the model"""
+    z = os.path.join(RAW, 'census2021-ts061.zip')
+    if not os.path.exists(z):
+        open(z, 'wb').write(urllib.request.urlopen(urllib.request.Request('https://www.nomisweb.co.uk/output/census/2021/census2021-ts061.zip',
+                                                                          headers={'User-Agent': 'CycleStats'}), timeout=300).read())
+    ids = {t['id'] for t in out}
+    lb = {r['lsoa']: r['bua'] for r in csv.DictReader(open(os.path.join(HERE, '..', 'raw', 'imd', 'lsoa_bua.csv'))) if r['bua'] in ids}
+    agg = collections.defaultdict(collections.Counter)
+    pre = 'Method of travel to workplace: '
+    for r in csv.DictReader(io.TextIOWrapper(zipfile.ZipFile(z).open('census2021-ts061-lsoa.csv'), encoding='utf-8-sig')):
+        b = lb.get(r['geography code'])
+        if not b: continue
+        k = lambda s: int(r[pre + s]); a = agg[b]
+        a['commute'] += k('Total: All usual residents aged 16 years and over in employment the week before the census') - k('Work mainly at or from home')
+        a['pt'] += k('Underground, metro, light rail, tram') + k('Train') + k('Bus, minibus or coach')
+    for t in out:
+        a = agg[t['id']]
+        t['pt'] = round(100 * a['pt'] / a['commute'], 1) if a['commute'] else None
+        t['around'] = sum(u['travel'] for u in out if u is not t and km(t['lat'], t['lon'], u['lat'], u['lon']) <= NEAR_KM)
+    fg = [t for t in out if t['tier'] in ('flat', 'gentle') and t['pt'] is not None]
+    regions = []
+    for r in ('East', 'West', 'North'):
+        ts = [t for t in fg if t['region'] == r]; w = sum(t['travel'] for t in ts)
+        regions.append(dict(region=r, towns=len(ts), cycle=round(sum(t['cycle21'] * t['travel'] for t in ts) / w, 1),
+                            pt=round(sum(t['pt'] * t['travel'] for t in ts) / w, 1), around=round(sorted(t['around'] for t in ts)[len(ts) // 2])))
+    # flat and gently sloping towns in bands of surrounding workforce: the typical town's cycling against what its hills
+    # predict (each town counted once, so Manchester and Liverpool don't swamp their bands)
+    bands = []
+    for lo, hi, label in ((0, 20000, 'On its own'), (20000, 60000, 'A few towns nearby'), (60000, 150000, 'Edge of a conurbation'), (150000, 10 ** 9, 'Inside a conurbation')):
+        ts = [t for t in fg if lo <= t['around'] < hi and t['tier'] != 'bench']; w = sum(t['travel'] for t in ts)
+        if not ts: continue
+        bands.append(dict(label=label, lo=lo, hi=hi, towns=len(ts), regions=dict(collections.Counter(t['region'] for t in ts)),
+                          cycle=round(sum(t['cycle21'] * t['travel'] for t in ts) / w, 2), expected=round(sum(t['expected'] * t['travel'] for t in ts) / w, 2),
+                          ratio=round(math.exp(sum(math.log(t['cycle21'] / t['expected']) for t in ts) / len(ts)), 3),
+                          pt=round(sum(t['pt'] * t['travel'] for t in ts) / w, 1),
+                          examples=[t['name'] for t in sorted(ts, key=lambda t: -t['travel'])[:4]]))
+    U = [t for t in out if t['tier'] != 'bench' and t['cycle21'] > 0 and t['pt'] is not None]
+    con = lambda t: math.log1p(t['around'] / 1000); pt = lambda t: t['pt'] / 10
+    models = dict(base=fit(U, []), conurbation=fit(U, [con]), transport=fit(U, [pt]), both=fit(U, [con, pt]))
+    return dict(regions=regions, bands=bands, models=models)
+
+
 def main():
     P = places()
     pl = [dict(name=n, lat=round(la, 4), lon=round(lo, 4), c=name_class(n, lo)) for _, n, la, lo in P]
@@ -111,10 +179,12 @@ def main():
     tests = dict(east=danish_effect(east), east_no_holland=danish_effect([t for t in east if t['group'] != 'holland']),
                  east_flat=danish_effect([t for t in east if t['tier'] != 'hilly' and t['group'] != 'holland']))
     villages = [[p['name'], p['lat'], p['lon'], p['c'][0]] for p in pl if p['c'] != 'english']
-    json.dump(dict(towns=out, groups=groups, tests=tests, villages=villages, counts=dict(collections.Counter(p['c'] for p in pl)),
+    ind = industrial(out)
+    json.dump(dict(towns=out, groups=groups, tests=tests, industrial=ind, villages=villages, counts=dict(collections.Counter(p['c'] for p in pl)),
                    near_km=NEAR_KM), open(os.path.join(DATA, 'heritage.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     for g in groups: print(g)
     print(tests, dict(collections.Counter(p['c'] for p in pl)))
+    print(json.dumps(ind, indent=1)[:3000])
 
 
 if __name__ == '__main__':
