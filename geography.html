@@ -14,18 +14,18 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
   --accent:#0f6b5c; --soft:#e2f0ec;
-  /* heritage groups, categorical slots in fixed order (validated): Danish, Norse via Ireland, Holland, English; mixed is context */
-  --g-danish:#2a78d6; --g-irish:#eb6834; --g-holland:#1baf7a; --g-english:#eda100; --g-mixed:#9aa39e;
+  /* heritage groups, categorical slots in fixed order (validated): Danish, Norse via Ireland, Holland, English; some Norse names is a lighter step of the Danish blue */
+  --g-danish:#2a78d6; --g-irish:#eb6834; --g-holland:#1baf7a; --g-english:#eda100; --g-mixed:#8cc4f2;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#6b7570; color-scheme:dark}}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#6b7570; color-scheme:dark}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -153,7 +153,7 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
   D.villages.forEach(([n,la,lo,c])=>L.circleMarker([la,lo],{radius:2.6,stroke:false,fillColor:css(c==='d'?'--g-danish':'--g-irish'),fillOpacity:.6}).bindTooltip(`${esc(n)} · ${c==='d'?'Danish':'Norse via Ireland'} name`,{className:'tt'}).addTo(map));
   const mx=Math.max(...D.towns.map(t=>t.travel));
   // towns cycling more than their hills predict are squares, the rest circles; the square has the circle's area
-  D.towns.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const r=t.cycle21/t.expected,rad=4+Math.sqrt(t.travel/mx)*16,fill=css(G[t.group][1]),op=t.group==='mixed'?.45:.85;
+  D.towns.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const r=t.cycle21/t.expected,rad=4+Math.sqrt(t.travel/mx)*16,fill=css(G[t.group][1]),op=.85;
     const s=rad*Math.sqrt(Math.PI);
     (r>1?L.marker([t.lat,t.lon],{icon:L.divIcon({className:'',html:`<svg width="${s+2}" height="${s+2}" style="display:block"><rect x="1" y="1" width="${s}" height="${s}" fill="${fill}" fill-opacity="${op}" stroke="${css('--panel')}" stroke-width="1.2"/></svg>`,iconSize:[s+2,s+2],iconAnchor:[s/2+1,s/2+1]})})
       :L.circleMarker([t.lat,t.lon],{radius:rad,color:css('--panel'),weight:1.2,fillColor:fill,fillOpacity:op}))
