@@ -71,6 +71,12 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .note{padding:16px 18px;display:grid;gap:10px;max-width:110ch;font-size:14px}
 .note p{margin:0}
 .callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
+.tw{overflow-x:auto;padding:4px 18px 4px}
+.rt{border-collapse:collapse;font-size:13px;min-width:520px}
+.rt th{text-align:right;font:600 11px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--line)}
+.rt th:first-child,.rt td:first-child{text-align:left}
+.rt td{text-align:right;padding:8px 12px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.rt td:first-child{font-family:var(--body);font-weight:600}
 .method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px;color:var(--muted)}
 .method p{margin:0}.method b{color:var(--ink)}
 @media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:40px}}
@@ -94,9 +100,16 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
     <div class="axis" id="axis"></div>
   </section>
   <section>
-    <div class="sh"><h2>Where the names are</h2><p>Every town of about 10,000 people or more, coloured by its group and sized by people travelling to work, over the villages with Norse names: Danish (blue) east of the Pennines and through Lincolnshire, Norse via Ireland (orange) along the west coast and into Cumbria. Holland is the drained Fenland around Boston and Spalding. Hover for each town's figures.</p></div>
+    <div class="sh"><h2>Where the names are</h2><p>Every town of about 10,000 people or more, coloured by its group and sized by people travelling to work, square where it cycles more than its hills predict and round where it doesn't, over the villages with Norse names: Danish (blue) east of the Pennines and through Lincolnshire, Norse via Ireland (orange) along the west coast and into Cumbria. Holland is the drained Fenland around Boston and Spalding. Hover for each town's figures.</p></div>
     <div class="legend" id="legend"></div>
     <div id="map" role="img" aria-label="Map of the northern towns coloured by place-name heritage, over villages with Danish and Irish-Norse names"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>The industrial revolution: towns that stayed towns</h2><p>The other half of the story. In the East, the old river, port and market towns mostly stayed separate towns, where work was a short, level ride away. In the West, the industrial revolution joined many of them into the Manchester and Liverpool conurbations, with railways, trams and long commutes. Here every flat and gently sloping town is placed by how many people travel to work in the other towns within 10 km of it, from a town on its own to one inside a conurbation, and the bars show how the typical town in each band cycles against what its hills predict.</p></div>
+    <div class="bars" id="ibars"></div>
+    <div class="axis" id="iaxis"></div>
+    <div class="tw"><table class="rt" id="iregions"></table></div>
+    <div class="note" id="inote"></div>
   </section>
   <section>
     <div class="sh"><h2>What this shows</h2></div>
@@ -139,10 +152,35 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · place names ONS Built-up Areas 2022'}).addTo(map);
   D.villages.forEach(([n,la,lo,c])=>L.circleMarker([la,lo],{radius:2.6,stroke:false,fillColor:css(c==='d'?'--g-danish':'--g-irish'),fillOpacity:.6}).bindTooltip(`${esc(n)} · ${c==='d'?'Danish':'Norse via Ireland'} name`,{className:'tt'}).addTo(map));
   const mx=Math.max(...D.towns.map(t=>t.travel));
-  D.towns.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const r=t.cycle21/t.expected;
-    L.circleMarker([t.lat,t.lon],{radius:4+Math.sqrt(t.travel/mx)*16,color:css('--panel'),weight:1.2,fillColor:css(G[t.group][1]),fillOpacity:t.group==='mixed'?.45:.85})
+  // towns cycling more than their hills predict are squares, the rest circles; the square has the circle's area
+  D.towns.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const r=t.cycle21/t.expected,rad=4+Math.sqrt(t.travel/mx)*16,fill=css(G[t.group][1]),op=t.group==='mixed'?.45:.85;
+    const s=rad*Math.sqrt(Math.PI);
+    (r>1?L.marker([t.lat,t.lon],{icon:L.divIcon({className:'',html:`<svg width="${s+2}" height="${s+2}" style="display:block"><rect x="1" y="1" width="${s}" height="${s}" fill="${fill}" fill-opacity="${op}" stroke="${css('--panel')}" stroke-width="1.2"/></svg>`,iconSize:[s+2,s+2],iconAnchor:[s/2+1,s/2+1]})})
+      :L.circleMarker([t.lat,t.lon],{radius:rad,color:css('--panel'),weight:1.2,fillColor:fill,fillOpacity:op}))
       .bindTooltip(`<b>${esc(t.name)}</b><br>${G[t.group][0]} · ${esc(t.area_name)}<br>${p1(t.cycle21)}% cycle to work · hills predict ${p1(t.expected)}% (${pc(r)})<br>Nearby places: ${Math.round(t.danish*100)}% Danish, ${Math.round(t.irish*100)}% Norse via Ireland names`,{className:'tt'}).addTo(map)});
-  document.getElementById('legend').innerHTML=['danish','irish','holland','english','mixed'].map(g=>`<span><i style="background:var(${G[g][1]})"></i>${G[g][0]}</span>`).join('')+`<span><i class="v" style="background:var(--g-danish)"></i><i class="v" style="background:var(--g-irish)"></i>Villages with Norse names</span><span>Town size: people travelling to work</span>`;
+  document.getElementById('legend').innerHTML=['danish','irish','holland','english','mixed'].map(g=>`<span><i style="background:var(${G[g][1]})"></i>${G[g][0]}</span>`).join('')+`<span><i class="v" style="background:var(--g-danish)"></i><i class="v" style="background:var(--g-irish)"></i>Villages with Norse names</span><span><i style="border-radius:1px;background:var(--muted)"></i>Square: cycles more than its hills predict</span><span><i style="background:var(--muted)"></i>Circle: as predicted or less</span><span>Town size: people travelling to work</span>`;
+  // the industrial revolution: conurbation bands, regions and how much of the gap they explain
+  const I=D.industrial;
+  if(I){
+    const br=I.bands.map(b=>b.ratio-1),ilo=Math.min(-.35,...br),ihi=Math.max(.15,...br),IX=v=>(v-ilo)/(ihi-ilo)*100;
+    const shade=['--accent','--accent','--accent','--accent'];
+    document.getElementById('ibars').innerHTML=I.bands.map((b,i)=>{const r=b.ratio-1,a=IX(Math.min(0,r)),w=Math.abs(IX(r)-IX(0));
+      const rg=['East','West','North'].filter(k=>b.regions[k]).map(k=>`${b.regions[k]} ${k}`).join(', ');
+      const rng=b.hi>1e8?`${nf(b.lo/1000)}k or more`:`${nf(b.lo/1000)}–${nf(b.hi/1000)}k`;
+      return `<div class="brow"><div class="lab"><b>${esc(b.label)}</b><small>${rng} people working in towns within 10 km · ${b.towns} towns (${rg})</small></div>
+        <div class="track" role="img" aria-label="${esc(b.label)}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${IX(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:var(--accent);opacity:${.55+.15*i}"></div>
+          <div class="val" style="${r<0?`right:${100-a+1}%`:`left:${IX(r)+1}%`}">${pc(b.ratio)}</div></div>
+        <div class="ex">${p1(b.pt)}% commute by bus, train or tram · for example ${b.examples.map(esc).join(', ')}</div></div>`}).join('');
+    const iticks=[-.3,-.2,-.1,0,.1].filter(v=>v>=ilo&&v<=ihi);
+    document.getElementById('iaxis').innerHTML=`<i></i><div>${iticks.map(v=>`<span style="left:${IX(v)}%">${v===0?'as predicted':(v>0?'+':'−')+Math.abs(Math.round(v*100))+'%'}</span>`).join('')}</div>`;
+    document.getElementById('iregions').innerHTML=`<thead><tr><th>Flat and gently sloping towns</th><th>Towns</th><th>Cycle to work</th><th>People working in towns within 10 km (typical)</th><th>Commute by bus, train or tram</th></tr></thead><tbody>${
+      I.regions.map(r=>`<tr><td>${r.region}</td><td>${r.towns}</td><td>${p1(r.cycle)}%</td><td>${nf(r.around)}</td><td>${p1(r.pt)}%</td></tr>`).join('')}</tbody>`;
+    const M=I.models,gap=e=>pc(e.x);
+    document.getElementById('inote').innerHTML=`
+      <p><b>Towns on their own cycle more than their hills predict; towns with others crowded round them cycle about a quarter less.</b> The typical flat or gently sloping town on its own cycles ${pc(I.bands[0].ratio)} against what its gradient predicts; with a few towns nearby, at the edge of a conurbation or inside one, the typical town cycles ${I.bands.slice(1).map(b=>pc(b.ratio)).join(', ')}. Most standalone towns are in the East; most of the conurbation towns are in the West.</p>
+      <p><b>This explains about half of the West's gap.</b> Holding hills, deprivation, car ownership and size equal, towns in the West cycle ${gap(M.base.west)} against similar towns in the East. Allowing for how much town surrounds them as well, that falls to ${gap(M.conurbation.west)}. Buses, trains and trams, which come with the conurbations (${p1(I.regions[1].pt)}% of commuters in the West against ${p1(I.regions[0].pt)}% in the East), add nothing once the conurbation itself is counted: they are part of the same story, not a separate cause.</p>
+      <p><b>It does not explain the North.</b> Tyneside and Teesside are conurbations too, but the North's gap stays at ${gap(M.conurbation.north)} after allowing for them: something else holds the North back, perhaps the weather, the loss of heavy industry or habit, none of which is tested here.</p>`;
+  }
   // what it means
   const T=D.tests,rng=t=>`${pc(t.x)} (likely between ${pc(t.lo)} and ${pc(t.hi)})`;
   document.getElementById('note').innerHTML=`
@@ -154,6 +192,7 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
   document.getElementById('method').innerHTML=`
     <p><b>Place names.</b> ${nf(C.english+C.danish+C.irish)} built-up areas across the North of England, villages included (ONS Built-up Areas 2022), classed by their names: Norwegian-type endings (-thwaite, -scale, -gill, -fell, -keld, -breck, Gaelic-Norse -erg) as Norse via Ireland; -thorpe and -toft as Danish; endings used by both (-by, -holme or -hulme, -beck, -garth, kirk-) by which side of the Pennines they lie, as historians usually read them. That gives ${nf(C.danish)} Danish, ${nf(C.irish)} Norse via Ireland and ${nf(C.english)} English names. Each town's group comes from the places within ${D.near_km} km: Danish where 15% or more are Danish, Norse via Ireland where 10% or more are, English under 5% of either; Holland is the Boston and South Holland council areas.</p>
     <p><b>Cycling.</b> Census 2021 cycling to work, against the share the town's average commute gradient predicts from the curve fitted across all towns on the towns page (cycling roughly halves with every 1.6 points of gradient). The test of Danish names adds deprivation, car ownership and town size, with ranges from 1,000 bootstrap resamples.</p>
+    <p><b>Industrial revolution.</b> For each town, the people travelling to work in all the other towns of about 10,000 or more within ${D.near_km} km, and the share commuting by bus, train, tram or metro (Census 2021, by small area). Bands: under 20,000 people working nearby, 20,000–60,000, 60,000–150,000, and 150,000 or more. The typical town in each band is the average of its towns' cycling against what their gradient predicts, each town counted once. The regional gaps come from the same comparison as the Danish-name test, with the surrounding workforce (on a log scale) and public transport share added.</p>
     <p><b>Limits.</b> Name endings are a rough guide: some -holme and -by names are not Norse, and the Pennine rule makes "Norse via Ireland" partly the same thing as "the West". Only three towns are in Holland. These are comparisons between towns, not proof of what causes what.</p>`;
 }).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/heritage.json (${esc(e.message)})</span></div>`});
 </script>
