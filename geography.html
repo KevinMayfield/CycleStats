@@ -16,18 +16,19 @@
   --accent:#0f6b5c; --soft:#e2f0ec;
   /* heritage groups, categorical slots in fixed order (validated): Danish, Norse via Ireland, Holland, English; some Norse names is a lighter step of the Danish blue */
   --g-danish:#2a78d6; --g-irish:#eb6834; --g-holland:#1baf7a; --g-english:#eda100; --g-mixed:#8cc4f2;
-  /* conurbation bands, one hue light to dark (validated ordinal): on its own, a few towns nearby, edge, inside */
-  --b1:#86b6ef; --b2:#3987e5; --b3:#256abf; --b4:#104281;
+  /* conurbation bands, distinct hues (validated, all pairs): on its own aqua, a few towns nearby yellow, edge of a
+     conurbation red, inside a conurbation violet */
+  --b1:#1baf7a; --b2:#eda100; --b3:#e34948; --b4:#6250d6;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#1c5cab; --b2:#3987e5; --b3:#6da7ec; --b4:#b7d3f6; color-scheme:dark}}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#199e70; --b2:#b98a00; --b3:#e66767; --b4:#9085e9; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#1c5cab; --b2:#3987e5; --b3:#6da7ec; --b4:#b7d3f6; color-scheme:dark}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#199e70; --b2:#b98a00; --b3:#e66767; --b4:#9085e9; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -74,6 +75,7 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .note p{margin:0}
 .callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
 .tw{overflow-x:auto;padding:4px 18px 4px}
+.mlab{font:600 12px/1 var(--body);color:var(--ink);white-space:nowrap;text-shadow:0 0 3px var(--panel),0 0 3px var(--panel),0 0 2px var(--panel)}
 .rt{border-collapse:collapse;font-size:13px;min-width:520px}
 .rt th{text-align:right;font:600 11px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--line)}
 .rt th:first-child,.rt td:first-child{text-align:left}
@@ -107,7 +109,7 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
     <div id="map" role="img" aria-label="Map of the northern towns coloured by place-name heritage, over villages with Danish and Irish-Norse names"></div>
   </section>
   <section>
-    <div class="sh"><h2>The industrial revolution: towns that stayed towns</h2><p>The other half of the story. In the East, the old river, port and market towns mostly stayed separate towns, where work was a short, level ride away. In the West, the industrial revolution joined many of them into the Manchester and Liverpool conurbations, with railways, trams and long commutes. Here every flat and gently sloping town is placed by how many people travel to work in the other towns within 10 km of it, from a town on its own to one inside a conurbation, and the bars show how the typical town in each band cycles against what its hills predict.</p></div>
+    <div class="sh"><h2>The industrial revolution: towns that stayed towns</h2><p>The other half of the story. In the East, the old river, port and market towns mostly stayed separate towns, where work was a short, level ride away. In the West, the industrial revolution joined many of them into the Manchester and Liverpool conurbations, with railways, trams and long commutes. Here every flat and gently sloping town is placed by how many people travel to work in the other towns within 10 km of it, from a town on its own to one inside a conurbation, and the bars show how the typical town in each band cycles against what its hills predict. The map adds the hilly towns, such as Leeds and Sheffield, in grey, and Hull and York ringed: they are left out of the comparison (hills would swamp it, and Hull and York are the benchmarks). Note that the measure counts the people working in other towns around a town, not the town itself, so a big but self-contained city such as Hull scores as on its own, while Manchester, crowded by Salford, Stockport and Trafford, is inside a conurbation.</p></div>
     <div class="bars" id="ibars"></div>
     <div class="axis" id="iaxis"></div>
     <div class="legend" id="ilegend" style="border-top:1px solid var(--line);margin-top:14px"></div>
@@ -182,7 +184,7 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
       const rg=['East','West','North'].filter(k=>b.regions[k]).map(k=>`${b.regions[k]} ${k}`).join(', ');
       const rng=b.hi>1e8?`${nf(b.lo/1000)}k or more`:`${nf(b.lo/1000)}–${nf(b.hi/1000)}k`;
       return `<div class="brow"><div class="lab"><b>${esc(b.label)}</b><small>${rng} people working in towns within 10 km · ${b.towns} towns (${rg})</small></div>
-        <div class="track" role="img" aria-label="${esc(b.label)}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${IX(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:var(--accent);opacity:${.55+.15*i}"></div>
+        <div class="track" role="img" aria-label="${esc(b.label)}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${IX(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:var(--b${i+1})"></div>
           <div class="val" style="${r<0?`right:${100-a+1}%`:`left:${IX(r)+1}%`}">${pc(b.ratio)}</div></div>
         <div class="ex">${p1(b.pt)}% commute by bus, train or tram · for example ${b.examples.map(esc).join(', ')}</div></div>`}).join('');
     const iticks=[-.3,-.2,-.1,0,.1].filter(v=>v>=ilo&&v<=ihi);
@@ -192,9 +194,21 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
     // map: flat and gently sloping towns coloured by band, shaped by cycling against what the hills predict
     const bandOf=t=>I.bands.findIndex(b=>t.around>=b.lo&&t.around<b.hi);
     const FT=D.towns.filter(t=>(t.tier==='flat'||t.tier==='gentle')&&t.around!=null),imx=Math.max(...D.towns.map(t=>t.travel)),im=baseMap('imap',FT);
+    const bandTxt=t=>{const k=bandOf(t);return k<0?'':`${esc(I.bands[k].label)} by this measure: ${nf(t.around)} people work in other towns within 10 km`};
+    // context, not part of the comparison: hilly towns faint and grey underneath; Hull and York, the benchmarks, ringed
+    D.towns.filter(t=>t.tier==='hilly'&&t.around!=null).sort((a,b)=>b.travel-a.travel).forEach(t=>
+      L.circleMarker([t.lat,t.lon],{radius:4+Math.sqrt(t.travel/imx)*16,color:css('--muted'),weight:1,opacity:.5,fillColor:css('--muted'),fillOpacity:.15}).addTo(im)
+        .bindTooltip(`<b>${esc(t.name)}</b> · hilly, left out of the comparison<br>Commute routes average ${p1(t.slope)}% gradient<br>${bandTxt(t)}<br>${p1(t.cycle21)}% cycle to work · hills predict ${p1(t.expected)}%`,{className:'tt'}));
     FT.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const k=bandOf(t);if(k<0)return;
       townMark(im,t,imx,css(`--b${k+1}`)).bindTooltip(`<b>${esc(t.name)}</b><br>${esc(I.bands[k].label)}: ${nf(t.around)} people work in towns within 10 km · ${esc(t.area_name)}<br>${p1(t.cycle21)}% cycle to work · hills predict ${p1(t.expected)}% (${pc(t.cycle21/t.expected)})${t.pt!=null?`<br>${p1(t.pt)}% commute by bus, train or tram`:''}`,{className:'tt'})});
-    document.getElementById('ilegend').innerHTML=I.bands.map((b,k)=>`<span><i style="background:var(--b${k+1})"></i>${esc(b.label)}</span>`).join('')+SHAPE_LEGEND+`<span>Flat and gently sloping towns; size: people travelling to work</span>`;
+    D.towns.filter(t=>t.tier==='bench'&&t.around!=null).forEach(t=>{const k=bandOf(t),rad=4+Math.sqrt(t.travel/imx)*16;
+      L.circleMarker([t.lat,t.lon],{radius:rad,color:css('--ink'),weight:3,fillColor:k<0?css('--muted'):css(`--b${k+1}`),fillOpacity:.85}).addTo(im)
+        .bindTooltip(`<b>${esc(t.name)}</b> · benchmark, left out of the comparison<br>${bandTxt(t)}<br>${p1(t.cycle21)}% cycle to work · hills predict ${p1(t.expected)}% (${pc(t.cycle21/t.expected)})`,{className:'tt'})});
+    // name the big cities people will look for
+    ['Kingston upon Hull','York','Leeds','Sheffield','Manchester','Liverpool','Newcastle upon Tyne'].forEach(n=>{const t=D.towns.find(x=>x.name===n);if(!t)return;
+      L.marker([t.lat,t.lon],{interactive:false,zIndexOffset:5000,icon:L.divIcon({className:'',html:`<span class="mlab">${esc(n==='Kingston upon Hull'?'Hull':n==='Newcastle upon Tyne'?'Newcastle':n)}</span>`,iconSize:[0,0],iconAnchor:[-14,8]})}).addTo(im)});
+    document.getElementById('ilegend').innerHTML=I.bands.map((b,k)=>`<span><i style="background:var(--b${k+1})"></i>${esc(b.label)}</span>`).join('')+SHAPE_LEGEND
+      +`<span><i style="background:var(--b1);box-shadow:0 0 0 2px var(--ink)"></i>Hull or York: benchmark, ringed</span><span><i style="background:transparent;box-shadow:inset 0 0 0 1px var(--muted)"></i>Hilly town (Leeds, Sheffield…): grey, left out</span><span>Size: people travelling to work</span>`;
     const M=I.models,gap=e=>pc(e.x);
     document.getElementById('inote').innerHTML=`
       <p><b>Towns on their own cycle more than their hills predict; towns with others crowded round them cycle about a quarter less.</b> The typical flat or gently sloping town on its own cycles ${pc(I.bands[0].ratio)} against what its gradient predicts; with a few towns nearby, at the edge of a conurbation or inside one, the typical town cycles ${I.bands.slice(1).map(b=>pc(b.ratio)).join(', ')}. Most standalone towns are in the East; most of the conurbation towns are in the West.</p>
