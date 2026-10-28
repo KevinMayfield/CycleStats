@@ -87,6 +87,7 @@ table.lt{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}
 table.lt th,table.lt td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
 table.lt th{font-weight:600;color:var(--muted);font-size:12px;vertical-align:bottom}
 table.lt th:first-child,table.lt td:first-child{text-align:left}
+.note ul.hist{margin:0;padding-left:20px;display:grid;gap:8px}
 table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .two>div+div{border-left:1px solid var(--line)}
@@ -118,6 +119,24 @@ table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-rad
     <div class="sh"><h2>Why? Distance to work, post-war estates or the railways</h2><p>Three ideas for why the coalfield and steel towns cycle less, each tested by adding it to the model above. Flat and gently sloping towns only in the table; each figure is weighted by the people travelling to work.</p></div>
     <div class="tw"><table class="lt" id="ltable"></table></div>
     <div class="note" id="lnote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Racing culture: the coalfields had one, but nobody could see it</h2><p>Belgium's Limburg coalfield is flat to gently rolling, like much of the Nottinghamshire and Yorkshire coalfield, and it kept cycling after its pits closed. Ours mostly did not. This is history, not something the data here can test.</p></div>
+    <div class="tw"><table class="lt" id="rtable"></table></div>
+    <div class="note">
+      <p><b>On the same flat land, it was the pit towns that stopped cycling.</b> The table compares neighbouring towns on similar ground. Goole and Thorne are about ten miles apart, and Goole's share cycling to work is about three times Thorne's. Newark is counted with the coalfield because its council is, but the town itself never had a pit.</p>
+      <p><b>The coalfields produced some of Britain's best riders.</b> Tom Simpson grew up in Harworth, a Nottinghamshire pit village, and rode for its club before winning the world championship. Barry Hoban, who won eight Tour de France stages, came from Stanley near Wakefield. Beryl Burton, who rode for Morley, won seven world titles.</p>
+      <p><b>But British racing was hidden from view.</b> In 1890 the National Cyclists' Union banned massed-start racing on the roads. For half a century, British racing meant time trials ridden alone, often at dawn, with riders in black and courses known by code. The ban was only broken in 1942, when Percy Stallard's British League of Racing Cyclists began holding road races again. In Flanders, kermis races run through the centre of every village every summer weekend, so Belgian children grow up watching racing outside their front door. Children in Harworth or Stanley never saw any.</p>
+      <p class="callout"><b>Racing alone does not keep people cycling to work.</b> Wallonia shares Belgium's racing culture and had coalfields of its own, in the Borinage and around Charleroi and Liège, yet its everyday cycling is low, like England's. Its coalfields lie in hilly valleys, which explains part of that. Closer to home, the 2014 Tour de France started in Yorkshire, but cycling to work in its old coalfield towns hardly changed between the 2011 and 2021 Censuses. The racing may have kept the bike respectable in Flanders, as a national object rather than a sign that you can't afford a car. In British pit towns, it became a sign of hardship once the car arrived.</p>
+      <p><b>What Limburg had that Nottinghamshire and Yorkshire did not:</b></p>
+      <ul class="hist">
+        <li><b>Cycle tracks that were never taken away.</b> Flanders built cycle paths beside its main roads from the 1930s to the 1960s and kept them. Britain built some in the 1930s, then designed its roads around the car. When the pits closed, Limburg's former miners still had a protected way to new work; ours had an A-road.</li>
+        <li><b>How the mining settlements were laid out.</b> Limburg's mining housing was built as garden cities next to the shafts, and miners cycled to the pit. Here, the National Coal Board ran pit buses, and from the 1950s it moved miners between coalfields as pits closed, breaking local ties.</li>
+        <li><b>What came after the mines.</b> Limburg rebuilt itself around cycling. The Flemish cycle route network numbered by junction (<i>fietsknooppunten</i>) began there in the 1990s, and former pit sites at Genk and Beringen became places to visit. Here, most former pit sites became business parks next to the motorways.</li>
+        <li><b>Paying people to cycle.</b> Many Belgian employers pay a tax-free allowance for every kilometre cycled to work. Britain's Cycle to Work scheme only helps with buying the bike.</li>
+        <li><b>Who came to work there.</b> Limburg's mines drew Italian, Turkish, Moroccan and other workers, and they cycled too. Moving people in did not end the habit; the conditions they arrived to did.</li>
+      </ul>
+    </div>
   </section>
   <section>
     <div class="sh"><h2>COVID-19: cycling, or what towns did for work?</h2><p>Deaths registered due to COVID-19 in 2020 and 2021 for each town, per 100,000 residents (ONS, by neighbourhood). Towns where more people cycle had fewer deaths, but those towns also differ in age, industry, deprivation and commuting. The chart on the right holds all of them equal at once and shows what each one adds.</p></div>
@@ -197,6 +216,11 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
     <p><b>Short trips still go by other means.</b> Even counting only people whose work is under 5 km away, coalfield towns have ${p1(gf('coal').short_cycle)} cyclists per 100 and steel towns ${p1(gf('steel').short_cycle)}, against ${p1(gf('other').short_cycle)} elsewhere. Most of the gap is in how short journeys are made, not where the work went.</p>
     <p><b>Post-war estates are there, but make no difference.</b> About ${Math.round(gf('coal').postwar)}% of homes in coalfield towns are cheap homes built 1945–82, mostly council estates, against ${Math.round(gf('other').postwar)}% elsewhere. Once hills, deprivation, cars and the rest are held equal, towns with more of them cycle no less (${pc(pw.x)} per 10 points, likely ${pc(pw.lo)} to ${pc(pw.hi)}), and the coalfield gap stays at ${pc(lt('housing','coal').x)}. The moves themselves may still have broken older habits; housing age cannot show that.</p>
     <p><b>Railway towns follow the coalfield.</b> Taken together they cycle about as predicted (${pc(rl.x)}, likely ${pc(rl.lo)} to ${pc(rl.hi)}). The big railway works towns on flat land cycle more than their hills predict: ${rn(R.filter(t=>t.industry==='other'&&t.cycle>t.expected))}. Those on the coalfields cycle less: ${rn(R.filter(t=>t.industry==='coal'&&t.cycle<t.expected))}. York, the highest-cycling town of all, is a railway town too. Irish settlement from the railway age cannot be measured: the Census does not record ancestry.</p>`;
+  // racing culture: neighbouring towns on the same flat land, pit towns and others
+  const RT=[['Goole','port town'],['Newark-on-Trent','market town'],['Thorne','pit town'],['Bentley','pit town'],['Retford','market town on the coalfield']]
+    .map(([n,k])=>({t:T.find(x=>x.name===n||x.name.startsWith(n+' (')),k})).filter(r=>r.t);
+  document.getElementById('rtable').innerHTML=`<thead><tr><th>Town</th><th>Gradient of commute routes</th><th>Cycle to work, 2021</th><th>What its hills predict</th><th>Against the prediction</th></tr></thead><tbody>`+
+    RT.map(({t,k})=>`<tr><td><i style="background:var(${IND[t.industry][1]})"></i>${esc(t.name.split(' (')[0])} <small style="color:var(--muted)">${k}</small></td><td>${p1(t.slope)}%</td><td>${p1(t.cycle)}%</td><td>${p1(t.expected)}%</td><td>${pc(t.cycle/t.expected)}</td></tr>`).join('')+'</tbody>';
   // scatter: cycling (log) against COVID deaths
   const tip=document.getElementById('tip');
   const drawScatter=()=>{const elc=document.getElementById('scatter');elc.querySelector('svg')?.remove();
