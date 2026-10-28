@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Why do some northern towns cycle more than their hills predict? Town names left by Danish and Irish-Norse settlers, and the Fens of Holland, trace the flat, low river country where cycling is strongest.">
+<title>Geography and History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* Layout: hero with headline figures, a bar chart of cycling against what the hills predict for each heritage group,
+   a map of the towns and the Norse-named villages around them, then what it means and how it was worked out */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
+  --accent:#0f6b5c; --soft:#e2f0ec;
+  /* heritage groups, categorical slots in fixed order (validated): Danish, Norse via Ireland, Holland, English; mixed is context */
+  --g-danish:#2a78d6; --g-irish:#eb6834; --g-holland:#1baf7a; --g-english:#eda100; --g-mixed:#9aa39e;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#6b7570; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#6b7570; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;margin:6px 0 10px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:72ch;font-size:15px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0;border-top:4px solid var(--c,var(--line))}
+.fact b{display:block;font:700 32px/1 var(--display);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:12.5px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.sh h2{margin:0 0 4px;font:700 24px/1.1 var(--display)}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:110ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 18px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend i.v{width:6px;height:6px}
+.bars{padding:14px 18px 18px;display:grid;gap:14px}
+.brow{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:6px 18px;align-items:center}
+.brow .lab b{display:block;font:600 15px/1.2 var(--display)}
+.brow .lab small{display:block;color:var(--muted);font-size:12px}
+.track{position:relative;height:30px}
+.track .zero{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--ink);opacity:.55}
+.track .bar{position:absolute;top:5px;height:20px;border-radius:0 4px 4px 0}
+.track .bar.neg{border-radius:4px 0 0 4px}
+.track .val{position:absolute;top:5px;font:600 13px/20px var(--mono);white-space:nowrap}
+.brow .ex{grid-column:2;color:var(--muted);font-size:12px;margin-top:-6px}
+.axis{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:18px;padding:0 18px;color:var(--muted);font:11px var(--mono)}
+.axis div{position:relative;height:14px}.axis div span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+#map{height:min(700px,78vh);min-height:420px;background:var(--bg)}
+#map .leaflet-tile-pane{opacity:.7}
+#map.dark .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85)}
+.leaflet-tooltip.tt{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px;white-space:normal;width:max-content;max-width:min(300px,78vw);line-height:1.4}
+.leaflet-tooltip.tt:before{display:none}
+.leaflet-bar a{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.leaflet-control-attribution{font-size:10px}
+.note{padding:16px 18px;display:grid;gap:10px;max-width:110ch;font-size:14px}
+.note p{margin:0}
+.callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
+.method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px;color:var(--muted)}
+.method p{margin:0}.method b{color:var(--ink)}
+@media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:40px}}
+@media (max-width:620px){.brow,.axis{grid-template-columns:1fr}.brow .ex{grid-column:1}.axis>i{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · geography and history</div>
+      <h1>Geography and History</h1>
+      <p class="lede">Hills explain much of why some towns cycle and others don't, but not all of it. Towns across the North with Danish place names around them cycle more than their hills predict, the Fens of Holland more still, and towns among the names left by Norse settlers who came via Ireland cycle less. The names are a trail: they mark where people settled a thousand years ago, and the land they chose is the land where cycling works best today.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="health.html">Health and active travel</a><a href="danelaw.html">Danelaw Cycle Network</a></nav>
+  </header>
+  <div class="facts" id="facts"></div>
+  <section>
+    <div class="sh"><h2>Cycling to work against what the hills predict</h2><p>Each town's share cycling to work (Census 2021) compared with what its gradient alone predicts, from the fitted curve on the <a href="towns.html">towns page</a>. Towns are grouped by the place names within <span id="nk">10</span> km of them. 0 is exactly what the hills predict; to the right, more cycling than the hills explain. Weighted by people travelling to work; Hull and York, the benchmarks, are left out.</p></div>
+    <div class="bars" id="bars"></div>
+    <div class="axis" id="axis"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Where the names are</h2><p>Every town of about 10,000 people or more, coloured by its group and sized by people travelling to work, over the villages with Norse names: Danish (blue) east of the Pennines and through Lincolnshire, Norse via Ireland (orange) along the west coast and into Cumbria. Holland is the drained Fenland around Boston and Spalding. Hover for each town's figures.</p></div>
+    <div class="legend" id="legend"></div>
+    <div id="map" role="img" aria-label="Map of the northern towns coloured by place-name heritage, over villages with Danish and Irish-Norse names"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>What this shows</h2></div>
+    <div class="note" id="note"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>How this was worked out</h2></div>
+    <div class="method" id="method"></div>
+  </section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p1=v=>(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB'),pc=r=>{const v=Math.round((r-1)*100);return (v>0?'+':v<0?'−':'')+Math.abs(v)+'%'};
+const G={danish:['Danish names','--g-danish','-thorpe, -toft, and -by, -holme, kirk- east of the Pennines'],
+  irish:['Norse names via Ireland','--g-irish','-thwaite, -scale, -gill, -erg, and -by, -holme, kirk- west of the Pennines'],
+  holland:['Holland (the Fens)','--g-holland','Boston and South Holland: drained marsh, mostly English names'],
+  english:['English names','--g-english','Few or no Norse names nearby'],
+  mixed:['Some Norse names','--g-mixed','Between the groups above']};
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
+  document.getElementById('nk').textContent=D.near_km;
+  const by=Object.fromEntries(D.groups.map(g=>[g.group,g]));
+  const fact=g=>`<div class="fact" style="--c:var(${G[g][1]})"><b>${pc(by[g].ratio)}</b><span>${G[g][0]}: ${by[g].towns} towns cycle ${p1(by[g].cycle)}% against the ${p1(by[g].expected)}% their hills predict</span></div>`;
+  document.getElementById('facts').innerHTML=['holland','danish','english','irish'].map(fact).join('');
+  // bars: change against what the hills predict, around a zero line
+  const order=['holland','danish','mixed','english','irish'],rs=order.map(g=>by[g].ratio-1),lo=Math.min(-.15,...rs),hi=Math.max(.5,...rs),X=v=>(v-lo)/(hi-lo)*100;
+  document.getElementById('bars').innerHTML=order.map(g=>{const b=by[g],r=b.ratio-1,col=`var(${G[g][1]})`,a=X(Math.min(0,r)),w=Math.abs(X(r)-X(0));
+    return `<div class="brow"><div class="lab"><b>${G[g][0]}</b><small>${b.towns} towns · ${esc(G[g][2])}</small></div>
+      <div class="track" role="img" aria-label="${G[g][0]}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${X(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:${col}"></div>
+        <div class="val" style="${r<0?`right:${100-a+1}%`:`left:${X(r)+1}%`}">${pc(b.ratio)}</div></div>
+      <div class="ex">${p1(b.cycle)}% cycle to work, against ${p1(b.expected)}% predicted · for example ${b.examples.slice(0,4).map(esc).join(', ')}</div></div>`}).join('');
+  const ticks=[-.1,0,.1,.2,.3,.4,.5].filter(v=>v>=lo&&v<=hi);
+  document.getElementById('axis').innerHTML=`<i></i><div>${ticks.map(v=>`<span style="left:${X(v)}%">${v===0?'as predicted':(v>0?'+':'−')+Math.abs(Math.round(v*100))+'%'}</span>`).join('')}</div>`;
+  // map
+  const el=document.getElementById('map');el.classList.toggle('dark',isDark());
+  const map=L.map('map',{zoomSnap:.25,scrollWheelZoom:false,preferCanvas:true});
+  map.fitBounds(L.latLngBounds(D.towns.map(t=>[t.lat,t.lon])).pad(.05),{animate:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · place names ONS Built-up Areas 2022'}).addTo(map);
+  D.villages.forEach(([n,la,lo,c])=>L.circleMarker([la,lo],{radius:2.6,stroke:false,fillColor:css(c==='d'?'--g-danish':'--g-irish'),fillOpacity:.6}).bindTooltip(`${esc(n)} · ${c==='d'?'Danish':'Norse via Ireland'} name`,{className:'tt'}).addTo(map));
+  const mx=Math.max(...D.towns.map(t=>t.travel));
+  D.towns.slice().sort((a,b)=>b.travel-a.travel).forEach(t=>{const r=t.cycle21/t.expected;
+    L.circleMarker([t.lat,t.lon],{radius:4+Math.sqrt(t.travel/mx)*16,color:css('--panel'),weight:1.2,fillColor:css(G[t.group][1]),fillOpacity:t.group==='mixed'?.45:.85})
+      .bindTooltip(`<b>${esc(t.name)}</b><br>${G[t.group][0]} · ${esc(t.area_name)}<br>${p1(t.cycle21)}% cycle to work · hills predict ${p1(t.expected)}% (${pc(r)})<br>Nearby places: ${Math.round(t.danish*100)}% Danish, ${Math.round(t.irish*100)}% Norse via Ireland names`,{className:'tt'}).addTo(map)});
+  document.getElementById('legend').innerHTML=['danish','irish','holland','english','mixed'].map(g=>`<span><i style="background:var(${G[g][1]})"></i>${G[g][0]}</span>`).join('')+`<span><i class="v" style="background:var(--g-danish)"></i><i class="v" style="background:var(--g-irish)"></i>Villages with Norse names</span><span>Town size: people travelling to work</span>`;
+  // what it means
+  const T=D.tests,rng=t=>`${pc(t.x)} (likely between ${pc(t.lo)} and ${pc(t.hi)})`;
+  document.getElementById('note').innerHTML=`
+    <p class="callout"><b>This is a result of the Danes settling in flat, low, river country.</b> The Great Army and the settlers who followed came up the Humber, the Trent, the Ouse and the Witham, and took the level land along them: the Vale of York, the Trent valley, the Lincolnshire lowlands. That is the same landscape where cycling is easiest today, with gentle gradients, a dry climate in the Pennines' rain shadow, and compact river and market towns where work was within reach of home. The names have lasted a thousand years because the towns have; the cycling follows the land, not the language.</p>
+    <p><b>The test that shows it.</b> Compare like with like: towns in the East only, holding gradient, deprivation, car ownership and size equal. Across all ${T.east.n} Eastern towns, each extra 10 points of Danish names goes with ${rng(T.east)} more cycling, and leaving out Holland makes little difference (${rng(T.east_no_holland)}). But among the East's ${T.east_flat.n} flat and gently sloping towns the link disappears: ${rng(T.east_flat)}. Flat towns with Danish names cycle no more than flat towns without them. The names mark the lowland; it is the lowland that matters.</p>
+    <p><b>Holland is the clearest case.</b> The Fens around Boston and Spalding were marsh until they were drained, much of it from the 17th century on, so few Norse settlers left names there. Yet this is the flattest land in England, and its towns cycle ${pc(by.holland.ratio)} more than even their gentle gradients predict: landscape again, not heritage.</p>
+    <p><b>And the Norse who came via Ireland?</b> They settled the west coast, from the Wirral and Merseyside to Lancashire and Cumbria, which is wetter and windier, and where many of the old settlements have since been absorbed into the Liverpool and Manchester conurbations, with long commutes and good trains. Their towns cycle ${pc(by.irish.ratio)} against what the hills predict.</p>`;
+  const C=D.counts;
+  document.getElementById('method').innerHTML=`
+    <p><b>Place names.</b> ${nf(C.english+C.danish+C.irish)} built-up areas across the North of England, villages included (ONS Built-up Areas 2022), classed by their names: Norwegian-type endings (-thwaite, -scale, -gill, -fell, -keld, -breck, Gaelic-Norse -erg) as Norse via Ireland; -thorpe and -toft as Danish; endings used by both (-by, -holme or -hulme, -beck, -garth, kirk-) by which side of the Pennines they lie, as historians usually read them. That gives ${nf(C.danish)} Danish, ${nf(C.irish)} Norse via Ireland and ${nf(C.english)} English names. Each town's group comes from the places within ${D.near_km} km: Danish where 15% or more are Danish, Norse via Ireland where 10% or more are, English under 5% of either; Holland is the Boston and South Holland council areas.</p>
+    <p><b>Cycling.</b> Census 2021 cycling to work, against the share the town's average commute gradient predicts from the curve fitted across all towns on the towns page (cycling roughly halves with every 1.6 points of gradient). The test of Danish names adds deprivation, car ownership and town size, with ranges from 1,000 bootstrap resamples.</p>
+    <p><b>Limits.</b> Name endings are a rough guide: some -holme and -by names are not Norse, and the Pennine rule makes "Norse via Ireland" partly the same thing as "the West". Only three towns are in Holland. These are comparisons between towns, not proof of what causes what.</p>`;
+}).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/heritage.json (${esc(e.message)})</span></div>`});
+</script>
+</body>
+</html>

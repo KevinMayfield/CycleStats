@@ -132,7 +132,7 @@ a.item:hover .go{text-decoration:underline}
       <div class="eyebrow" id="eyebrow">CycleStats area maps</div>
       <h1 id="title">CycleStats</h1>
       <p class="lede">Signed cycle routes and paths, the roads where cyclists were hurt (2021–2025), and the towns where better cycling would do most for use, safety and health.</p>
-      <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="index.html">Overview</a> <a class="sumlink" href="towns.html#summary">All-area summary</a> <a class="sumlink" href="towns.html#where-to-build">Where to build</a> <a class="sumlink" href="towns.html">Where Dutch infrastructure should work</a> <a class="sumlink" href="health.html">Health and active travel</a> <a class="sumlink" href="danelaw.html">Danelaw Cycle Network</a></div>
+      <div class="pick"><label for="area">Area</label> <select id="area"></select> <a class="sumlink" href="index.html">Overview</a> <a class="sumlink" href="towns.html#summary">All-area summary</a> <a class="sumlink" href="towns.html#where-to-build">Where to build</a> <a class="sumlink" href="towns.html">Where Dutch infrastructure should work</a> <a class="sumlink" href="health.html">Health and active travel</a> <a class="sumlink" href="geography.html">Geography and history</a> <a class="sumlink" href="danelaw.html">Danelaw Cycle Network</a></div>
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-routes" data-k="routes" aria-selected="true">Routes &amp; paths</button>
@@ -165,7 +165,7 @@ const BLURB={
   counts:M.counts_blurb,
   towns:'Flat and gently sloping towns '+M.in+': where Dutch-style routes are most likely to work, and where more cycling would do most for health. Click a town for where to build: its roads to improve on <a href="towns.html">Where Dutch infrastructure should work</a>.',
   cyclists_sort:'Ranked by how many more people would cycle to work if the town matched Hull and York.',
-  health_sort:'Ranked by where more cycling would do most for health: a health need index (inactivity, overweight, diabetes, child obesity and health deprivation against England, 100 = England) times the room for cycling to grow. <a href="health.html">Health and active travel</a> explains the method.',
+  health_sort:'Ranked by where more cycling would do most for health: a health need index (inactivity, overweight, diabetes, child obesity and health deprivation against England, 100 = England) times the room for cycling to grow. <a href="health.html">Health and active travel</a><a href="geography.html">Geography and history</a> explains the method.',
 };
 const map=L.map('map',{zoomSnap:.25,preferCanvas:true,attributionControl:true}).setView([53.8,-1.5],11);
 // fitBounds needs a sized map: defer it while the map is hidden or not laid out yet

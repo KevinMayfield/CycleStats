@@ -24,5 +24,6 @@ python3 towns.py > /dev/null && echo "   wrote data/towns.json"
 python3 danelaw.py > /dev/null && echo "   wrote data/danelaw.json"   # routes once with BRouter, then uses raw/danelaw/
 python3 danelaw_lines.py > /dev/null && echo "   wrote data/danelaw-lines.json"   # compact lines for the area maps
 python3 health.py > /dev/null && echo "   wrote data/health.json"     # downloads Fingertips and Census health data to raw/health/
+python3 heritage.py > /dev/null && echo "   wrote data/heritage.json"   # downloads ONS built-up area names to raw/heritage/
 # index of areas for the app's area picker
 python3 -c "import json,os;a=json.load(open('areas.json'));json.dump([{'id':k,'name':v['name']} for k,v in a.items() if os.path.exists('../data/'+k+'.json')],open('../data/areas.json','w'),indent=1)"
