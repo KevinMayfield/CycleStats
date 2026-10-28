@@ -207,7 +207,7 @@ td.n small{text-align:right}
     <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="#where-to-build">Where to build</a><a href="#summary">All-area summary</a><a href="danelaw.html">Danelaw Cycle Network</a><a href="health.html">Health and active travel</a></nav>
   </header>
   <section>
-    <div class="sh"><h2>Factors affecting cycling</h2><p>Each dot is a town; bigger dots have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red where there are more collisions for each person who cycles to work, green where there are fewer.</p></div>
+    <div class="sh"><h2>Factors affecting cycling</h2><p>Each mark is a town, shaped by region (circles East, triangles West, squares North, as below); bigger marks have more people travelling to work. Across: the average gradient of local commute routes. Up: the share of people travelling to work who cycle (Census 2021). The shaded band is as flat as Hull and York. The dashed curve is the best fit across all towns: cycling falls away steeply on the first gentle slopes and then levels off, roughly halving with every <span id="halves">1.5</span> points of gradient, rather than falling in a straight line. Towns well below the curve cycle less than their hills explain. Switch the colours to see each town's cycle collision rate against England and Wales: red where there are more collisions for each person who cycles to work, green where there are fewer.</p></div>
     <div class="mbar"><div class="seg" id="hcol" role="group" aria-label="Colour towns by"><button type="button" data-k="flat" aria-pressed="true">Flat towns</button><button type="button" data-k="coll" aria-pressed="false">Collisions vs England &amp; Wales</button></div><div class="legend" id="legend"></div></div>
     <div class="chart" id="chart"></div>
   </section>
@@ -280,6 +280,7 @@ function hLegend(){
   document.getElementById('legend').innerHTML=HCOL==='coll'
     ?`<span>Cycle collisions per 100 cycle commuters vs England &amp; Wales (${p1(D.coll_ew)}):</span>`+sw('var(--rag-g)','10%+ below')+sw('var(--rag-a)','within 10%')+sw('var(--rag-r)','10%+ above')+`<span><i style="background:none;border:1.2px solid var(--muted)"></i>under 10 collisions</span>`+curve
     :sw('var(--bench)','Hull and York')+sw('var(--low)','Flat towns missing the most cyclists')+sw('var(--other)','Other towns')+curve;
+  document.getElementById('legend').innerHTML+=SHAPES;
 }
 function draw(){
   hLegend();
@@ -303,7 +304,7 @@ function draw(){
   s+=`<text x="${x(xmax*.45)}" y="${y(fy(xmax*.45)+3)}" style="fill:var(--ink)">Fitted curve: cycling halves every ${cv.halves} pts of gradient</text>`;
   const order=[...D.towns].sort((a,b)=>(a.tier==='bench')-(b.tier==='bench')||D.lowIds.has(a.id)-D.lowIds.has(b.id)||b.travel-a.travel);
   // in the collisions view, towns with under 10 collisions are hollow rings so they can't be read as "about the same"
-  order.forEach(t=>{const few=coll&&t.coll<10;s+=`<circle cx="${x(t.slope).toFixed(1)}" cy="${y(t.cycle21).toFixed(1)}" r="${rad(t).toFixed(1)}" style="fill:${few?'none':col(t)};${few?'stroke:var(--muted);stroke-width:1.2':''}" fill-opacity="${op(t)}"/>`});
+  order.forEach(t=>{const few=coll&&t.coll<10;s+=mark(x(t.slope),y(t.cycle21),rad(t),REGION(t.area),`style="fill:${few?'none':col(t)};${few?'stroke:var(--muted);stroke-width:1.2':'stroke:var(--panel);stroke-width:1'}" fill-opacity="${op(t)}"`)});
   // direct labels: the benchmarks and the five flat towns missing most cyclists
   const lab=[...D.bench.towns.map(b=>D.byId[b.id]),...D.flat_low.slice(0,5).map(i=>D.byId[i])];
   // place each label right of its dot, else left, else above or below, avoiding labels already placed
@@ -319,7 +320,7 @@ function draw(){
   const tip=document.getElementById('tip');
   el.querySelectorAll('circle.hit').forEach(c=>{
     c.addEventListener('mouseenter',()=>{const t=D.byId[c.dataset.id];
-      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)}</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Curve expects ${p1(t.expected)}% for this gradient</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div><div class="k">No car ${t.nocar}% of households · ${t.deprived}% deprived</div><div class="k">${collTxt(t)}</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
+      tip.innerHTML=`<b>${esc(t.name)}</b><span class="k">${esc(t.area_name)} (${REGION(t.area)})</span><div class="k">Gradient ${p1(t.slope)}% · cycling ${p1(t.cycle21)}% (2011 ${p1(t.cycle11)}%)</div><div class="k">Curve expects ${p1(t.expected)}% for this gradient</div><div class="k">Go Dutch ${p1(t.dutch)}% · ${nf(t.travel)} travel to work</div><div class="k">No car ${t.nocar}% of households · ${t.deprived}% deprived</div><div class="k">${collTxt(t)}</div>${t.missing?`<div class="k">${nf(t.missing)} more would cycle at Hull/York levels</div>`:''}`;
       tip.hidden=false;const r=el.getBoundingClientRect(),b=c.getBoundingClientRect();
       let lx=b.left-r.left+b.width/2+12,ly=b.top-r.top-10;if(lx>r.width-230)lx-=250;tip.style.left=lx+'px';tip.style.top=Math.max(0,ly)+'px'});
     c.addEventListener('mouseleave',()=>{tip.hidden=true});
@@ -331,6 +332,7 @@ let SOCX='deprived';
 // Lancashire, Cheshire & Warrington), East (Yorkshire, the East Midlands, Lincolnshire, Leicestershire, Rutland)
 const REGION=a=>({'north-east':'North','tees-valley':'North','cumbria':'North','greater-manchester':'West','liverpool-city-region':'West','lancashire':'West','cheshire-warrington':'West'})[a]||'East';
 // a mark of the same area for each region: circle East, triangle West, square North
+const SHAPES=`<span><i class="sh"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/></svg></i>East</span><span><i class="sh"><svg viewBox="0 0 12 12"><path d="M6 1L11.5 11H0.5Z"/></svg></i>West</span><span><i class="sh"><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9"/></svg></i>North</span>`;
 function mark(cx,cy,r,reg,attrs){
   if(reg==='West'){const s=r*Math.sqrt(4*Math.PI/Math.sqrt(3)),h=s*Math.sqrt(3)/2;
     return `<path d="M${(cx).toFixed(1)} ${(cy-h*2/3).toFixed(1)}L${(cx+s/2).toFixed(1)} ${(cy+h/3).toFixed(1)}L${(cx-s/2).toFixed(1)} ${(cy+h/3).toFixed(1)}Z" ${attrs}/>`}
@@ -377,7 +379,7 @@ function drawSoc(){
   });
   const per=k==='deprived'?10:5;
   document.getElementById('soclegend').innerHTML=`<span><i style="background:var(--bench)"></i>Hull and York</span><span><i style="background:var(--low)"></i>Flat</span><span><i style="background:var(--gentle)"></i>Gently sloping</span><span><i style="background:var(--other)"></i>Hilly</span><span><i class="ln"></i>Trend, flat and gentle towns: ${b>=0?'+':''}${(b*per).toFixed(1)} pts cycling per ${per} pts ${k==='deprived'?'deprived':'no car'}</span>`+
-    `<span><i class="sh"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5"/></svg></i>East</span><span><i class="sh"><svg viewBox="0 0 12 12"><path d="M6 1L11.5 11H0.5Z"/></svg></i>West</span><span><i class="sh"><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9"/></svg></i>North</span>`;
+    SHAPES;
   // flat towns by region, weighted by people travelling to work
   const fr=['East','West','North'].map(r=>{const ts=D.towns.filter(t=>t.tier==='flat'&&REGION(t.area)===r),w=ts.reduce((a,t)=>a+t.travel,0);return [r,ts.length,w?ts.reduce((a,t)=>a+t.cycle21*t.travel,0)/w:0]});
   document.getElementById('socregion').innerHTML=`<b>By region.</b> Flat towns cycle to work most in the East: ${fr.map(([r,n,v])=>`${r} ${p1(v)}% (${n} towns)`).join(', ')}, leaving out Hull and York. Comparing like with like across every town (holding gradient, deprived neighbourhoods, car ownership and town size equal), towns in the West cycle about a sixth less than similar towns in the East, and towns in the North about a fifth less. Something beyond terrain and poverty favours the East: possibly a longer cycling habit in its flat towns, or local factors such as routes and employers. These are comparisons between towns, not proof of a cause.`;
