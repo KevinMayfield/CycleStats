@@ -60,8 +60,13 @@ ICB = {
     'NHS Greater Manchester': ['Bolton', 'Bury', 'Manchester', 'Oldham', 'Rochdale', 'Salford', 'Stockport', 'Tameside', 'Trafford', 'Wigan'],
     'NHS Cheshire and Merseyside': ['Cheshire East', 'Cheshire West and Chester', 'Warrington', 'Halton', 'Knowsley', 'Liverpool',
                                     'Sefton', 'St. Helens', 'Wirral'],
+    'NHS Cambridgeshire and Peterborough': ['Cambridge', 'East Cambridgeshire', 'Fenland', 'Huntingdonshire', 'South Cambridgeshire', 'Peterborough'],
+    'NHS Norfolk and Waveney': ['Breckland', 'Broadland', 'Great Yarmouth', "King's Lynn and West Norfolk", 'North Norfolk', 'Norwich',
+                                'South Norfolk', 'Waveney'],
+    'NHS Suffolk and North East Essex': ['Babergh', 'Forest Heath', 'Ipswich', 'Mid Suffolk', 'St Edmundsbury', 'Suffolk Coastal'],
 }
-ICB_NOTE = {}
+# North East Essex (Colchester and Tendring) is outside the data downloaded for this site
+ICB_NOTE = {'NHS Suffolk and North East Essex': 'Suffolk only, without North East Essex'}
 FT = [(93015, 501, 'inactive'), (93088, 501, 'overweight'), (241, 501, 'diabetes'), (93107, 3, 'child_obese')]
 
 
@@ -182,6 +187,9 @@ def main():
     # the Cumbrian councils since 2023: Cumberland is all North Cumbria; Westmorland and Furness straddles the two boards
     # (Eden in one, Barrow and South Lakeland in the other) and is counted with Lancashire and South Cumbria
     name_icb.update({'Cumberland': 'NHS North East and North Cumbria', 'Westmorland and Furness': 'NHS Lancashire and South Cumbria'})
+    # Suffolk since 2019: West Suffolk is all one board; East Suffolk joined Waveney (Norfolk and Waveney) with Suffolk
+    # Coastal (Suffolk and North East Essex) and is counted with Suffolk and North East Essex for collisions
+    name_icb.update({'West Suffolk': 'NHS Suffolk and North East Essex', 'East Suffolk': 'NHS Suffolk and North East Essex'})
     code_icb = {c: name_icb[n] for c, n in lad_name.items() if n in name_icb}
     # STATS19 keeps the old district codes for collisions before the 2023 reorganisation
     code_icb.update({c: 'NHS Humber and North Yorkshire' for c in ('E07000163', 'E07000164', 'E07000165', 'E07000166', 'E07000167', 'E07000168', 'E07000169')})

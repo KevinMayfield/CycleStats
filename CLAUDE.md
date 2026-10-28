@@ -8,7 +8,7 @@ worth coming back to.
 - Data is rebuilt with `pipeline/run_all.sh` (see README). Downloads land in `raw/` (git-ignored).
 - On Kevin's Mac the default `python3` (python.org) fails HTTPS certificate checks, so downloads fail. Run
   `fetch_data.py`, and `danelaw.py` when a route changes (BRouter), with `/opt/homebrew/bin/python3` (used for the North
-  West and North East fetch, 27 Oct 2026) or `/usr/bin/python3`. The analysis steps need no network and run on any Python 3.8+.
+  West and North East fetch, 27 Oct 2026) or `/usr/bin/python3`. `/usr/bin/python3` (LibreSSL) cannot reach the main Overpass server (SSL handshake failure), so OpenStreetMap downloads fall back to the slower mirrors; `/opt/anaconda3/bin/python3` reaches it and was used for the East Anglia fetch (28 Oct 2026). The analysis steps need no network and run on any Python 3.8+.
 - `towns.py` writes `data/towns.json` for `towns.html`. Town figures include `nocar` (% households with no car,
   Census 2021, averaged over LSOAs weighted by people travelling to work) and `deprived` (% of LSOAs in England's most
   deprived fifth, IMD 2025).
