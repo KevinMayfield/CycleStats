@@ -16,18 +16,19 @@
   --accent:#0f6b5c; --soft:#e2f0ec;
   /* heritage groups, categorical slots in fixed order (validated): Danish, Norse via Ireland, Holland, English; some Norse names is a lighter step of the Danish blue */
   --g-danish:#2a78d6; --g-irish:#eb6834; --g-holland:#1baf7a; --g-english:#eda100; --g-mixed:#8cc4f2;
-  /* conurbation bands, one hue light to dark (validated ordinal): on its own, a few towns nearby, edge, inside */
-  --b1:#86b6ef; --b2:#3987e5; --b3:#256abf; --b4:#104281;
+  /* conurbation bands, distinct hues (validated, all pairs): on its own aqua, a few towns nearby yellow, edge of a
+     conurbation red, inside a conurbation violet */
+  --b1:#1baf7a; --b2:#eda100; --b3:#e34948; --b4:#6250d6;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#1c5cab; --b2:#3987e5; --b3:#6da7ec; --b4:#b7d3f6; color-scheme:dark}}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#199e70; --b2:#b98a00; --b3:#e66767; --b4:#9085e9; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#1c5cab; --b2:#3987e5; --b3:#6da7ec; --b4:#b7d3f6; color-scheme:dark}
+  --g-danish:#3987e5; --g-irish:#d95926; --g-holland:#199e70; --g-english:#c98500; --g-mixed:#9ccaf5; --b1:#199e70; --b2:#b98a00; --b3:#e66767; --b4:#9085e9; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -182,7 +183,7 @@ fetch('data/heritage.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
       const rg=['East','West','North'].filter(k=>b.regions[k]).map(k=>`${b.regions[k]} ${k}`).join(', ');
       const rng=b.hi>1e8?`${nf(b.lo/1000)}k or more`:`${nf(b.lo/1000)}–${nf(b.hi/1000)}k`;
       return `<div class="brow"><div class="lab"><b>${esc(b.label)}</b><small>${rng} people working in towns within 10 km · ${b.towns} towns (${rg})</small></div>
-        <div class="track" role="img" aria-label="${esc(b.label)}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${IX(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:var(--accent);opacity:${.55+.15*i}"></div>
+        <div class="track" role="img" aria-label="${esc(b.label)}: ${pc(b.ratio)} against what the hills predict"><div class="zero" style="left:${IX(0)}%"></div><div class="bar${r<0?' neg':''}" style="left:${a}%;width:${w}%;background:var(--b${i+1})"></div>
           <div class="val" style="${r<0?`right:${100-a+1}%`:`left:${IX(r)+1}%`}">${pc(b.ratio)}</div></div>
         <div class="ex">${p1(b.pt)}% commute by bus, train or tram · for example ${b.examples.map(esc).join(', ')}</div></div>`}).join('');
     const iticks=[-.3,-.2,-.1,0,.1].filter(v=>v>=ilo&&v<=ihi);
