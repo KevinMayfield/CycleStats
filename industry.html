@@ -82,6 +82,12 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .tip b{display:block;font-size:13px}
 .method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px;color:var(--muted)}
 .method p{margin:0}.method b{color:var(--ink)}
+.tw{overflow-x:auto;padding:6px 18px 4px}
+table.lt{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}
+table.lt th,table.lt td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.lt th{font-weight:600;color:var(--muted);font-size:12px;vertical-align:bottom}
+table.lt th:first-child,table.lt td:first-child{text-align:left}
+table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .two>div+div{border-left:1px solid var(--line)}
 .two h3{margin:12px 18px 0;font:700 17px/1.2 var(--display)}
@@ -107,6 +113,11 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
     <div class="legend" id="mlegend" style="border-top:1px solid var(--line)"></div>
     <div id="mmap" class="tmap" role="img" aria-label="Map of the towns coloured by industrial past and shaped by cycling against what their hills predict"></div>
     <div class="note" id="mnote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Why? Distance to work, post-war estates or the railways</h2><p>Three ideas for why the coalfield and steel towns cycle less, each tested by adding it to the model above. Flat and gently sloping towns only in the table; each figure is weighted by the people travelling to work.</p></div>
+    <div class="tw"><table class="lt" id="ltable"></table></div>
+    <div class="note" id="lnote"></div>
   </section>
   <section>
     <div class="sh"><h2>COVID-19: cycling, or what towns did for work?</h2><p>Deaths registered due to COVID-19 in 2020 and 2021 for each town, per 100,000 residents (ONS, by neighbourhood). Towns where more people cycle had fewer deaths, but those towns also differ in age, industry, deprivation and commuting. The chart on the right holds all of them equal at once and shows what each one adds.</p></div>
@@ -167,9 +178,20 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
   const north0=term(MB,'North'),north1=term(MI,'North');
   document.getElementById('mnote').innerHTML=`
     <p class="callout"><b>The pit and the works shaped how people travel.</b> Coalfield towns cycle ${pc(coal.x)} against similar towns elsewhere (likely ${pc(coal.lo)} to ${pc(coal.hi)}), and iron, steel and shipbuilding towns ${pc(steel.x)} (${pc(steel.lo)} to ${pc(steel.hi)}), with hills, deprivation, car ownership, size, region and the conurbations around them held equal. Retford, Doncaster, Middlesbrough, Hartlepool and Ashington all cycle below what their hills predict.</p>
-    <p><b>Why might that be?</b> None of this is tested, but the history suggests reasons. Pit villages were scattered and many lost their own work when the mines closed in the 1980s and 1990s, leaving longer journeys to new jobs on business parks and by the motorways. Shift work at pits and steelworks came with works buses and, later, the car. And physically demanding work, then the loss of it, left a legacy of poorer health.</p>
+    <p><b>Why might that be?</b> The history suggests reasons. Pit villages were scattered and many lost their own work when the mines closed in the 1980s and 1990s, leaving longer journeys to new jobs on business parks and by the motorways. Shift work at pits and steelworks came with works buses and, later, the car. Nationalisation brought big moves of people and new estates. And physically demanding work, then the loss of it, left a legacy of poorer health. Three of these are tested below.</p>
     <p><b>It explains part of the North's gap.</b> Earlier, towns in the North cycled ${pc(north0.x)} against similar towns in the East, and the conurbations did not explain it. Allowing for the coalfields and steel towns brings that to ${pc(north1.x)}: Durham, Northumberland and Teesside are coal and steel country.</p>
     <p><b>The exceptions.</b> Scunthorpe, a steel town on flat ground, cycles well above its prediction, and so does Worksop on the Nottinghamshire coalfield: the past is a tendency, not a rule.</p>`;
+  // why: distance, post-war estates, railway towns
+  const LG=D.legacy,lt=(m,n)=>term(LG[m],n),bc=lt('base','coal'),dc=lt('distance','coal'),near=lt('distance','near'),pw=lt('housing','postwar'),rl=lt('railway','rail');
+  const share=Math.round(100*(1-Math.log(dc.x)/Math.log(bc.x))),gf=k=>LG.groups.find(g=>g.industry===k);
+  document.getElementById('ltable').innerHTML=`<thead><tr><th>Flat and gently sloping towns</th><th>Towns</th><th>Commutes under 5 km</th><th>Commutes 10 km or more</th><th>Homes built 1945–82, band A or B</th><th>Cyclists per 100 people with a commute under 5 km</th></tr></thead><tbody>`+
+    LG.groups.map(g=>`<tr><td><i style="background:var(${IND[g.industry][1]})"></i>${IND[g.industry][0]}</td><td>${g.towns}</td><td>${p1(g.near)}%</td><td>${p1(g.far)}%</td><td>${p1(g.postwar)}%</td><td>${p1(g.short_cycle)}</td></tr>`).join('')+'</tbody>';
+  const R=LG.rail_towns,rn=ts=>ts.map(t=>`${esc(t.name.split(' (')[0])} (${pc(t.cycle/t.expected)})`).join(', ');
+  document.getElementById('lnote').innerHTML=`
+    <p class="callout"><b>Distance explains part of the coalfield gap; housing and the railways do not.</b> Coalfield towns have fewer short commutes (${p1(gf('coal').near)}% under 5 km against ${p1(gf('other').near)}% elsewhere) and more long ones. Every 10 points more commutes under 5 km goes with ${Math.round((near.x-1)*100)}% more cycling, and allowing for it takes the coalfield gap from ${pc(bc.x)} to ${pc(dc.x)}: about ${share}% of it. It does not explain the steel towns, whose work is as close as anywhere (${p1(gf('steel').near)}% under 5 km) but which still cycle ${Math.round((1-lt('distance','steel').x)*100)}% less.</p>
+    <p><b>Short trips still go by other means.</b> Even counting only people whose work is under 5 km away, coalfield towns have ${p1(gf('coal').short_cycle)} cyclists per 100 and steel towns ${p1(gf('steel').short_cycle)}, against ${p1(gf('other').short_cycle)} elsewhere. Most of the gap is in how short journeys are made, not where the work went.</p>
+    <p><b>Post-war estates are there, but make no difference.</b> About ${Math.round(gf('coal').postwar)}% of homes in coalfield towns are cheap homes built 1945–82, mostly council estates, against ${Math.round(gf('other').postwar)}% elsewhere. Once hills, deprivation, cars and the rest are held equal, towns with more of them cycle no less (${pc(pw.x)} per 10 points, likely ${pc(pw.lo)} to ${pc(pw.hi)}), and the coalfield gap stays at ${pc(lt('housing','coal').x)}. The moves themselves may still have broken older habits; housing age cannot show that.</p>
+    <p><b>Railway towns follow the coalfield.</b> Taken together they cycle about as predicted (${pc(rl.x)}, likely ${pc(rl.lo)} to ${pc(rl.hi)}). The big railway works towns on flat land cycle more than their hills predict: ${rn(R.filter(t=>t.industry==='other'&&t.cycle>t.expected))}. Those on the coalfields cycle less: ${rn(R.filter(t=>t.industry==='coal'&&t.cycle<t.expected))}. York, the highest-cycling town of all, is a railway town too. Irish settlement from the railway age cannot be measured: the Census does not record ancestry.</p>`;
   // scatter: cycling (log) against COVID deaths
   const tip=document.getElementById('tip');
   const drawScatter=()=>{const elc=document.getElementById('scatter');elc.querySelector('svg')?.remove();
@@ -209,6 +231,7 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
     <p><b>Industrial past.</b> By council area, as a rough guide: the coalfields are the councils whose economies were built on deep coal mining (${'Barnsley, Doncaster, Rotherham, Wakefield; Ashfield, Mansfield, Bassetlaw, Newark and Sherwood, Gedling, Broxtowe; Bolsover, Chesterfield, North East Derbyshire, Amber Valley, Erewash, South Derbyshire; North West Leicestershire; County Durham, Northumberland, Sunderland, South Tyneside, Gateshead; Wigan, St Helens; Allerdale, Copeland'}); iron, steel and shipbuilding are Middlesbrough, Redcar and Cleveland, Stockton-on-Tees, Hartlepool, North Lincolnshire, Sheffield and Barrow-in-Furness. Towns on the edge of a coalfield in another council (parts of Leeds and Kirklees, for example) are not counted.</p>
     <p><b>Cycling.</b> Census 2021 cycling to work against what the town's gradient predicts (the curve on the towns page). The model holds equal gradient, deprived neighbourhoods, households with no car, town size, region and the people working in other towns within 10 km (see Geography and history). Ranges come from 600 bootstrap resamples. Hull, York and Cambridge are left out.</p>
     <p><b>COVID-19.</b> Deaths registered due to COVID-19 (the underlying cause) in 2020 and 2021 by neighbourhood (ONS), each neighbourhood given to the town most of it lies in, per 100,000 residents (Census 2021). The model adds the share aged 65+, Asian and Black residents, working mainly from home and commuting 10 km or more (Census 2021, which was taken in March 2021, during a lockdown), the shares working in manufacturing and in health and social care, the coalfield flag, size and region. Median: ${nf(D.covid.median)} deaths per 100,000.</p>
+    <p><b>Distance, estates and railways.</b> Commutes under 5 km and of 10 km or more from Census 2021 (TS058), out of everyone travelling to work. Homes built 1945–82 in Council Tax band A or B, as a share of all homes (Valuation Office Agency, Council Tax stock of properties, table CTSOP 4.1, March 2024): the cheapest post-war homes, mostly built by councils. Railway towns: Crewe, Derby, Doncaster, Darlington, York, Shildon, Horwich, Newton-le-Willows, Peterborough, March, Normanton, Carnforth and Gateshead. Each is added to the cycling model on its own.</p>
     <p><b>Limits.</b> These are associations between towns, not proof of cause. Crude death rates are adjusted for age only through the share aged 65+; care home deaths count where the care home is; council areas are a blunt way to mark a coalfield.</p>`;
 }).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/industry.json (${esc(e.message)})</span></div>`});
 </script>
