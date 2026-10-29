@@ -85,6 +85,9 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .seg{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px 0}
 .seg button{font:500 12.5px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.tnote{margin:6px 0 0;font-size:12px;color:var(--muted)}
+#twho{padding:0;margin:0 0 10px}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
 .sexrows{display:grid;gap:6px;margin-top:12px}
 .sexrow{display:grid;grid-template-columns:70px repeat(3,minmax(0,1fr));gap:8px;align-items:baseline;font-size:13px;border-top:1px solid var(--line);padding-top:6px}
 .sexrow b{font:700 18px/1 var(--display);font-variant-numeric:tabular-nums}
@@ -138,7 +141,9 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
     <div class="pick"><label for="q">Town</label><div class="combo"><input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugg" autocomplete="off" spellcheck="false" placeholder="Type a few letters, e.g. Long"><ul class="sugg" id="sugg" role="listbox" hidden></ul></div><span class="hint">Use ↑ ↓ and Enter, or click a suggestion</span></div>
     <div class="tbox">
       <div class="head" id="thead"></div>
-      <div><div class="h4">What lifts and holds back its cycling</div><div class="bars" id="tbars"></div>
+      <div><div class="h4">What lifts and holds back its cycling</div>
+        <div class="seg" id="twho" role="group" aria-label="Show what lifts and holds back cycling for"><button type="button" data-k="all" aria-pressed="true">Everyone</button><button type="button" data-k="f" aria-pressed="false">Women</button><button type="button" data-k="m" aria-pressed="false">Men</button></div>
+        <div class="bars" id="tbars"></div><p class="tnote" id="tbnote" hidden></p>
         <div class="legend"><span><i style="background:var(--up)"></i>Lifts cycling</span><span><i style="background:var(--down)"></i>Holds it back</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 3px,transparent 3px 5px);border:1px solid var(--muted)"></i>Local effect, what the factors do not explain</span></div></div>
     </div>
     <div class="h4">What could change</div>
@@ -186,15 +191,28 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
       <div class="nums"><div class="num"><b>${p1(t.cycle)}%</b><span>cycle to work (Census 2021)</span></div><div class="num"><b>${p1(t.pred)}%</b><span>predicted from its factors</span></div><div class="num" style="border-color:var(${gap>=0?'--up':'--down'})"><b>${pc(gap)}</b><span>local effect</span></div></div>
       <div class="sexrows">${'f_act' in t?[['Women','f'],['Men','m']].map(([n,k])=>{const a=t[k+'_act'],p=t[k+'_pred'],g=100*(a/p-1);return `<div class="sexrow"><span>${n}</span><span><b>${p1(a)}%</b> <small>cycle</small></span><span><b>${p1(p)}%</b> <small>predicted</small></span><span><b style="color:var(${g>=0?'--up':'--down'})">${pc(g)}</b> <small>local</small></span></div>`}).join(''):'<div class="sexrow" style="grid-template-columns:1fr"><small>ONS withholds the split by sex for too much of this town to predict women and men separately.</small></div>'}</div>
       <p class="verdict">${esc(short(t.name))} cycles ${diff}. ${worst.length?`What holds it back most: ${worst.map(([k,v])=>`${k.toLowerCase()} (${pc(v)})`).join(' and ')}.`:'None of its factors holds it back much.'}${best.length?` What helps most: ${({'Hills':'flat routes','Towns crowded round it':'standing on its own','Rain':'drier weather','Older population':'a younger population','Post-war estates':'fewer post-war estates','Post-war industrial decline':'no heavy industrial past'})[best[0][0]]||best[0][0].toLowerCase()} (${pc(best[0][1])}).`:''} ${gap>=10?'Something local is working: routes, habits or employers the figures do not capture.':gap<=-10?'Something local is holding it back beyond its factors: worth looking at its routes and roads.':''}</p>`;
-    // bars on a log scale, so +100% and −50% are the same length
-    const rows=[...facs,['Local effect',gap]],L=v=>Math.log(1+v/100),mx=Math.max(Math.log(2),...rows.map(([,v])=>Math.abs(L(v)))),X=v=>50+L(v)/mx*46;
-    document.getElementById('tbars').innerHTML=rows.map(([k,v])=>{const a=Math.min(X(0),X(v)),w=Math.abs(X(v)-X(0)),up=v>=0;
-      return `<div class="brow${k==='Local effect'?' local':''}"><div class="lab">${esc(k)}</div><div class="track" role="img" aria-label="${esc(k)}: ${pc(v)}"><div class="zero" style="left:50%"></div>${Math.abs(v)>=.5?`<div class="bar ${up?'up':'down'}" style="left:${a}%;width:${w}%"></div>`:''}<div class="val" style="${up?`left:${X(v)+1}%`:`right:${100-X(v)+1}%`}">${Math.abs(v)<.5?'0%':pc(v)}</div></div></div>`}).join('');
+    drawBars(t);
     const V=t.values,rowsV=[['Route gradient',p1(V.slope)+'%',p1(TV.slope)+'%'],['People working in towns within 10 km',nf(V.around),nf(TV.around)],['Industrial past',IND[V.industry],'none'],
       ['Commuters travelling under 5 km',p1(V.near)+'%',p1(TV.near)+'%'],['Households with no car',V.nocar+'%',TV.nocar+'%'],['Neighbourhoods in the most deprived fifth',V.deprived+'%',TV.deprived+'%'],
       ['Homes built 1945–1972',p1(V.postwar)+'%',p1(TV.postwar)+'%'],['Residents aged 65+',p1(V.old)+'%',p1(TV.old)+'%'],['Days a year with rain',Math.round(V.days)+(V.rain_from?` (from ${V.rain_from}, ${V.rain_km} km)`:''),Math.round(TV.days)],['Region',REG[t.region],REG.East],['People travelling to work',nf(t.travel),'–']];
     document.getElementById('tvals').innerHTML=`<thead><tr><th>Measure</th><th>${esc(short(t.name))}</th><th>Typical town</th></tr></thead><tbody>${rowsV.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody>`;
     change(t);drawFit()};
+  // what lifts and holds back: everyone, or women or men from their own models (towns where ONS gives the split by sex)
+  let twho='all';
+  const drawBars=t=>{const has='f_factors' in t,k=twho!=='all'&&has?twho:'all';
+    const F=k==='all'?t.factors:t[k+'_factors'],gap=k==='all'?t.local:100*(t[k+'_act']/t[k+'_pred']-1);
+    document.querySelectorAll('#twho button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.k===k?'true':'false');b.disabled=b.dataset.k!=='all'&&!has});
+    const facs=ORDER.filter(f=>f in F).map(f=>[f,F[f]]);
+    // bars on a log scale, so +100% and −50% are the same length
+    const rows=[...facs,['Local effect',gap]],L=v=>Math.log(1+v/100),mx=Math.max(Math.log(2),...rows.map(([,v])=>Math.abs(L(v)))),X=v=>50+L(v)/mx*46;
+    document.getElementById('tbars').innerHTML=rows.map(([f,v])=>{const a=Math.min(X(0),X(v)),w=Math.abs(X(v)-X(0)),up=v>=0;
+      return `<div class="brow${f==='Local effect'?' local':''}"><div class="lab">${esc(f)}</div><div class="track" role="img" aria-label="${esc(f)}: ${pc(v)}"><div class="zero" style="left:50%"></div>${Math.abs(v)>=.5?`<div class="bar ${up?'up':'down'}" style="left:${a}%;width:${w}%"></div>`:''}<div class="val" style="${up?`left:${X(v)+1}%`:`right:${100-X(v)+1}%`}">${Math.abs(v)<.5?'0%':pc(v)}</div></div></div>`}).join('');
+    const n=document.getElementById('tbnote'),who={f:'women',m:'men'}[k];
+    n.hidden=false;
+    n.textContent=!has?'ONS withholds the split by sex for too much of this town, so only everyone can be shown.'
+      :k==='all'?`Switch to see the same for women or men, from models fitted to each.`
+      :`For ${who}: ${p1(t[k+'_act'])}% cycle to work against a prediction of ${p1(t[k+'_pred'])}%, compared with the typical town for ${who} (${p1(D.sex[k].typical)}%).`+(t.values.industry==='edge'?' Too few edge-of-coalfield towns have the split to estimate that past separately for women and men, so it shows as no effect here.':'')};
+  document.getElementById('twho').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;twho=b.dataset.k;if(cur)drawBars(cur)});
   // what could change: the factors a town cannot change, and estimates for the ones it can
   const change=t=>{const V=t.values,extra=v=>Math.max(0,Math.round(t.travel*(v-t.cycle)/100)),cards=[];
     const fixed=ORDER.filter(k=>['Hills','Post-war industrial decline','Region','Rain','Older population'].includes(k)&&(t.factors[k]??0)<=-5);
