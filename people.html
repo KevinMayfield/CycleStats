@@ -78,7 +78,10 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
 table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 table.lt td small{color:var(--muted)}
 .find{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 18px 0;font-size:12.5px;color:var(--muted)}
-.find input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:220px}
+.find input,.find select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+.find input{min-width:200px}
+button.sort{all:unset;cursor:pointer;color:inherit;font:inherit}
+button.sort:hover,button.sort:focus-visible{color:var(--accent);text-decoration:underline}
 .more{margin:8px 18px 14px;font:500 12.5px var(--body);color:var(--accent);background:none;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
 .method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px;color:var(--muted)}
 .method p{margin:0}.method b{color:var(--ink)}
@@ -122,8 +125,9 @@ table.lt td small{color:var(--muted)}
     <div class="note" id="rnote"></div>
   </section>
   <section>
-    <div class="sh"><h2>Every town</h2><p>Sorted by women's share of cycle commuters. Towns where ONS withholds the split by sex are listed without it.</p></div>
-    <div class="find"><label for="q">Find a town</label><input id="q" type="search" placeholder="e.g. Long Eaton"></div>
+    <div class="sh"><h2>Every town</h2><p>Towns with 8,000 or more people travelling to work. Click a column heading to sort by it. Towns where ONS withholds the split by sex are listed without it. 50–64s vs 16–34s is how likely 50–64s are to cycle to work against 16–34s: above 1 means a town's cycling rests more on older riders.</p></div>
+    <div class="find"><label for="q">Find a town</label><input id="q" type="search" placeholder="e.g. Long Eaton">
+      <label for="fr">Region</label><select id="fr"></select><label for="fh">Hills</label><select id="fh"></select><label for="fi">Industrial past</label><select id="fi"></select><span id="tcount"></span></div>
     <div class="tw"><table class="lt" id="ttable"></table></div>
     <button class="more" id="more" type="button">Show all towns</button>
   </section>
@@ -189,13 +193,28 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
     <p class="callout"><b>In flat towns on their own, cycling hardly falls with age.</b> ${p1(own['65+'])}% of workers aged 65 and over cycle to work, against ${p1(own['16–24'])}% of 16–24s and ${p1(own['50–64'])}% of 50–64s. In hilly towns and conurbations it halves, from ${p1(hill['16–24'])}% to ${p1(hill['65+'])}%. Boston, Long Eaton and Retford have more of their older workers cycling than their young ones.</p>
     <p>That matters for health: older people gain most from regular exercise, and the Netherlands' high cycling owes much to people who keep riding into their seventies and eighties. The Census only counts people in work, so it misses retired people; national surveys (Active Lives) find weekly cycling holds up to about 64, then falls.</p>`;
   // table
-  let all=false;
-  const rows=[...T].sort((p,q)=>(q.women??-1)-(p.women??-1)||q.cycle-p.cycle);
-  const draw=()=>{const q=document.getElementById('q').value.trim().toLowerCase(),L=rows.filter(t=>!q||t.name.toLowerCase().includes(q)),show=q||all?L:L.slice(0,25);
-    document.getElementById('ttable').innerHTML=`<thead><tr><th>Town</th><th>Cycle to work</th><th>Women's share of cycle commuters</th><th>Women who cycle</th><th>Men who cycle</th><th>Change since 2011</th><th>Aged 16–24</th><th>Aged 65+</th></tr></thead><tbody>`+
-      show.map(t=>`<tr><td><i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]}</small></td><td>${p1(t.cycle)}%</td><td>${t.women==null?'<small>withheld</small>':p0(t.women)}</td><td>${t.f==null?'–':p1(t.f)+'%'}</td><td>${t.m==null?'–':p1(t.m)+'%'}</td><td>${t.change==null?'–':chg(t.change)}</td><td>${p1(t.ages['16–24'])}%</td><td>${p1(t.ages['65+'])}%</td></tr>`).join('')+'</tbody>';
-    document.getElementById('more').style.display=q||all?'none':''};
-  document.getElementById('q').addEventListener('input',draw);document.getElementById('more').addEventListener('click',()=>{all=true;draw()});
+  // every town of 8,000+ people travelling to work: filters, sortable columns
+  const IND={coal:'Coalfield',steel:'Iron, steel and shipbuilding',other:'Other'};
+  const older=t=>{const a=t.ages,y=(a['16–24']+a['25–34'])/2;return y?a['50–64']/y:null};
+  const COLS=[['name','Town',t=>t.name],['cycle','Cycle to work',t=>t.cycle],['women',"Women's share of cycle commuters",t=>t.women],['f','Women who cycle',t=>t.f],['m','Men who cycle',t=>t.m],
+    ['older','50–64s vs 16–34s',older],['y','Aged 16–24',t=>t.ages['16–24']],['o','Aged 65+',t=>t.ages['65+']]];
+  const fmt={name:t=>`<i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]} · ${IND[t.industry]}</small>`,cycle:t=>p1(t.cycle)+'%',
+    women:t=>t.women==null?'<small>withheld</small>':p0(t.women),f:t=>t.f==null?'–':p1(t.f)+'%',m:t=>t.m==null?'–':p1(t.m)+'%',
+    older:t=>older(t)==null?'–':older(t).toFixed(2)+'×',y:t=>p1(t.ages['16–24'])+'%',o:t=>p1(t.ages['65+'])+'%'};
+  const BIG=T.filter(t=>t.travel>=8000);let all=false,sortK='women',sortDir=-1;
+  const sel=(id,opts)=>{document.getElementById(id).innerHTML=`<option value="">All</option>`+Object.entries(opts).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('')};
+  sel('fr',REG);sel('fh',{flat:'Flat',gentle:'Gently sloping',hilly:'Hilly'});sel('fi',IND);
+  const draw=()=>{const q=document.getElementById('q').value.trim().toLowerCase(),fr=document.getElementById('fr').value,fh=document.getElementById('fh').value,fi=document.getElementById('fi').value;
+    const get=COLS.find(c=>c[0]===sortK)[2];
+    const L=BIG.filter(t=>(!q||t.name.toLowerCase().includes(q))&&(!fr||t.region===fr)&&(!fh||(t.tier==='bench'?'flat':t.tier)===fh)&&(!fi||t.industry===fi))
+      .sort((p,r)=>{const a=get(p),b=get(r);if(a==null)return b==null?0:1;if(b==null)return -1;return (typeof a==='string'?a.localeCompare(b):a-b)*sortDir});
+    const filtered=q||fr||fh||fi,show=filtered||all?L:L.slice(0,25);
+    document.getElementById('ttable').innerHTML=`<thead><tr>${COLS.map(([k,lab])=>`<th aria-sort="${k===sortK?(sortDir>0?'ascending':'descending'):'none'}"><button type="button" class="sort" data-k="${k}">${lab}${k===sortK?(sortDir>0?' ▲':' ▼'):''}</button></th>`).join('')}</tr></thead><tbody>`+
+      show.map(t=>`<tr>${COLS.map(([k])=>`<td>${fmt[k](t)}</td>`).join('')}</tr>`).join('')+'</tbody>';
+    document.getElementById('tcount').textContent=`${L.length} of ${BIG.length} towns`;
+    document.getElementById('more').style.display=filtered||all||L.length<=25?'none':''};
+  document.getElementById('ttable').addEventListener('click',e=>{const b=e.target.closest('button.sort');if(!b)return;const k=b.dataset.k;sortDir=k===sortK?-sortDir:(k==='name'?1:-1);sortK=k;draw()});
+  ['q','fr','fh','fi'].forEach(id=>document.getElementById(id).addEventListener('input',draw));document.getElementById('more').addEventListener('click',()=>{all=true;draw()});
   // an ageing cycling culture: older-rider skew against the change since 2011
   const AG2=D.ageing,F=T.filter(t=>t.change!=null&&['flat','gentle'].includes(t.tier)&&!t.skip&&t.c21>=1.5),atip=document.getElementById('atip');
   const ALAB=['Eston','Retford','Ashington','Barrow-in-Furness','Long Eaton','Boston','Newark-on-Trent','Manchester','Salford','Warrington','Leicester'];
