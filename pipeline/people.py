@@ -12,7 +12,8 @@ raw/health/cycle_collision_lad.csv) give the women's and children's share of cas
 cycling to work, for every council in England.
 
 An ageing cycling culture: for flat and gently sloping towns, cycling to work in 2011 (PCT, Census 2011) against 2021,
-set against how much more 50-64s cycle than 16-34s, with a model holding the 2011 level and region equal.
+set against how much more 50-64s cycle than 16-34s, with a model holding the 2011 level and region equal, and set against
+cycle collisions a year per 100 cycle commuters (data/towns.json).
 """
 import collections, csv, io, json, math, os, time, urllib.error, urllib.request, zipfile
 
@@ -139,7 +140,8 @@ def main():
                      f=round(100 * c['bFemale'] / c['nFemale'], 2), m=round(100 * c['bMale'] / c['nMale'], 2))
         tj = TJ.get(tid, {}); a = t['ages']; young = (a['16–24'] + a['25–34']) / 2 if a['16–24'] and a['25–34'] else 0
         if tj.get('cycle11') and young:
-            t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2))
+            t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2),
+                     risk=tj.get('coll_rate'), ksi=tj.get('ksi_pct'))
         towns.append(t)
     U = [t for t in towns if not t['skip'] or t['name'].split(' (')[0] in ('York', 'Cambridge')]
     W = [t for t in U if 'women' in t]
@@ -177,7 +179,15 @@ def main():
                           examples=[t['name'].split(' (')[0] for t in sorted(g, key=lambda t: -t['travel'])[:5]]))
     m = model(F, lambda t: math.log(t['change']), [('skew', lambda t: t['skew'] * 4), ('2011 level', lambda t: math.log(t['c11'])),
                                                     ('North', lambda t: t['region'] == 'North'), ('West', lambda t: t['region'] == 'West')])
-    ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m)
+    # collisions a year per 100 cycle commuters (towns.py): against the change, the older-rider skew and women's share
+    K = sorted([t for t in F if t.get('risk') is not None], key=lambda t: t['risk']); n = len(K)
+    risk = [dict(label=lab, towns=len(g), risk=median([t['risk'] for t in g]), women=median([t['women'] for t in g if 'women' in t]),
+                 change=median([100 * (t['change'] - 1) for t in g]), skew=median([t['skew'] for t in g]))
+            for lab, g in (('Lowest third', K[:n // 3]), ('Middle third', K[n // 3:2 * n // 3]), ('Highest third', K[2 * n // 3:]))]
+    KW = [t for t in K if 'women' in t]
+    ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m, risk=risk,
+                  risk_median=median([t['risk'] for t in K]), risk_corr=dict(change=corr([t['risk'] for t in K], [t['change'] for t in K]),
+                  skew=corr([t['risk'] for t in K], [t['skew'] for t in K]), women=corr([t['risk'] for t in KW], [t['women'] for t in KW])))
     out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing,
                corr=corr([math.log(t['cycle']) for t in W if t['cycle'] > 0], [t['women'] for t in W if t['cycle'] > 0]),
                coverage=dict(msoas=cov['with'] + cov['without'], with_sex=cov['with'],

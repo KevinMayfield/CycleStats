@@ -117,6 +117,9 @@ table.lt td small{color:var(--muted)}
       <div><h3>Towns where cycling rose and fell</h3><div class="tw"><table class="lt" id="atable" style="min-width:0"></table></div></div>
     </div>
     <div class="note" id="agnote"></div>
+    <h3 class="ph">Is fear of the roads behind it?</h3>
+    <div class="tw"><table class="lt" id="rtable" style="min-width:0"></table></div>
+    <div class="note" id="rnote"></div>
   </section>
   <section>
     <div class="sh"><h2>Every town</h2><p>Sorted by women's share of cycle commuters. Towns where ONS withholds the split by sex are listed without it.</p></div>
@@ -222,6 +225,15 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
     <p><b>Long Eaton and Derby.</b> Long Eaton fell from ${p1(le.c11)}% to ${p1(le.c21)}%, and its over-65s still in work cycle ${(le.ages['65+']/((le.ages['16–24']+le.ages['25–34'])/2)).toFixed(1)} times as much as its 16–34s. Derby fell from ${p1(dy.c11)}% to ${p1(dy.c21)}%. What sets them apart is who rides: in most towns where cycling is fading, the old habit took in everyone, with ${p0(AG2.bands[2].women)} of cycle commuters women in the typical sharply falling town (Boston ${p0(tw('Boston').women)}, Newark ${p0(tw('Newark-on-Trent').women)}). In Long Eaton it is ${p0(le.women)} and in Derby ${p0(dy.women)}: their cycling was mostly men riding to the mills and works, and without routes that feel safe for everyone it is ageing out rather than spreading to women and younger people.</p>
     <p><b>Where cycling is growing, it is younger, and fewer of its riders are women.</b> Manchester, Salford, Warrington, Leicester and Liverpool gained cyclists, mostly young; their women's share (${p0(AG2.bands[0].women)} in the typical town) has not caught up. Some have had recent investment in cycle routes, but funding is not measured here, so this page cannot say investment made the difference. Children are not covered: the Census counts travel to work only.</p>
     <p><b>Limits.</b> The 2011 figures come from the Propensity to Cycle Tool on 2011 neighbourhoods; the 2021 Census was taken in a lockdown, which may have changed younger workers' travel most. This compares age groups at one moment, not the same people over time.</p>`;
+  // collisions a year per 100 cycle commuters, in thirds
+  const RK=AG2.risk,rc=AG2.risk_corr;
+  document.getElementById('rtable').innerHTML=`<thead><tr><th>Cycle collisions a year per 100 cycle commuters</th><th>Towns</th><th>Collisions</th><th>Change since 2011</th><th>50–64s against 16–34s</th><th>Women's share</th></tr></thead><tbody>`+
+    RK.map(b=>`<tr><td>${esc(b.label)}</td><td>${b.towns}</td><td>${p1(b.risk)}</td><td>${b.change>0?'+':b.change<0?'−':''}${Math.abs(Math.round(b.change))}%</td><td>${b.skew.toFixed(1)}×</td><td>${p0(b.women)}</td></tr>`).join('')+'</tbody>';
+  const bo=tw('Boston'),nw=tw('Newark-on-Trent');
+  document.getElementById('rnote').innerHTML=`
+    <p class="callout"><b>Recorded danger does not explain the ageing, but it goes with fewer women riding.</b> Collisions per rider (police-recorded, 2021–25) show no sign of driving the fall (correlation ${rc.change}; if anything the safest towns lost most) and no link with how much it rests on older riders (${rc.skew}), and neither do the share that were serious or the share on 40 mph+ roads. But where there are more collisions for each person who cycles, fewer of the riders are women: ${p0(RK[0].women)} in the safest third of towns against ${p0(RK[2].women)} in the riskiest (correlation ${rc.women}).</p>
+    <p><b>Long Eaton and Derby</b> both have ${p1(le.risk)} collisions a year per 100 cycle commuters against ${p1(AG2.risk_median)} in the typical town, and ${le.ksi}% of Long Eaton's were serious. Boston (${p1(bo.risk)}) and Newark-on-Trent (${p1(nw.risk)}), where the old habit took in women too, are far safer per rider. So the ageing looks like a habit not being handed on, while the shortage of women looks more like fear, which would fit what surveys find: women and older people are most put off by traffic.</p>
+    <p><b>Limits.</b> Part of this is safety in numbers, since towns where more people cycle have fewer collisions per rider; the link with women's share is weaker once that is allowed for. Collisions are what gets reported, not how the roads feel: fear comes from traffic, speed and close passes that the records barely show. The collisions are from 2021–25, after most of the change happened.</p>`;
   drawScatter();drawAges();drawAgeing();draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawScatter();drawAges();drawAgeing()},150)});
   const cv=D.coverage;
   document.getElementById('method').innerHTML=`
