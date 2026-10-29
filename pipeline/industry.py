@@ -1,10 +1,14 @@
 """Industry and work: does a town's industrial past show in its cycling, and is COVID-19 linked to cycling or to
 industry, deprivation and how far people travel to work? Writes data/industry.json for industry.html.
 
-Industrial past, by council area (data/towns.json lad):
-  coal   the historic coalfields: South and West Yorkshire, Nottinghamshire, Derbyshire, North West Leicestershire,
-         Durham and Northumberland, Lancashire, West Cumbria
+Industrial past, by council area (data/towns.json lad), split within the coalfield councils by where the pits were:
+  coal   a pit town: in a coalfield council (South and West Yorkshire, Nottinghamshire, Derbyshire, North West
+         Leicestershire, Durham and Northumberland, Lancashire, West Cumbria) with a colliery within 2 km of its
+         built-up edge (ONS Built-up Areas 2022, raw/imd/bua22.geojson)
+  edge   in a coalfield council but with no colliery within 2 km, such as Long Eaton, Beeston, Newark and Retford
   steel  iron, steel and shipbuilding: Teesside, Scunthorpe, Sheffield, Barrow
+Collieries are OpenStreetMap features named as a colliery, or historic mines named "... Main" (the deep pits, such as
+Markham Main), downloaded once from Overpass to raw/coal/osm_mines.json. OpenStreetMap does not map every former pit.
 Cycling to work (Census 2021) is compared with what the town's gradient predicts, and in a model holding hills,
 deprivation, car ownership, size, region and how much town surrounds it equal (data/heritage.json).
 
@@ -33,6 +37,8 @@ STEEL = {'Middlesbrough', 'Redcar and Cleveland', 'Stockton-on-Tees', 'Hartlepoo
 # railway works and junction towns: Crewe, Derby, Doncaster, Darlington, York, Shildon, Horwich, Earlestown, Peterborough, March...
 RAIL = {'Crewe', 'Derby', 'Doncaster', 'Darlington', 'York', 'Shildon', 'Horwich', 'Newton-le-Willows', 'Peterborough', 'March',
         'Normanton', 'Carnforth', 'Gateshead', 'Earlestown'}
+PIT_KM = 2
+OVERPASS = ('https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter')
 VOA = 'https://assets.publishing.service.gov.uk/media/66854c5eab5fc5929851b930/CTSOP4-1-2020-2024.zip'
 COVID = ('https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/'
          'deathsduetocovid19registeredinenglandandwales2020/2021/covid2021reftables1.xlsx')
@@ -61,6 +67,65 @@ def covid_msoa():
             for r in wb['7'].iter_rows(min_row=6, values_only=True):
                 if r[0] and str(r[0]).startswith('E02'): w.writerow([r[0], r[3] or 0, r[4] or 0])
     return {r['msoa']: int(r['deaths_2021']) + int(r['deaths_2020']) for r in csv.DictReader(open(path))}
+
+
+def collieries():
+    """former collieries from OpenStreetMap as (lat, lon), downloaded in tiles and cached"""
+    path = os.path.join(RAW, 'coal', 'osm_mines.json')
+    if not os.path.exists(path):
+        import time, urllib.parse
+        E = {}
+        for la in (51.9, 52.4, 52.9, 53.4, 53.9, 54.4, 54.9, 55.4):
+            for lo in (-3.7, -2.5, -1.3, -0.1, 1.1):
+                bb = f'{la},{lo},{la + .5},{lo + 1.2}'
+                q = (f'[out:json][timeout:300];(nwr["name"~"Colliery"]({bb});nwr["historic"="mine"]({bb});nwr["historic"="mine_shaft"]({bb});'
+                     f'nwr["man_made"="mineshaft"]({bb});nwr["disused:man_made"="mineshaft"]({bb}););out center tags;')
+                for k in range(6):
+                    try:
+                        d = json.loads(urllib.request.urlopen(urllib.request.Request(OVERPASS[k % 2], data=urllib.parse.urlencode({'data': q}).encode(),
+                                                                                     headers={'User-Agent': 'CycleStats'}), timeout=400).read())
+                        if 'error' in d.get('remark', ''): raise OSError(d['remark'])
+                        for e in d['elements']: E[f"{e['type']}{e['id']}"] = e
+                        break
+                    except OSError: time.sleep(20)
+                else: raise SystemExit(f'Overpass failed for {bb}')
+        os.makedirs(os.path.dirname(path), exist_ok=True); json.dump({'elements': list(E.values())}, open(path, 'w'))
+    out = []
+    for e in json.load(open(path))['elements']:
+        t = e.get('tags', {}); c = e.get('center') or e; n = (t.get('name', '') + ' ' + t.get('old_name', '')).lower()
+        if t.get('resource') and 'coal' not in t['resource']: continue
+        if any(w in n for w in ('lead', 'ironstone', 'iron mine', 'gypsum', 'alabaster', 'salt', 'fluorspar')): continue
+        if 'colliery' in n or (t.get('historic') in ('mine', 'mine_shaft') and n.strip().endswith(' main')):
+            if c.get('lat') is not None: out.append((c['lat'], c['lon']))
+    return out
+
+
+def pit_distance(towns):
+    """km from each town's built-up edge to the nearest colliery (0 inside)"""
+    pits = collieries()
+    geo = {f['properties']['BUA22CD']: f['geometry'] for f in json.load(open(os.path.join(RAW, 'imd', 'bua22.geojson')))['features']}
+    def inside(x, y, ring):
+        c = False
+        for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+            if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1: c = not c
+        return c
+    def seg(px, py, ax, ay, bx, by):
+        dx, dy = bx - ax, by - ay; L = dx * dx + dy * dy
+        u = 0 if L == 0 else max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / L)); return math.hypot(px - ax - u * dx, py - ay - u * dy)
+    out = {}
+    for tid, t in towns.items():
+        g = geo.get(tid)
+        if not g: continue
+        k = 111.2 * math.cos(math.radians(t['lat'])); P = lambda la, lo: (lo * k, la * 111.2)
+        rings = [[P(la, lo) for lo, la in poly[0]] for poly in (g['coordinates'] if g['type'] == 'MultiPolygon' else [g['coordinates']])]
+        best = 99
+        for la, lo in pits:
+            if abs(la - t['lat']) > .25 or abs(lo - t['lon']) > .4: continue
+            x, y = P(la, lo)
+            d = 0 if any(inside(x, y, r) for r in rings) else min(seg(x, y, *r[i], *r[i + 1]) for r in rings for i in range(len(r) - 1))
+            best = min(best, d)
+        out[tid] = round(best, 1)
+    return out
 
 
 def lstsq(X, y):
@@ -137,6 +202,7 @@ def main():
         agg[t]['emp'] += int(r[pre + 'Total: All usual residents aged 16 years and over in employment the week before the census'])
         for k, col in (('manuf', 'C: Manufacturing'), ('care', 'Q: Human health and social work activities'), ('mine', 'B: Mining and quarrying')):
             agg[t][k] += int(next(v for kk, v in r.items() if kk.startswith(pre + col)))
+    pit = pit_distance(H)
     towns = []
     for tid, t in H.items():
         a = agg[tid]; tj = TJ[tid]
@@ -145,7 +211,8 @@ def main():
         towns.append(dict(id=tid, name=t['name'], area_name=t['area_name'], region=t['region'], tier=t['tier'], skip=t['skip'],
                           lat=t['lat'], lon=t['lon'], travel=t['travel'], cycle=t['cycle21'], expected=t['expected'], slope=t['slope'],
                           deprived=t['deprived'], nocar=t['nocar'], around=t.get('around'),
-                          industry='coal' if tj['lad'] in COAL else 'steel' if tj['lad'] in STEEL else 'other',
+                          industry=('coal' if pit.get(tid, 99) <= PIT_KM else 'edge') if tj['lad'] in COAL else 'steel' if tj['lad'] in STEEL else 'other',
+                          pit_km=pit.get(tid),
                           covid=round(1e5 * a['deaths'] / a['pop'], 1), old=round(100 * a['old'] / a['res'], 1),
                           asian=round(100 * a['asian'] / a['eth'], 1), black=round(100 * a['black'] / a['eth'], 1),
                           wfh=round(100 * a['d9'] / a['d0'], 1), far=round(100 * sum(a[f'd{k}'] for k in (4, 5, 6, 7, 8)) / commute, 1) if commute else 0,
@@ -155,7 +222,7 @@ def main():
     U = [t for t in towns if not t['skip'] and t['cycle'] > 0 and t['around'] is not None]
     gm = lambda ts: round(math.exp(sum(math.log(t['cycle'] / t['expected']) for t in ts) / len(ts)), 3)
     groups = []
-    for k in ('coal', 'steel', 'other'):
+    for k in ('coal', 'edge', 'steel', 'other'):
         for tiers, lab in ((('flat', 'gentle'), 'flat'), (('hilly',), 'hilly')):
             ts = [t for t in U if t['industry'] == k and t['tier'] in tiers]
             if ts: groups.append(dict(industry=k, terrain=lab, towns=len(ts), ratio=gm(ts),
@@ -165,15 +232,17 @@ def main():
             ('conurbation', lambda t: math.log1p(t['around'] / 1000))]
     mining = dict(base=model(U, lambda t: math.log(t['cycle']), ctrl),
                   industry=model(U, lambda t: math.log(t['cycle']), ctrl + [('coal', lambda t: float(t['industry'] == 'coal')),
+                                                                          ('edge', lambda t: float(t['industry'] == 'edge')),
                                                                           ('steel', lambda t: float(t['industry'] == 'steel'))]))
     # why: distance to work, post-war estates, railway towns, each added to the industry model
-    ind = ctrl + [('coal', lambda t: float(t['industry'] == 'coal')), ('steel', lambda t: float(t['industry'] == 'steel'))]
+    ind = ctrl + [('coal', lambda t: float(t['industry'] == 'coal')), ('edge', lambda t: float(t['industry'] == 'edge')),
+                  ('steel', lambda t: float(t['industry'] == 'steel'))]
     V = [t for t in U if t['postwar'] is not None]
     wm = lambda ts, k: round(sum(t[k] * t['travel'] for t in ts) / sum(t['travel'] for t in ts), 1)
     legacy = dict(
         groups=[dict(industry=k, towns=len(ts), near=wm(ts, 'near'), far=wm(ts, 'far'), postwar=wm(ts, 'postwar'),
                      short_cycle=round(100 * sum(t['cyclists'] for t in ts) / sum(t['near_n'] for t in ts), 1))
-                for k in ('coal', 'steel', 'other') for ts in [[t for t in V if t['industry'] == k and t['tier'] in ('flat', 'gentle')]]],
+                for k in ('coal', 'edge', 'steel', 'other') for ts in [[t for t in V if t['industry'] == k and t['tier'] in ('flat', 'gentle')]]],
         base=model(V, lambda t: math.log(t['cycle']), ind),
         distance=model(V, lambda t: math.log(t['cycle']), ind + [('near', lambda t: t['near'] / 10)]),
         housing=model(V, lambda t: math.log(t['cycle']), ind + [('postwar', lambda t: t['postwar'] / 10)]),
@@ -184,7 +253,7 @@ def main():
     cv = [('cycling', lambda t: math.log(t['cycle'])), ('aged 65+', lambda t: t['old'] / 10), ('deprived', lambda t: t['deprived'] / 10),
           ('Asian', lambda t: t['asian'] / 10), ('Black', lambda t: t['black'] / 10), ('work from home', lambda t: t['wfh'] / 10),
           ('commute 10 km+', lambda t: t['far'] / 10), ('manufacturing', lambda t: t['manuf'] / 10), ('health and care', lambda t: t['care'] / 10),
-          ('coalfield', lambda t: float(t['industry'] == 'coal')), ('size', lambda t: math.log(t['travel'])),
+          ('coalfield', lambda t: float(t['industry'] == 'coal')), ('coalfield edge', lambda t: float(t['industry'] == 'edge')), ('size', lambda t: math.log(t['travel'])),
           ('West', lambda t: float(t['region'] == 'West')), ('North', lambda t: float(t['region'] == 'North'))]
     def corr(k):
         xs = [math.log(t['cycle']) if k == 'cycling' else t[k] for t in C]; ys = [t['covid'] for t in C]

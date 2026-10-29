@@ -14,18 +14,19 @@
 :root{
   --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
   --accent:#0f6b5c; --soft:#e2f0ec;
-  /* industrial past, categorical slots (validated, all pairs): coalfield violet, iron and steel orange, other aqua */
-  --i-coal:#6250d6; --i-steel:#eb6834; --i-other:#1baf7a;
+  /* industrial past, categorical slots (validated, all pairs; CVD warning, so always labelled): pit towns violet, edge
+     of the coalfield amber, iron and steel red, other aqua */
+  --i-coal:#6250d6; --i-edge:#eda100; --i-steel:#e34948; --i-other:#1baf7a;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --i-coal:#9085e9; --i-steel:#d95926; --i-other:#199e70; color-scheme:dark}}
+  --i-coal:#9085e9; --i-edge:#b98a00; --i-steel:#e66767; --i-other:#199e70; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --i-coal:#9085e9; --i-steel:#d95926; --i-other:#199e70; color-scheme:dark}
+  --i-coal:#9085e9; --i-edge:#b98a00; --i-steel:#e66767; --i-other:#199e70; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -108,7 +109,7 @@ table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-rad
   </header>
   <div class="facts" id="facts"></div>
   <section>
-    <div class="sh"><h2>Post-war industrial decline: mining and heavy industry</h2><p>Every town of about 10,000 people or more, grouped by its council's industrial past: the coalfields (South and West Yorkshire, Nottinghamshire and Derbyshire, North West Leicestershire, Durham and Northumberland, Lancashire and West Cumbria) and the iron, steel and shipbuilding towns (Teesside, Scunthorpe, Sheffield and Barrow). The bars show how the typical town in each group cycles to work against what its hills predict.</p></div>
+    <div class="sh"><h2>Post-war industrial decline: mining and heavy industry</h2><p>Every town of about 10,000 people or more, grouped by industrial past. In the coalfields (South and West Yorkshire, Nottinghamshire and Derbyshire, North West Leicestershire, Durham and Northumberland, Lancashire and West Cumbria), pit towns have a colliery within 2 km of their built-up edge; towns with none, such as Long Eaton, Beeston, Newark and Retford, are on the edge of the coalfield. The iron, steel and shipbuilding towns are Teesside, Scunthorpe, Sheffield and Barrow. The bars show how the typical town in each group cycles to work against what its hills predict.</p></div>
     <div class="bars" id="mbars"></div>
     <div class="axis" id="maxis"></div>
     <div class="legend" id="mlegend" style="border-top:1px solid var(--line)"></div>
@@ -156,7 +157,7 @@ table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-rad
 const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const p1=v=>(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB'),pc=r=>{const v=Math.round((r-1)*100);return (v>0?'+':v<0?'−':'')+Math.abs(v)+'%'};
-const IND={coal:['Coalfield towns','--i-coal'],steel:['Iron, steel and shipbuilding','--i-steel'],other:['Other towns','--i-other']};
+const IND={coal:['Coalfield pit towns','--i-coal'],edge:['Edge of the coalfield','--i-edge'],steel:['Iron, steel and shipbuilding','--i-steel'],other:['Other towns','--i-other']};
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
 // a town's mark, shaped by cycling against what its hills predict: ▲ 10% or more above, ● within 10%, ▼ 10% or more below
 function townMark(map,t,mx,fill){
@@ -170,11 +171,11 @@ const BENCH_LEGEND=`<span><i style="background:none;border:2px solid var(--ink);
 const SHAPE_LEGEND=`<span><svg width="12" height="11" viewBox="0 0 12 11" style="fill:var(--muted)"><path d="M6 0L12 11H0Z"/></svg>10%+ more cycling than its hills predict</span><span><i style="background:var(--muted)"></i>Within 10%</span><span><svg width="12" height="11" viewBox="0 0 12 11" style="fill:var(--muted)"><path d="M0 0H12L6 11Z"/></svg>10%+ less</span>`;
 fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
   const term=(m,n)=>m.terms.find(t=>t.name===n),MI=D.mining.industry,MB=D.mining.base,CF=D.covid.full;
-  const coal=term(MI,'coal'),steel=term(MI,'steel'),cyc=term(CF,'cycling'),dbl=v=>Math.pow(v,Math.LN2),ccoal=term(CF,'coalfield');
+  const coal=term(MI,'coal'),edge=term(MI,'edge'),steel=term(MI,'steel'),cyc=term(CF,'cycling'),dbl=v=>Math.pow(v,Math.LN2),ccoal=term(CF,'coalfield');
   document.getElementById('facts').innerHTML=`
-    <div class="fact" style="--c:var(--i-coal)"><b>${pc(coal.x)}</b><span>cycling to work in coalfield towns against similar towns elsewhere, holding hills, deprivation, cars, size, region and conurbation equal</span></div>
+    <div class="fact" style="--c:var(--i-coal)"><b>${pc(coal.x)}</b><span>cycling to work in coalfield pit towns against similar towns elsewhere, holding hills, deprivation, cars, size, region and conurbation equal; ${pc(edge.x)} on the edge of the coalfield</span></div>
     <div class="fact" style="--c:var(--i-steel)"><b>${pc(steel.x)}</b><span>in iron, steel and shipbuilding towns: Middlesbrough, Hartlepool, Stockton, Redcar</span></div>
-    <div class="fact"><b>${pc(ccoal.x)}</b><span>COVID-19 deaths in coalfield towns in 2020–21 against similar towns, the largest effect after age</span></div>
+    <div class="fact"><b>${pc(ccoal.x)}</b><span>COVID-19 deaths in coalfield pit towns in 2020–21 against similar towns, the largest effect after age</span></div>
     <div class="fact"><b>${pc(dbl(cyc.x))}</b><span>COVID-19 deaths where twice as many people cycle to work, all else equal: a modest link, not proof that cycling protected anyone</span></div>`;
   // bars: groups with five towns or more
   const G=D.groups.filter(g=>g.towns>=5),rs=G.map(g=>g.ratio-1),lo=Math.min(-.4,...rs),hi=Math.max(.1,...rs),X=v=>(v-lo)/(hi-lo)*100;
@@ -201,7 +202,8 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
   document.getElementById('mlegend').innerHTML=Object.entries(IND).map(([k,[n,c]])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+SHAPE_LEGEND+`<span>Size: people travelling to work</span>`+BENCH_LEGEND;
   const north0=term(MB,'North'),north1=term(MI,'North');
   document.getElementById('mnote').innerHTML=`
-    <p class="callout"><b>The pit and the works shaped how people travel.</b> Coalfield towns cycle ${pc(coal.x)} against similar towns elsewhere (likely ${pc(coal.lo)} to ${pc(coal.hi)}), and iron, steel and shipbuilding towns ${pc(steel.x)} (${pc(steel.lo)} to ${pc(steel.hi)}), with hills, deprivation, car ownership, size, region and the conurbations around them held equal. Retford, Doncaster, Middlesbrough, Hartlepool and Ashington all cycle below what their hills predict.</p>
+    <p class="callout"><b>The pit and the works shaped how people travel.</b> Pit towns cycle ${pc(coal.x)} against similar towns elsewhere (likely ${pc(coal.lo)} to ${pc(coal.hi)}), and iron, steel and shipbuilding towns ${pc(steel.x)} (${pc(steel.lo)} to ${pc(steel.hi)}), with hills, deprivation, car ownership, size, region and the conurbations around them held equal. Doncaster, Middlesbrough, Hartlepool and Ashington all cycle below what their hills predict.</p>
+    <p><b>The edge of the coalfield sits in between.</b> Towns in the coalfield councils with no pit of their own, such as Long Eaton, Beeston, Newark and Retford, cycle ${pc(edge.x)} against similar towns (likely ${pc(edge.lo)} to ${pc(edge.hi)}), a smaller gap that may be chance: their people worked in mills, factories and market trades as much as down the pits.</p>
     <p><b>Why might that be?</b> The history suggests reasons. Pit villages were scattered and many lost their own work when the mines closed in the 1980s and 1990s, leaving longer journeys to new jobs on business parks and by the motorways. Shift work at pits and steelworks came with works buses and, later, the car. Nationalisation brought big moves of people and new estates. And physically demanding work, then the loss of it, left a legacy of poorer health. Three of these are tested below.</p>
     <p><b>It explains part of the gap in the North East and Cumbria.</b> Earlier, towns there cycled ${pc(north0.x)} against similar towns in Yorkshire and the East, and the conurbations did not explain it. Allowing for the coalfields and steel towns brings that to ${pc(north1.x)}: Durham, Northumberland and Teesside are coal and steel country.</p>
     <p><b>The exceptions.</b> Scunthorpe, a steel town on flat ground, cycles well above its prediction, and so does Worksop on the Nottinghamshire coalfield: the past is a tendency, not a rule.</p>`;
@@ -239,7 +241,7 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
       c.addEventListener('mousemove',show);c.addEventListener('click',show);c.addEventListener('mouseleave',()=>tip.style.display='none')})};
   document.getElementById('slegend').innerHTML=Object.entries(IND).map(([k,[n,c]])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+`<span>Correlation ${D.covid.corr.cycling}</span>`+BENCH_LEGEND;
   // forest: each factor's multiplier on COVID-19 deaths with its 95% range, on a log scale centred on no effect
-  const LAB={'aged 65+':'10 points more aged 65+','coalfield':'Coalfield town','West':'North West town','Black':'10 points more Black residents','deprived':'10 points more deprived neighbourhoods','Asian':'10 points more Asian residents','manufacturing':'10 points more in manufacturing','health and care':'10 points more in health and care','work from home':'10 points more working from home','commute 10 km+':'10 points more commuting 10 km+','North':'North East and Cumbria town','cycling':'Twice as many cycling to work'};
+  const LAB={'aged 65+':'10 points more aged 65+','coalfield':'Coalfield pit town','coalfield edge':'Edge of the coalfield','West':'North West town','Black':'10 points more Black residents','deprived':'10 points more deprived neighbourhoods','Asian':'10 points more Asian residents','manufacturing':'10 points more in manufacturing','health and care':'10 points more in health and care','work from home':'10 points more working from home','commute 10 km+':'10 points more commuting 10 km+','North':'North East and Cumbria town','cycling':'Twice as many cycling to work'};
   const F=CF.terms.filter(t=>t.name!=='size').map(t=>t.name==='cycling'?{...t,x:dbl(t.x),lo:dbl(t.lo),hi:dbl(t.hi)}:t).sort((a,b)=>b.x-a.x);
   const drawForest=()=>{const elf=document.getElementById('forest');elf.innerHTML='';
     const W=Math.max(300,elf.clientWidth-24),nar=W<560,row=nar?42:26,mg={l:nar?8:Math.min(250,W*.5),r:46,t:8,b:30},Hh=mg.t+mg.b+F.length*row;
@@ -258,7 +260,7 @@ fetch('data/industry.json').then(r=>{if(!r.ok)throw new Error(r.status);return r
     <p><b>And cycling?</b> After all of that, towns where twice as many cycle to work still had ${pc(dbl(cyc.x))} COVID-19 deaths (likely ${pc(dbl(cyc.lo))} to ${pc(dbl(cyc.hi))}). Cycling adds a little to what the model explains (${D.covid.without_cycling.r2} to ${CF.r2} of the variation). That fits research linking regular physical activity to less severe COVID-19, but these are whole towns, not people: a town that cycles may differ in other ways not measured here, such as general health or how crowded its homes are.</p>
     <p><b>Why the two looked alike.</b> Both follow the same history. The coalfield and conurbation towns that cycle least were also hit hardest by COVID-19, while the flat, separate market and port towns of Yorkshire and the East cycle more and had fewer deaths. The 2021 Census was taken during a lockdown, too, so who still travelled to work, and how, was shaped by the same jobs that shaped exposure to the virus.</p>`;
   document.getElementById('method').innerHTML=`
-    <p><b>Industrial past.</b> By council area, as a rough guide: the coalfields are the councils whose economies were built on deep coal mining (${'Barnsley, Doncaster, Rotherham, Wakefield; Ashfield, Mansfield, Bassetlaw, Newark and Sherwood, Gedling, Broxtowe; Bolsover, Chesterfield, North East Derbyshire, Amber Valley, Erewash, South Derbyshire; North West Leicestershire; County Durham, Northumberland, Sunderland, South Tyneside, Gateshead; Wigan, St Helens; Allerdale, Copeland'}); iron, steel and shipbuilding are Middlesbrough, Redcar and Cleveland, Stockton-on-Tees, Hartlepool, North Lincolnshire, Sheffield and Barrow-in-Furness. Towns on the edge of a coalfield in another council (parts of Leeds and Kirklees, for example) are not counted.</p>
+    <p><b>Industrial past.</b> The coalfields are the councils whose economies were built on deep coal mining (${'Barnsley, Doncaster, Rotherham, Wakefield; Ashfield, Mansfield, Bassetlaw, Newark and Sherwood, Gedling, Broxtowe; Bolsover, Chesterfield, North East Derbyshire, Amber Valley, Erewash, South Derbyshire; North West Leicestershire; County Durham, Northumberland, Sunderland, South Tyneside, Gateshead; Wigan, St Helens; Allerdale, Copeland'}); iron, steel and shipbuilding are Middlesbrough, Redcar and Cleveland, Stockton-on-Tees, Hartlepool, North Lincolnshire, Sheffield and Barrow-in-Furness. Within them, a pit town has a former colliery within 2 km of its built-up edge (ONS Built-up Areas 2022), using collieries mapped in OpenStreetMap; the rest are on the edge of the coalfield. OpenStreetMap does not map every former pit, so a few pit villages (Armthorpe, for one) may be counted as edge. Towns with pits in other councils (parts of Leeds, Kirklees, Tyneside and Greater Manchester, for example) are not counted.</p>
     <p><b>Cycling.</b> Census 2021 cycling to work against what the town's gradient predicts (the curve on the towns page). The model holds equal gradient, deprived neighbourhoods, households with no car, town size, region and the people working in other towns within 10 km (see Geography and history). Ranges come from 600 bootstrap resamples. Hull, York and Cambridge are shown on the map and the COVID-19 chart, ringed, but left out of the models: they are the benchmarks, and Cambridge cycles far more than anywhere else.</p>
     <p><b>COVID-19.</b> Deaths registered due to COVID-19 (the underlying cause) in 2020 and 2021 by neighbourhood (ONS), each neighbourhood given to the town most of it lies in, per 100,000 residents (Census 2021). The model adds the share aged 65+, Asian and Black residents, working mainly from home and commuting 10 km or more (Census 2021, which was taken in March 2021, during a lockdown), the shares working in manufacturing and in health and social care, the coalfield flag, size and region. Median: ${nf(D.covid.median)} deaths per 100,000.</p>
     <p><b>Distance, estates and railways.</b> Commutes under 5 km and of 10 km or more from Census 2021 (TS058), out of everyone travelling to work. Homes built 1945–82 in Council Tax band A or B, as a share of all homes (Valuation Office Agency, Council Tax stock of properties, table CTSOP 4.1, March 2024): the cheapest post-war homes, mostly built by councils. Railway towns: Crewe, Derby, Doncaster, Darlington, York, Shildon, Horwich, Newton-le-Willows, Peterborough, March, Normanton, Carnforth and Gateshead. Each is added to the cycling model on its own.</p>

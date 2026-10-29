@@ -205,7 +205,7 @@ def main():
     LAB = dict(cycling={'1': 'Under 2%', '2': '2–4%', '3': '4–8%', '4': '8% or more'},
                tier={'flat': 'Flat', 'gentle': 'Gently sloping', 'hilly': 'Hilly'},
                setting={'own': 'On its own', 'few': 'A few towns nearby', 'edge': 'Edge of a conurbation', 'inside': 'Inside a conurbation'},
-               industry={'other': 'Other towns', 'steel': 'Iron, steel and shipbuilding', 'coal': 'Coalfield towns'},
+               industry={'other': 'Other towns', 'steel': 'Iron, steel and shipbuilding', 'edge': 'Edge of the coalfield', 'coal': 'Coalfield pit towns'},
                region={'East': 'Yorkshire and the East', 'West': 'North West', 'North': 'North East and Cumbria'})
     key = dict(cycling=lambda t: '1' if t['cycle'] < 2 else '2' if t['cycle'] < 4 else '3' if t['cycle'] < 8 else '4',
                tier=lambda t: t['tier'], setting=lambda t: t['setting'], industry=lambda t: t['industry'], region=lambda t: t['region'])
