@@ -18,7 +18,7 @@ AREAS = json.load(open(os.path.join(HERE, 'areas.json')))
 # credit for partial provision (a painted lane, or a pavement shared with walkers or split by a painted line): little
 # protection at side roads and junctions, so a quarter of a protected track
 PARTIAL = 0.25
-MIN_TRAVEL = 3000          # people travelling to work: roughly a town of 10,000 or more
+MIN_TRAVEL = 2000          # people travelling to work: roughly a town of 6,500 or more (Tadcaster, Castle Donington)
 BENCH = ('Kingston upon Hull', 'York')
 # flagged on the page: at least one household in four with no car (Census 2021), and over a third of neighbourhoods in
 # England's most deprived fifth (IMD 2025), against a fifth nationally

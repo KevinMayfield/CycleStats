@@ -167,7 +167,7 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--bg)}
     <div class="tw"><table class="rank" id="rank"></table></div>
   </section>
   <section>
-    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the other routes bring Lincoln, Grimsby, Leicester, Leeds, Doncaster, Hull, Stamford, Teesside and the Lincolnshire coast into the network. Rides for getting to work come first, then destination rides. Each ride shows the towns of 10,000 people or more it links, and its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
+    <div class="sh"><h2>Choose a ride</h2><p>Like Hærvejsløbet's set of routes, the Way splits into shorter rides, and the other routes bring Lincoln, Grimsby, Leicester, Leeds, Doncaster, Hull, Stamford, Teesside and the Lincolnshire coast into the network. Rides for getting to work come first, then destination rides. Each ride shows the towns of about 6,500 people or more it links, and its total climbing, its highest point and its height profile, all on the same vertical scale so the hillier rides stand out.</p></div>
     <div class="opts" id="opts"></div>
   </section>
   <section>
@@ -271,7 +271,7 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   document.getElementById('why').innerHTML=`
     <div><h3>Flat</h3><b>${nf(allUp/allKm*100)} m</b><p>of climbing per 100 km across all ${d.routes.length} routes, against about 830 m on Hærvejsløbet. ${lowRides} of the ${d.routes.length} never rise above 100 m. In the town figures, hillier towns cycle less.</p></div>
     <div><h3>Safe</h3><b>${pct(allKm-onRoads,allKm)}%</b><p>of the network can be ridden away from traffic today. The other ${nf(onRoads)} km is on A, B or C roads, and that is where a proper path has to be built: the list below says where.</p></div>
-    <div><h3>Connects towns</h3><b>${tws.length} towns</b><p>of 10,000 people or more are linked, where ${nf(trav)} people travel to work. ${cyc.toFixed(1)}% of them cycle today; the Go Dutch scenario puts it at ${dut.toFixed(0)}% with Dutch-standard routes.</p></div>`;
+    <div><h3>Connects towns</h3><b>${tws.length} towns</b><p>of about 6,500 people or more are linked, where ${nf(trav)} people travel to work. ${cyc.toFixed(1)}% of them cycle today; the Go Dutch scenario puts it at ${dut.toFixed(0)}% with Dutch-standard routes.</p></div>`;
   // ride options: the whole Way, its halves, and each variant
   // a ride is one or more pieces of route: [route id, first stage, last stage, ridden backwards]
   const R=id=>d.routes.find(x=>x.id===id);
@@ -310,7 +310,7 @@ fetch('data/danelaw.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   const card=o=>{const p=prof(o.parts),u=up(o.parts),hi=p.length?Math.max(...p):0,tw=rtowns(o.parts).map(i=>d.towns[i]);
     return `<button class="opt" data-o="${OPTS.indexOf(o)}" aria-pressed="false"><span class="use ${o.use}">${USE[o.use]}</span><span class="t">${esc(o.n)}</span><b>${nf(km(o.parts))} km</b>
       <span class="el" aria-label="${nf(u)} metres of climbing, highest point ${hi} metres"><span><b>${nf(u)} m</b> climbing</span><span>highest <b>${hi} m</b></span></span>
-      ${spark(p)}${breakdown(o.parts)}<span class="twn">${tw.length?`Links <b>${tw.map(x=>esc(x.name)).join(', ')}</b>: ${nf(tw.reduce((s,x)=>s+x.travel,0))} people travel to work there`:'Links no towns of 10,000 or more'}</span><small>${esc(o.t)}</small></button>`};
+      ${spark(p)}${breakdown(o.parts)}<span class="twn">${tw.length?`Links <b>${tw.map(x=>esc(x.name)).join(', ')}</b>: ${nf(tw.reduce((s,x)=>s+x.travel,0))} people travel to work there`:'Links no towns of 6,500 or more'}</span><small>${esc(o.t)}</small></button>`};
   document.getElementById('opts').outerHTML=`<div class="ogrp">For getting to work</div><div class="opts">${OPTS.filter(o=>o.use!=='destination').map(card).join('')}</div>
     <div class="ogrp">Destination rides</div><div class="opts">${OPTS.filter(o=>o.use==='destination').map(card).join('')}</div>`;
   document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const was=o.getAttribute('aria-pressed')==='true';document.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',!was&&x===o));if(was)return zoom();
