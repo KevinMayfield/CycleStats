@@ -17,7 +17,8 @@ towns.py), its collisions per cyclist index and women's share of cycle commuters
   region        North West, and North East and Cumbria, against Yorkshire and the East
   size          people travelling to work (log)
 The same model is also fitted separately to women's and men's cycling to work (people.py; towns where ONS gives the
-split by sex and 50 or more cycle), so each town gets a prediction for each.
+split by sex and 50 or more cycle), so each town gets a prediction for each, and its factor effects for each
+(f_factors, m_factors) for the town panel's everyone / women / men switch.
 Hull, York and Cambridge are left out of the fit (benchmarks and an outlier) but still get a prediction.
 Each town's factor effects are against the typical town (the median of each measure; no industrial past; Yorkshire
 and the East); what the factors do not explain is the town's local effect.
@@ -127,13 +128,20 @@ def main():
         pred = math.exp(b[0] + sum(c * v for c, v in zip(b[1:], x)))
         groups = {}
         for (k, grp, *_), c, v, r in zip(feats, b[1:], x, ref): groups[grp] = groups.get(grp, 0) + c * (v - r)
+        # the same split from the women's and men's models, for towns with the split by sex
+        sgroups = {}
+        for k in ('f', 'm'):
+            if k not in t: continue
+            gs = {}
+            for (kk, grp, g, *_), c, r in zip(sfeats, sex[k]['b'][1:], sref): gs[grp] = gs.get(grp, 0) + c * (g(t) - r)
+            sgroups[k + '_factors'] = {grp: round(100 * (math.exp(v) - 1), 1) for grp, v in gs.items()}
         towns.append(dict(id=t['id'], name=t['name'], area=t['area_name'], region=t['region'], tier=t['tier'], skip=t['skip'],
                           lat=t['lat'], lon=t['lon'], travel=t['travel'], cycle=t['cycle'], pred=round(pred, 2),
                           local=round(100 * (t['cycle'] / pred - 1), 1),
                           factors={grp: round(100 * (math.exp(v) - 1), 1) for grp, v in groups.items()},
                           **{f'{k}_{w}': v for k in ('f', 'm') if k in t for w, v in (
                               ('act', t[k]), ('pred', round(math.exp(sex[k]['b'][0] + sum(c * g(t) for c, (_, g) in zip(sex[k]['b'][1:], scols))), 2)))},
-                          dutch=TJ.get(t['id'], {}).get('dutch'), risk=P.get(t['id'], {}).get('rider_index'), women=P.get(t['id'], {}).get('women'),
+                          **sgroups, dutch=TJ.get(t['id'], {}).get('dutch'), risk=P.get(t['id'], {}).get('rider_index'), women=P.get(t['id'], {}).get('women'),
                           values=dict(slope=t['slope'], around=t['around'], industry=t['industry'], near=t['near'], nocar=t['nocar'],
                                       deprived=t['deprived'], postwar=t['postwar'], old=t['old'], days=t['days'], mm=t['mm'],
                                       rain_from=t.get('from_town'), rain_km=t.get('from_km'))))
