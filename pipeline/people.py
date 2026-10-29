@@ -185,7 +185,10 @@ def main():
                  change=median([100 * (t['change'] - 1) for t in g]), skew=median([t['skew'] for t in g]))
             for lab, g in (('Lowest third', K[:n // 3]), ('Middle third', K[n // 3:2 * n // 3]), ('Highest third', K[2 * n // 3:]))]
     KW = [t for t in K if 'women' in t]
-    ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m, risk=risk,
+    # the clearest cases: cycling fell 15% or more and rests most on older riders, towns with 8,000+ people travelling to work
+    strong = [dict(name=t['name'].split(' (')[0], change=round(100 * (t['change'] - 1)), skew=t['skew'], women=t.get('women'), risk=t['risk'])
+              for t in sorted(F, key=lambda t: -t['skew']) if t['skew'] >= 1.25 and t['change'] < .85 and t['travel'] >= 8000]
+    ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m, risk=risk, strong=strong,
                   risk_median=median([t['risk'] for t in K]), risk_corr=dict(change=corr([t['risk'] for t in K], [t['change'] for t in K]),
                   skew=corr([t['risk'] for t in K], [t['skew'] for t in K]), women=corr([t['risk'] for t in KW], [t['women'] for t in KW])))
     out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing,
