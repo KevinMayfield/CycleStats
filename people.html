@@ -111,6 +111,17 @@ table.lt td small{color:var(--muted)}
     <div class="note" id="anote"></div>
   </section>
   <section>
+    <div class="sh"><h2>An ageing cycling culture</h2><p>Flat and gently sloping towns where at least 1.5% cycle to work. Across: how much more likely 50–64s are to cycle to work than 16–34s, so further right means a town's cycling rests more on older riders. Up: the change in cycling to work from the 2011 Census to the 2021 Census.</p></div>
+    <div class="two">
+      <div><h3>Older riders against the change since 2011</h3><div class="chart" id="ascatter"><div class="tip" id="atip"></div></div><div class="legend" id="alegend"></div></div>
+      <div><h3>Towns where cycling rose and fell</h3><div class="tw"><table class="lt" id="atable" style="min-width:0"></table></div></div>
+    </div>
+    <div class="note" id="agnote"></div>
+    <h3 class="ph">Is fear of the roads behind it?</h3>
+    <div class="tw"><table class="lt" id="rtable" style="min-width:0"></table></div>
+    <div class="note" id="rnote"></div>
+  </section>
+  <section>
     <div class="sh"><h2>Every town</h2><p>Sorted by women's share of cycle commuters. Towns where ONS withholds the split by sex are listed without it.</p></div>
     <div class="find"><label for="q">Find a town</label><input id="q" type="search" placeholder="e.g. Long Eaton"></div>
     <div class="tw"><table class="lt" id="ttable"></table></div>
@@ -181,11 +192,49 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
   let all=false;
   const rows=[...T].sort((p,q)=>(q.women??-1)-(p.women??-1)||q.cycle-p.cycle);
   const draw=()=>{const q=document.getElementById('q').value.trim().toLowerCase(),L=rows.filter(t=>!q||t.name.toLowerCase().includes(q)),show=q||all?L:L.slice(0,25);
-    document.getElementById('ttable').innerHTML=`<thead><tr><th>Town</th><th>Cycle to work</th><th>Women's share of cycle commuters</th><th>Women who cycle</th><th>Men who cycle</th><th>Aged 16–24</th><th>Aged 65+</th></tr></thead><tbody>`+
-      show.map(t=>`<tr><td><i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]}</small></td><td>${p1(t.cycle)}%</td><td>${t.women==null?'<small>withheld</small>':p0(t.women)}</td><td>${t.f==null?'–':p1(t.f)+'%'}</td><td>${t.m==null?'–':p1(t.m)+'%'}</td><td>${p1(t.ages['16–24'])}%</td><td>${p1(t.ages['65+'])}%</td></tr>`).join('')+'</tbody>';
+    document.getElementById('ttable').innerHTML=`<thead><tr><th>Town</th><th>Cycle to work</th><th>Women's share of cycle commuters</th><th>Women who cycle</th><th>Men who cycle</th><th>Change since 2011</th><th>Aged 16–24</th><th>Aged 65+</th></tr></thead><tbody>`+
+      show.map(t=>`<tr><td><i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]}</small></td><td>${p1(t.cycle)}%</td><td>${t.women==null?'<small>withheld</small>':p0(t.women)}</td><td>${t.f==null?'–':p1(t.f)+'%'}</td><td>${t.m==null?'–':p1(t.m)+'%'}</td><td>${t.change==null?'–':chg(t.change)}</td><td>${p1(t.ages['16–24'])}%</td><td>${p1(t.ages['65+'])}%</td></tr>`).join('')+'</tbody>';
     document.getElementById('more').style.display=q||all?'none':''};
   document.getElementById('q').addEventListener('input',draw);document.getElementById('more').addEventListener('click',()=>{all=true;draw()});
-  drawScatter();drawAges();draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawScatter();drawAges()},150)});
+  // an ageing cycling culture: older-rider skew against the change since 2011
+  const AG2=D.ageing,F=T.filter(t=>t.change!=null&&['flat','gentle'].includes(t.tier)&&!t.skip&&t.c21>=1.5),atip=document.getElementById('atip');
+  const ALAB=['Long Eaton','Derby','Boston','Retford','Barrow-in-Furness','Newark-on-Trent','Manchester','Salford','Warrington','Leicester','Eston'];
+  const chg=v=>{const x=Math.round((v-1)*100);return (x>0?'+':x<0?'−':'')+Math.abs(x)+'%'};
+  const drawAgeing=()=>{const el=document.getElementById('ascatter');el.querySelector('svg')?.remove();
+    const Wd=Math.max(300,el.clientWidth-24),Hh=Math.round(Math.min(440,Math.max(300,Wd*.78))),mg={l:44,r:14,t:24,b:36};
+    const x=v=>mg.l+(Math.min(2.2,Math.max(.4,v))-.4)/1.8*(Wd-mg.l-mg.r),y=v=>mg.t+(1-(Math.min(1.6,Math.max(.4,v))-.4)/1.2)*(Hh-mg.t-mg.b);
+    const xt=[.5,1,1.5,2],yt=[.4,.6,.8,1,1.2,1.4,1.6];
+    let s=`<svg viewBox="0 0 ${Wd} ${Hh}" role="img" aria-label="Scatter of each town's older-rider skew against the change in cycling to work from 2011 to 2021"><g class="grid">${yt.map(v=>`<line x1="${mg.l}" x2="${Wd-mg.r}" y1="${y(v)}" y2="${y(v)}"/>`).join('')}</g>
+      <line class="ref" x1="${mg.l}" x2="${Wd-mg.r}" y1="${y(1)}" y2="${y(1)}"/><line class="ref" x1="${x(1)}" x2="${x(1)}" y1="${mg.t}" y2="${Hh-mg.b}"/>
+      <g class="axis2">${xt.map(v=>`<text x="${x(v)}" y="${Hh-mg.b+16}" text-anchor="middle">${v===1?'same':v+'×'}</text>`).join('')}${yt.map(v=>`<text x="${mg.l-6}" y="${y(v)+4}" text-anchor="end">${v===1?'0':chg(v)}</text>`).join('')}
+      <text x="${(Wd+mg.l)/2}" y="${Hh-4}" text-anchor="middle">50–64s cycling against 16–34s</text><text x="${mg.l-38}" y="12">Change in cycling to work, 2011 to 2021</text></g>`;
+    [...F].sort((p,q)=>q.travel-p.travel).forEach(t=>{s+=`<circle class="pt" data-id="${t.id}" cx="${x(t.skew).toFixed(1)}" cy="${y(t.change).toFixed(1)}" r="${(3.5+Math.sqrt(t.travel/3e5)*10).toFixed(1)}" fill="var(${tierOf(t)[1]})" fill-opacity=".8"/>`});
+    F.filter(t=>(Wd<560?['Long Eaton','Derby','Boston','Retford','Manchester','Warrington']:ALAB).includes(short(t.name))).forEach(t=>{const right=x(t.skew)<Wd*.7&&short(t.name)!=='Long Eaton';s+=`<text class="dl" x="${x(t.skew)+(right?8:-8)}" y="${y(t.change)+4}" text-anchor="${right?'start':'end'}" style="paint-order:stroke;stroke:var(--panel);stroke-width:3px">${esc(short(t.name))}</text>`});
+    el.insertAdjacentHTML('beforeend',s+'</svg>');
+    el.querySelectorAll('circle.pt').forEach(c=>{const show=e=>{const t=T.find(z=>z.id===c.dataset.id);
+      atip.innerHTML=`<b>${esc(t.name)}</b>${p1(t.c11)}% cycled to work in 2011, ${p1(t.c21)}% in 2021 (${chg(t.change)})<br>50–64s cycle ${t.skew.toFixed(2)}× as much as 16–34s<br>${t.women!=null?p0(t.women)+' of cycle commuters are women':'Split by sex withheld'}`;
+      const r=el.getBoundingClientRect();atip.style.display='block';atip.style.left=Math.min(e.clientX-r.left+12,r.width-atip.offsetWidth-4)+'px';atip.style.top=Math.max(4,e.clientY-r.top-atip.offsetHeight-10)+'px'};
+      c.addEventListener('mousemove',show);c.addEventListener('click',show);c.addEventListener('mouseleave',()=>atip.style.display='none')})};
+  document.getElementById('alegend').innerHTML=Object.values(TIER).slice(0,2).map(([n,c])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+`<span>Size: people travelling to work</span><span>Correlation ${AG2.corr}</span>`;
+  document.getElementById('atable').innerHTML=`<thead><tr><th>Cycling to work, 2011 to 2021</th><th>Towns</th><th>2011</th><th>2021</th><th>50–64s against 16–34s</th><th>65+ against 16–34s</th><th>Women's share</th></tr></thead><tbody>`+
+    AG2.bands.map(b=>`<tr><td>${esc(b.label)}<br><small>${b.examples.map(esc).join(', ')}</small></td><td>${b.towns}</td><td>${p1(b.c11)}%</td><td>${p1(b.c21)}%</td><td>${b.skew.toFixed(1)}×</td><td>${b.old.toFixed(1)}×</td><td>${p0(b.women)}</td></tr>`).join('')+'</tbody>';
+  const sk=AG2.model.terms.find(t=>t.name==='skew'),tw=n=>T.find(t=>t.name===n)||{};
+  const le=tw('Long Eaton'),dy=tw('Derby');
+  document.getElementById('agnote').innerHTML=`
+    <p class="callout"><b>Where cycling rests on older riders, it is fading.</b> In the towns where cycling to work rose between the Censuses, young workers cycle more than older ones; where it fell by a quarter or more, 50–64s cycle a third more than 16–34s, and over-65s still at work more than either. Holding the 2011 level and region equal, each step of a quarter towards older riders goes with a further ${Math.round((1-sk.x)*100)}% fall (likely ${Math.round((1-sk.hi)*100)}–${Math.round((1-sk.lo)*100)}%). It looks like a cycling habit that grew up with the factory shift and the short, level ride is still carried by the people who learned it, while fewer young people take it up.</p>
+    <p><b>Long Eaton and Derby.</b> Long Eaton fell from ${p1(le.c11)}% to ${p1(le.c21)}%, and its over-65s still in work cycle ${(le.ages['65+']/((le.ages['16–24']+le.ages['25–34'])/2)).toFixed(1)} times as much as its 16–34s. Derby fell from ${p1(dy.c11)}% to ${p1(dy.c21)}%. What sets them apart is who rides: in most towns where cycling is fading, the old habit took in everyone, with ${p0(AG2.bands[2].women)} of cycle commuters women in the typical sharply falling town (Boston ${p0(tw('Boston').women)}, Newark ${p0(tw('Newark-on-Trent').women)}). In Long Eaton it is ${p0(le.women)} and in Derby ${p0(dy.women)}: their cycling was mostly men riding to the mills and works, and without routes that feel safe for everyone it is ageing out rather than spreading to women and younger people.</p>
+    <p><b>Where cycling is growing, it is younger, and fewer of its riders are women.</b> Manchester, Salford, Warrington, Leicester and Liverpool gained cyclists, mostly young; their women's share (${p0(AG2.bands[0].women)} in the typical town) has not caught up. Some have had recent investment in cycle routes, but funding is not measured here, so this page cannot say investment made the difference. Children are not covered: the Census counts travel to work only.</p>
+    <p><b>Limits.</b> The 2011 figures come from the Propensity to Cycle Tool on 2011 neighbourhoods; the 2021 Census was taken in a lockdown, which may have changed younger workers' travel most. This compares age groups at one moment, not the same people over time.</p>`;
+  // collisions a year per 100 cycle commuters, in thirds
+  const RK=AG2.risk,rc=AG2.risk_corr;
+  document.getElementById('rtable').innerHTML=`<thead><tr><th>Cycle collisions a year per 100 cycle commuters</th><th>Towns</th><th>Collisions</th><th>Change since 2011</th><th>50–64s against 16–34s</th><th>Women's share</th></tr></thead><tbody>`+
+    RK.map(b=>`<tr><td>${esc(b.label)}</td><td>${b.towns}</td><td>${p1(b.risk)}</td><td>${b.change>0?'+':b.change<0?'−':''}${Math.abs(Math.round(b.change))}%</td><td>${b.skew.toFixed(1)}×</td><td>${p0(b.women)}</td></tr>`).join('')+'</tbody>';
+  const bo=tw('Boston'),nw=tw('Newark-on-Trent');
+  document.getElementById('rnote').innerHTML=`
+    <p class="callout"><b>Recorded danger does not explain the ageing, but it goes with fewer women riding.</b> Collisions per rider (police-recorded, 2021–25) show no sign of driving the fall (correlation ${rc.change}; if anything the safest towns lost most) and no link with how much it rests on older riders (${rc.skew}), and neither do the share that were serious or the share on 40 mph+ roads. But where there are more collisions for each person who cycles, fewer of the riders are women: ${p0(RK[0].women)} in the safest third of towns against ${p0(RK[2].women)} in the riskiest (correlation ${rc.women}).</p>
+    <p><b>Long Eaton and Derby</b> both have ${p1(le.risk)} collisions a year per 100 cycle commuters against ${p1(AG2.risk_median)} in the typical town, and ${le.ksi}% of Long Eaton's were serious. Boston (${p1(bo.risk)}) and Newark-on-Trent (${p1(nw.risk)}), where the old habit took in women too, are far safer per rider. So the ageing looks like a habit not being handed on, while the shortage of women looks more like fear, which would fit what surveys find: women and older people are most put off by traffic.</p>
+    <p><b>Limits.</b> Part of this is safety in numbers, since towns where more people cycle have fewer collisions per rider; the link with women's share is weaker once that is allowed for. Collisions are what gets reported, not how the roads feel: fear comes from traffic, speed and close passes that the records barely show. The collisions are from 2021–25, after most of the change happened.</p>`;
+  drawScatter();drawAges();drawAgeing();draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawScatter();drawAges();drawAgeing()},150)});
   const cv=D.coverage;
   document.getElementById('method').innerHTML=`
     <p><b>Source.</b> Census 2021 method of travel to work by sex, and by age, for each neighbourhood (MSOA, about 8,000 people), from the ONS API. Each neighbourhood is given to the town most of it lies in. Rates are people who cycle over people travelling to work, leaving out those working mainly from home; the Census was taken in March 2021, during a lockdown.</p>
