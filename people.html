@@ -107,6 +107,9 @@ button.sort:hover,button.sort:focus-visible{color:var(--accent);text-decoration:
       <div><h3>Women's share in the typical town</h3><div class="groups" id="groups"></div></div>
     </div>
     <div class="note" id="wnote"></div>
+    <h3 class="ph" style="border-top:1px solid var(--line);padding-top:14px;margin:0;padding-left:18px">Does the state of the roads explain it?</h3>
+    <div class="tw"><table class="lt" id="roadtable" style="min-width:0"></table></div>
+    <div class="note" id="roadnote"></div>
   </section>
   <section>
     <div class="sh"><h2>Deprivation: men still cycle, women drop out</h2><p>Neighbourhoods (MSOAs, about 8,000 people, with 20 or more cycle commuters) ranked by deprivation (IMD 2025 score), and towns ranked by their share of neighbourhoods in England's most deprived fifth.</p></div>
@@ -279,10 +282,20 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
     <p><b>Limits.</b> The index compares towns; it is not anyone's chance of a crash. The weekly cyclists are an estimate built from council-wide survey figures, and the collisions include children and every kind of trip. Collisions are what gets reported, not how the roads feel: fear comes from traffic, speed and close passes that the records barely show. The collisions are from 2021–25, after most of the change happened.</p>`;
   drawScatter();drawAges();drawAgeing();draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawScatter();drawAges();drawAgeing()},150)});
   const cv=D.coverage;
+  // women and the roads: each measure added in turn to a model holding cycling level, gradient, car ownership and coalfield equal
+  const RD=D.roads,rsg=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'')+Math.abs(r)+'%'},rcr=v=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);
+  document.getElementById('roadtable').innerHTML=`<thead><tr><th>Compared with women's share of cycle commuters</th><th>Correlation</th><th>Effect, with cycling level and hills held equal</th><th>Likely range</th></tr></thead><tbody>`+
+    RD.terms.map(x=>`<tr><td>${esc(x.label)}</td><td>${rcr(x.corr)}</td><td>${rsg(x.effect)}</td><td>${rsg(x.lo)} to ${rsg(x.hi)}</td></tr>`).join('')+
+    `<tr><td><b>How many cycle to work</b> (log)</td><td><b>${rcr(RD.cycling_corr)}</b></td><td colspan="2">the strongest link by far</td></tr></tbody>`;
+  document.getElementById('roadnote').innerHTML=`
+    <p class="callout"><b>Neither recorded danger nor the main roads we can measure explain which towns have more women riding.</b> Across ${RD.towns} towns, women's share follows how many cycle to work (correlation ${rcr(RD.cycling_corr)}) and the hills (${rsg(RD.gradient)} for each extra point of route gradient), but not collisions per cyclist, protected tracks, busy unprotected roads or 40 mph limits on the routes people would use: every range above includes no effect.</p>
+    <p><b>That does not mean the roads do not matter.</b> The typical town has ${p0(RD.prot_median)} of its main commuting routes protected, and only ${RD.prot_10} of the ${RD.towns} have protection on even a tenth of them. The most protected, ${esc(RD.most.name)} at ${p0(RD.most.prot)}, has few women riding (${p0(RD.most.women)}), but one town proves nothing. Almost every English town's main roads are busy and unprotected, so comparing towns cannot show what protection would do: the test needs towns that have it.</p>
+    <p><b>What fits is that women ride where cycling already looks normal.</b> Fear, image and media coverage that paints cycling as dangerous or confrontational would work that way, by keeping cycling to the few, but these figures cannot prove it. The real test is before and after: how women's share changes where a town builds protected routes.</p>`;
   document.getElementById('method').innerHTML=`
     <p><b>Source.</b> Census 2021 method of travel to work by sex, and by age, for each neighbourhood (MSOA, about 8,000 people), from the ONS API. Each neighbourhood is given to the town most of it lies in. Rates are people who cycle over people travelling to work, leaving out those working mainly from home; the Census was taken in March 2021, during a lockdown.</p>
     <p><b>Women's share.</b> ONS withholds the split by sex for ${nf(cv.msoas-cv.with_sex)} of ${nf(cv.msoas)} neighbourhoods to protect privacy. A town gets a share only where at least half its commuters are covered and at least 50 cycle. Withheld neighbourhoods cycle slightly less (${p1(cv.cycle_without)}% against ${p1(cv.cycle_with)}%), so shares may lean a little high. Groups give the median town; Hull is left out, York and Cambridge are kept, except that Cambridge, with its students, is left out of the age lines.</p>
     <p><b>Casualties.</b> Cyclists killed or injured in police-recorded collisions, 2021–25 (STATS19), by the council where the collision happened, against that council's Census cycling to work, for every council in England. Women may be hurt less per mile than men, so their share of casualties probably understates their share of riders.</p>
+    <p><b>Women and the roads.</b> Each measured road stretch (named main roads, from the area maps) goes to the town most of its length runs through. A town's roads are summarised weighted by the Propensity to Cycle Tool's Go Dutch commuting on them (the roads people would need to use): the share with a protected cycle track, at 40 mph or more, and busy (15,000 or more motor vehicles a day at the nearest DfT count on the same road, within 1.5 km) without protection. Towns with a women's share, three or more measured stretches and a collision index; 600 bootstrap resamples for the ranges.</p>
     <p><b>Limits.</b> Travel to work only, and only people in work: no school runs, shopping or leisure, and no retired people. These are comparisons between towns, not proof of what causes the differences.</p>`;
 }).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/people.json (${esc(e.message)})</span></div>`});
 </script>

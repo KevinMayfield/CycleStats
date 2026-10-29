@@ -18,6 +18,12 @@ cycle collisions per weekly cyclist (an index, below).
 Women and deprivation: each MSOA's women's share of cycle commuters against its IMD 2025 score (the mean of its LSOAs),
 in fifths and within towns, and towns in thirds by their share of deprived neighbourhoods. Each town also gets cycle collisions a year per
 10,000 residents (Census 2021 TS007A), a measure of danger that does not depend on how many people already cycle.
+
+Women and the roads: each measured road stretch (raw/<area>/work/priorities.json) goes to the town most of its length
+runs through, and each town's main roads are summarised weighted by Go Dutch commuting on them (pct_dutch x km): the
+share protected, at 40 mph or more, and busy (15,000+ motor vehicles a day, the nearest DfT count on the same road within
+1.5 km) and unprotected. Each, and collisions per weekly cyclist, is added in turn to a model of the women's share that
+holds cycling level, gradient, car ownership and the coalfield equal.
 """
 import collections, csv, io, json, math, os, time, urllib.error, urllib.request, zipfile
 
@@ -145,6 +151,67 @@ def casualties():
                         women=round(100 * sum(c['f'] for c in cs) / sum(c['sexn'] for c in cs), 1),
                         children=round(100 * sum(c['u16'] for c in cs) / sum(c['agen'] for c in cs), 1)))
     return out
+
+
+def in_ring(la, lo, ring):
+    c = False
+    for i in range(len(ring) - 1):
+        (y1, x1), (y2, x2) = ring[i], ring[i + 1]
+        if (y1 > la) != (y2 > la) and lo < (x2 - x1) * (la - y1) / (y2 - y1) + x1: c = not c
+    return c
+
+
+def roads(W, I):
+    """women's share of cycle commuters against how each town's main roads are for cycling (see the module notes)"""
+    m_ = lambda a, b: math.hypot((a[1] - b[1]) * math.cos(math.radians(a[0])) * 111320, (a[0] - b[0]) * 110574)
+    bua = {r['lsoa']: r['bua'] for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'lsoa_bua.csv'))) if r['bua']}
+    S = collections.defaultdict(list)
+    for aid in json.load(open(os.path.join(HERE, 'areas.json'))):
+        path = os.path.join(RAW, aid, 'work', 'priorities.json')
+        if not os.path.exists(path): continue
+        cells = collections.defaultdict(list)
+        for f in json.load(open(os.path.join(DATA, aid + '-imd.json')))['f']:
+            b = bua.get(f[0])
+            for ring in f[5] if b else ():
+                las = [q[0] for q in ring]; los = [q[1] for q in ring]
+                for i in range(int(min(las) * 100), int(max(las) * 100) + 1):
+                    for j in range(int(min(los) * 100), int(max(los) * 100) + 1): cells[(i, j)].append((b, ring))
+        cps = collections.defaultdict(dict)   # latest motor traffic at each DfT count point, by road number
+        for r in csv.DictReader(open(os.path.join(RAW, aid, 'aadf.csv'))):
+            try: y, q, v = int(r['year']), (float(r['latitude']), float(r['longitude'])), int(r['all_motor_vehicles'])
+            except (ValueError, KeyError): continue
+            if y > cps[r['road_name']].get(r['count_point_id'], (0,))[0]: cps[r['road_name']][r['count_point_id']] = (y, q, v)
+        for st in json.load(open(path)):
+            pts = [q for g in st['geom'] for q in g]
+            votes = collections.Counter(next((b for b, ring in cells.get((int(la * 100), int(lo * 100)), ()) if in_ring(la, lo, ring)), None)
+                                        for la, lo in pts[::max(1, len(pts) // 12)])
+            town, n = votes.most_common(1)[0]
+            if not town or n < sum(votes.values()) / 2: continue
+            near = [v for y, q, v in cps.get(st.get('ref') or '', {}).values() if min(m_(q, p) for p in pts[::3] + [pts[-1]]) < 1500]
+            S[town].append(dict(km=st['km'], w=st['pct_dutch'] * st['km'], prot=st['protected'], fast=(st['speed'] or 0) >= 40,
+                                busy=median(near) >= 15000 if near else None))
+    R = []
+    for t in W:
+        ss = S.get(t['id'], []); i = I.get(t['id']); w = sum(x['w'] for x in ss)
+        if len(ss) < 3 or not w or not i or t['cycle'] <= 0 or t.get('rider_index') is None: continue
+        wb = sum(x['w'] for x in ss if x['busy'] is not None)
+        R.append(dict(t=t, slope=i['slope'], nocar=i['nocar'], coal=i['industry'] == 'coal', risk=t['rider_index'],
+                      prot=100 * sum(x['w'] * x['prot'] for x in ss) / w, fast=100 * sum(x['w'] for x in ss if x['fast']) / w,
+                      busy=100 * sum(x['w'] for x in ss if x['busy'] and x['prot'] < .5) / wb if wb else 0))
+    base = [('cycling', lambda r: math.log(r['t']['cycle'])), ('gradient', lambda r: r['slope']), ('nocar', lambda r: r['nocar'] / 10),
+            ('coal', lambda r: float(r['coal']))]
+    y = lambda r: math.log(r['t']['women'])
+    out = []
+    for k, step, lab in (('risk', 50, 'Collisions per cyclist (50 index points more)'), ('prot', 10, 'Main roads protected (10 points more)'),
+                         ('busy', 10, 'Main roads busy and unprotected (10 points more)'), ('fast', 10, 'Main roads at 40 mph or more (10 points more)')):
+        e = model(R, y, base + [(k, lambda r, k=k, step=step: r[k] / step)])['terms'][-1]
+        out.append(dict(key=k, label=lab, corr=corr([r[k] for r in R], [r['t']['women'] for r in R]),
+                        effect=round(100 * (e['x'] - 1), 1), lo=round(100 * (e['lo'] - 1), 1), hi=round(100 * (e['hi'] - 1), 1)))
+    gr = model(R, y, base)['terms']
+    top = max(R, key=lambda r: r['prot'])
+    return dict(towns=len(R), terms=out, cycling_corr=corr([math.log(r['t']['cycle']) for r in R], [r['t']['women'] for r in R]),
+                gradient=round(100 * (gr[1]['x'] - 1), 1), prot_median=median([r['prot'] for r in R]), prot_10=sum(r['prot'] >= 10 for r in R),
+                most=dict(name=top['t']['name'].split(' (')[0], prot=round(top['prot']), women=top['t']['women']))
 
 
 def main():
@@ -286,7 +353,7 @@ def main():
     deprivation = dict(msoas=n, fifths=fifths, within=within, within_n=len(dx), thirds=thirds,
                        hull=dict(cycle=[round(min(x['cyc'] for x in hull_deprived), 1), round(max(x['cyc'] for x in hull_deprived), 1)],
                                  women=[round(min(x['women'] for x in hull_deprived)), round(max(x['women'] for x in hull_deprived))]) if hull_deprived else None)
-    out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing, deprivation=deprivation,
+    out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing, deprivation=deprivation, roads=roads(W, I),
                coll_pop_median=median([t['coll_pop'] for t in towns if t['travel'] >= 8000 and 'coll_pop' in t]),
                coll_rider_median=median([t['coll_rider'] for t in towns if t['travel'] >= 8000 and 'coll_rider' in t]),
                corr=corr([math.log(t['cycle']) for t in W if t['cycle'] > 0], [t['women'] for t in W if t['cycle'] > 0]),

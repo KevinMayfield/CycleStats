@@ -285,6 +285,54 @@ Sources:
   neighbourhood.
 - The page's cycling model, in `pipeline/industry.py`.
 
+### 10. Women ride where cycling is normal, not where the roads look safer
+
+*Added 29 October 2026. See [Who cycles](https://kevinmayfield.github.io/CycleStats/people.html).*
+
+Could fear keep women off bikes, including fear fed by media coverage that paints cycling as dangerous or
+confrontational? Recorded danger was tested first: collisions per cyclist have only a weak link with women's share of
+riders. Media works on *felt* danger, though: busy traffic, speed and the lack of protection, which collision records
+barely show.
+
+So every measured main road was placed in its town and summarised by:
+- the share with a protected track;
+- the share at 40 mph or more;
+- the share that is busy (15,000+ vehicles a day) and unprotected.
+
+Each road is weighted by the commuting the Propensity to Cycle Tool's Go Dutch scenario puts on it: the roads people
+would need to use. Across 192 towns, holding cycling level, hills, car ownership and the coalfield equal:
+
+| Compared with women's share of cycle commuters | Correlation | Effect | Likely range |
+|---|---|---|---|
+| Collisions per cyclist (50 index points more) | −0.07 | +3% | −2% to +9% |
+| Main roads protected (10 points more) | −0.02 | −3% | −8% to +5% |
+| Main roads busy and unprotected (10 points more) | +0.01 | 0% | −1% to +1% |
+| Main roads at 40 mph or more (10 points more) | −0.01 | 0% | −2% to +2% |
+| **How many cycle to work** | **+0.71** | strongest link | |
+
+By cycling level (median, the 193 towns with a women's share and measured roads, including one without a collision index):
+
+| Cycle to work | Towns | Women's share of riders |
+|---|---|---|
+| Under 2% | 92 | 14% |
+| 2–4% | 67 | 22% |
+| 4–7% | 27 | 30% |
+| 7% or more | 7 | 37% |
+
+- **Women's share follows how normal cycling is**, and the hills (−9% for each extra point of route gradient). It does
+  not follow recorded danger or any road measure.
+- **That does not show the roads don't matter.** The typical town has none of its main commuting routes protected, and
+  only 16 of 192 have protection on even a tenth of them. The most protected, Sutton-in-Ashfield (47%), has few women
+  riding (13%), but one town proves nothing. Every English town is in effect a "busy, unprotected main roads" town, so
+  comparing towns cannot show what protection would do.
+- **What fits is fear and image working through how common cycling is.** Coverage that frames cycling as dangerous or
+  confrontational would keep cycling to the few, and where few cycle, few of them are women. These figures can't prove
+  it. The test is before and after: how women's share changes where a town builds protected routes. The next Census
+  that could show this is in 2031.
+
+Calculated in `pipeline/people.py` (`roads`) from the area maps' measured road stretches, DfT traffic counts, the
+Propensity to Cycle Tool and Census 2021 travel to work by sex.
+
 ## The Danelaw Cycle Network
 
 The [Danelaw Cycle Network](https://kevinmayfield.github.io/CycleStats/danelaw.html) brings the findings together as
