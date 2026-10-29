@@ -50,6 +50,15 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .pick label{font:600 13px var(--body)}
 .pick input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:260px}
 .pick .hint{color:var(--muted);font-size:12px}
+.combo{position:relative;flex:0 1 380px;min-width:0}
+.combo input{width:100%}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;margin:0;padding:4px 0;list-style:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:min(320px,50vh);overflow-y:auto}
+.sugg[hidden]{display:none}
+.sugg li{padding:7px 12px;cursor:pointer;font-size:13.5px;display:flex;justify-content:space-between;gap:12px}
+.sugg li small{color:var(--muted);text-align:right}
+.sugg li mark{background:none;color:var(--accent);font-weight:600}
+.sugg li[aria-selected="true"],.sugg li:hover{background:var(--soft)}
+.sugg li.none{cursor:default;color:var(--muted)}
 .tbox{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
 .tbox>div{min-width:0}.tbox>div+div{border-left:1px solid var(--line)}
 .head{padding:16px 18px}
@@ -100,7 +109,7 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
 .note p{margin:0}
 .callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
 @media (max-width:900px){h1{font-size:40px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.step:nth-child(2){border-right:0}.step:nth-child(-n+2){border-bottom:1px solid var(--line)}.tbox{grid-template-columns:1fr}.tbox>div+div{border-left:0;border-top:1px solid var(--line)}}
-@media (max-width:560px){.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid var(--line)}.brow{grid-template-columns:1fr}.nums{grid-template-columns:1fr 1fr}.pick input{min-width:0;width:100%}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid var(--line)}.brow{grid-template-columns:1fr}.nums{grid-template-columns:1fr 1fr}.pick input{min-width:0;width:100%}.combo{flex:1 1 100%}}
 </style>
 </head>
 <body>
@@ -119,7 +128,7 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
   </section>
   <section id="town">
     <div class="sh"><h2>Pick a town</h2><p>Its actual share cycling to work set against the prediction, what lifts and holds it back compared with the typical town, and its measures.</p></div>
-    <div class="pick"><label for="q">Town</label><input id="q" list="townlist" autocomplete="off" placeholder="Start typing a town"><datalist id="townlist"></datalist><span class="hint">or click any dot in the chart further down</span></div>
+    <div class="pick"><label for="q">Town</label><div class="combo"><input id="q" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugg" autocomplete="off" spellcheck="false" placeholder="Type a few letters, e.g. Long"><ul class="sugg" id="sugg" role="listbox" hidden></ul></div><span class="hint">Use ↑ ↓ and Enter, or click a suggestion</span></div>
     <div class="tbox">
       <div class="head" id="thead"></div>
       <div><div class="h4">What lifts and holds back its cycling</div><div class="bars" id="tbars"></div>
@@ -136,7 +145,7 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
     <div class="note" id="enote"></div>
   </section>
   <section>
-    <div class="sh"><h2>How good is the prediction?</h2><p>Every town's prediction against what it actually does. Towns on the dashed line do what the prediction says; above it, they cycle more than their factors suggest; below, less. Click a dot to pick that town.</p></div>
+    <div class="sh"><h2>How good is the prediction?</h2><p>Every town's prediction against what it actually does. Towns on the dashed line do what the prediction says; above it, they cycle more than their factors suggest; below, less. The town you picked is highlighted.</p></div>
     <div class="chart" id="fitchart"><div class="tip" id="tip"></div></div>
     <div class="note" id="fnote"></div>
   </section>
@@ -160,7 +169,6 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   ].map(([h,p],i)=>`<div class="step"><span class="n">${i+1}</span><b>${h}</b><p>${p}</p></div>`).join('');
   // town picker
   const label=t=>`${t.name} (${t.area})`;
-  document.getElementById('townlist').innerHTML=[...T].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${esc(label(t))}">`).join('');
   const ORDER=['Hills','Towns crowded round it','Post-war industrial decline','Short commutes','Car ownership and deprivation','Post-war estates','Older population','Rain','Region','Town size'];
   let cur=null;
   const show=t=>{cur=t;document.getElementById('q').value=label(t);try{history.replaceState(null,'','#'+t.id)}catch(e){}
@@ -191,7 +199,23 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     if(V.near<TV.near-5) cards.push(`<div class="card" style="--c:var(--pick)"><h4>Reach the jobs further away</h4><p>Only ${p1(V.near)}% of its commuters travel under 5 km (typical ${p1(TV.near)}%). Direct, protected routes to the business parks and towns where people work, 5 to 10 km away, matter more here than routes within the town.</p></div>`);
     if(t.dutch!=null&&t.dutch>t.cycle) cards.push(`<div class="card" style="--c:var(--up)"><h4>The Go Dutch level</h4><b class="big">${p1(t.dutch)}%</b><p>The Propensity to Cycle Tool's estimate if cycling were as normal as in the Netherlands, given ${esc(short(t.name))}'s hills and the distances people travel: about ${nf(extra(t.dutch))} more people cycling to work. A ceiling to aim at, not a forecast.</p></div>`);
     document.getElementById('tchange').innerHTML=cards.join('')};
-  document.getElementById('q').addEventListener('change',e=>{const v=e.target.value.toLowerCase(),t=T.find(t=>label(t).toLowerCase()===v)||T.find(t=>t.name.toLowerCase().startsWith(v));if(t)show(t)});
+  // type-ahead: towns whose name starts with what is typed come first, then those with a word starting with it, then any other match in the name
+  const q=document.getElementById('q'),sg=document.getElementById('sugg'),SORTED=[...T].sort((a,b)=>a.name.localeCompare(b.name));let hits=[],sel=-1;
+  const close=()=>{sg.hidden=true;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant');sel=-1};
+  const hl=(n,v)=>{const i=n.toLowerCase().indexOf(v);return i<0?esc(n):esc(n.slice(0,i))+'<mark>'+esc(n.slice(i,i+v.length))+'</mark>'+esc(n.slice(i+v.length))};
+  const mark=i=>{sel=i;[...sg.children].forEach((li,k)=>li.setAttribute('aria-selected',k===i?'true':'false'));if(i>=0){q.setAttribute('aria-activedescendant','s'+i);sg.children[i].scrollIntoView({block:'nearest'})}};
+  const suggest=()=>{const v=q.value.trim().toLowerCase();if(!v){close();return}
+    const rank=t=>{const n=t.name.toLowerCase();return n.startsWith(v)?0:n.split(/[\s(,-]+/).some(w=>w.startsWith(v))?1:n.includes(v)?2:9};
+    hits=SORTED.map(t=>[rank(t),t]).filter(([r])=>r<9).sort((a,b)=>a[0]-b[0]).slice(0,12).map(([,t])=>t);
+    sg.innerHTML=hits.length?hits.map((t,i)=>`<li id="s${i}" role="option" data-i="${i}"><span>${hl(t.name,v)}</span><small>${esc(t.area)}</small></li>`).join(''):'<li class="none">No town matches</li>';
+    sg.hidden=false;q.setAttribute('aria-expanded','true');mark(hits.length?0:-1)};
+  const pick=t=>{close();show(t);q.blur()};
+  q.addEventListener('input',suggest);q.addEventListener('focus',()=>{q.select();if(q.value&&cur&&q.value!==label(cur))suggest()});
+  q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(sg.hidden)suggest();if(hits.length)mark((sel+(e.key==='ArrowDown'?1:-1)+hits.length)%hits.length);e.preventDefault()}
+    else if(e.key==='Enter'){if(!sg.hidden&&sel>=0&&hits[sel]){pick(hits[sel]);e.preventDefault()}}
+    else if(e.key==='Escape'){close();if(cur)q.value=label(cur)}});
+  sg.addEventListener('mousedown',e=>{const li=e.target.closest('li[data-i]');if(li){e.preventDefault();pick(hits[+li.dataset.i])}});
+  q.addEventListener('blur',()=>setTimeout(()=>{close();if(cur&&q.value!==label(cur))q.value=label(cur)},120));
   // effects chart
   const E=[...D.terms].filter(e=>e.key!=='size').sort((a,b)=>a.effect-b.effect);
   const drawEffects=()=>{const el=document.getElementById('effects');el.innerHTML='';
