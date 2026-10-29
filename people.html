@@ -109,6 +109,14 @@ button.sort:hover,button.sort:focus-visible{color:var(--accent);text-decoration:
     <div class="note" id="wnote"></div>
   </section>
   <section>
+    <div class="sh"><h2>Deprivation: men still cycle, women drop out</h2><p>Neighbourhoods (MSOAs, about 8,000 people, with 20 or more cycle commuters) ranked by deprivation (IMD 2025 score), and towns ranked by their share of neighbourhoods in England's most deprived fifth.</p></div>
+    <div class="two">
+      <div><h3>Neighbourhoods</h3><div class="tw"><table class="lt" id="dfifths" style="min-width:0"></table></div></div>
+      <div><h3>Towns</h3><div class="tw"><table class="lt" id="dthirds" style="min-width:0"></table></div></div>
+    </div>
+    <div class="note" id="dnote"></div>
+  </section>
+  <section>
     <div class="sh"><h2>Older riders keep cycling where it is flat and close</h2><p>The share of people in work who cycle to it, by age, pooled over flat towns that stand on their own, over every town, and over hilly towns and towns inside a conurbation.</p></div>
     <div class="chart" id="ages"></div>
     <div class="note" id="anote"></div>
@@ -178,6 +186,17 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
     <p class="callout"><b>A women's share near a half is the sign of cycling that works for everyone.</b> Where under 2% cycle to work, the typical town's cycle commuters are ${p0(g('cycling','1').women)} women, and men are about ${Math.round(g('cycling','1').m/g('cycling','1').f)} times as likely to cycle as women. Where 8% or more cycle, the share is ${p0(g('cycling','4').women)}, and Cambridge and Newark-on-Trent are close to an even split. Flat towns that stand on their own come closest; hilly, conurbation and coalfield towns are furthest away.</p>
     <p><b>Road casualties tell the same story, for every council in England.</b> Where under 2% cycle to work, ${p0(c1.women)} of cyclists hurt on the roads in 2021–25 were women and ${p0(c1.children)} were children under 16. Where 8% or more cycle, ${p0(c4.women)} were women and ${p0(c4.children)} children: in low-cycling places cycling is something children and men do, not everyday transport for adults.</p>
     <p><b>For the Danelaw route</b>, the low-cycling towns along it have a long way to go: Long Eaton ${p0(W.find(t=>t.name==='Long Eaton')?.women)}, Derby ${p0(W.find(t=>t.name==='Derby')?.women)}, Middlesbrough ${p0(W.find(t=>t.name==='Middlesbrough')?.women)}, Scunthorpe ${p0(W.find(t=>t.name==='Scunthorpe')?.women)}. A route that feels safe enough for women and older riders is the test of whether it works.</p>`;
+  // women and deprivation
+  const DP=D.deprivation,df=DP.fifths,dt=DP.thirds;
+  document.getElementById('dfifths').innerHTML=`<thead><tr><th>Deprivation</th><th>Neighbourhoods</th><th>Cycle to work</th><th>Women's share of cycle commuters</th></tr></thead><tbody>`+
+    df.map(b=>`<tr><td>${esc(b.label)}</td><td>${b.msoas}</td><td>${p1(b.cycle)}%</td><td>${p0(b.women)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('dthirds').innerHTML=`<thead><tr><th>Deprivation</th><th>Towns</th><th>Women who cycle</th><th>Men who cycle</th><th>Women's share</th></tr></thead><tbody>`+
+    dt.map(b=>`<tr><td>${esc(b.label)}<br><small>${p0(b.deprived)} of neighbourhoods deprived</small></td><td>${b.towns}</td><td>${p1(b.f)}%</td><td>${p1(b.m)}%</td><td>${p0(b.women)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('dnote').innerHTML=`
+    <p class="callout"><b>Deprivation does not change how much people cycle; it changes who cycles.</b> The most deprived neighbourhoods cycle to work as much as the least (${p1(df[4].cycle)}% against ${p1(df[0].cycle)}%), but ${p0(df[4].women)} of their cycle commuters are women against ${p0(df[0].women)}. Across towns, men cycle about as much whatever the deprivation (${p1(dt[0].m)}% and ${p1(dt[2].m)}%), while women in the most deprived third of towns cycle little more than half as much as in the least (${p1(dt[2].f)}% against ${p1(dt[0].f)}%).</p>
+    <p><b>It holds inside towns too.</b> Comparing each neighbourhood with the rest of its own town, and allowing for how much it cycles, women's share falls by about ${Math.abs(DP.within).toFixed(1)} points for every 10 points of deprivation score (${nf(DP.within_n)} neighbourhoods), so it is not just rich towns against poor ones. Across towns, car ownership explains more of it than deprivation itself: where fewer households have a car, the cyclists are more often men, perhaps riding because they have to, while women more often walk or take the bus. That is not tested here.</p>
+    ${DP.hull?`<p><b>Hull shows it need not be so.</b> Its most deprived neighbourhoods cycle to work more than most (${p1(DP.hull.cycle[0])}% to ${p1(DP.hull.cycle[1])}%), and ${DP.hull.women[0]}% to ${DP.hull.women[1]}% of their cycle commuters are women, as high as anywhere in the city.</p>`:''}
+    <p><b>Limits.</b> These compare places, not people: they cannot show whether the women who do not cycle are the ones without a car. ONS withholds the split by sex for a third of neighbourhoods, and the Census counts travel to work only.</p>`;
   // ages: line chart, one line per pool
   const AG=Object.keys(own),PC=['var(--t-flat)','var(--muted)','var(--t-hilly)'];
   const drawAges=()=>{const el=document.getElementById('ages');el.innerHTML='';
