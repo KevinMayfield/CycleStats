@@ -13,7 +13,8 @@ cycling to work, for every council in England.
 
 An ageing cycling culture: for flat and gently sloping towns, cycling to work in 2011 (PCT, Census 2011) against 2021,
 set against how much more 50-64s cycle than 16-34s, with a model holding the 2011 level and region equal, and set against
-cycle collisions a year per 100 cycle commuters (data/towns.json).
+cycle collisions a year per 100 cycle commuters (data/towns.json). Each town also gets cycle collisions a year per
+10,000 residents (Census 2021 TS007A), a measure of danger that does not depend on how many people already cycle.
 """
 import collections, csv, io, json, math, os, time, urllib.error, urllib.request, zipfile
 
@@ -103,7 +104,7 @@ def casualties():
 def main():
     H = {t['id']: t for t in json.load(open(os.path.join(DATA, 'heritage.json')))['towns']}
     I = {t['id']: t for t in json.load(open(os.path.join(DATA, 'industry.json')))['towns']}
-    TJ = {t['id']: t for t in json.load(open(os.path.join(DATA, 'towns.json')))['towns']}
+    TJD = json.load(open(os.path.join(DATA, 'towns.json'))); TJ = {t['id']: t for t in TJD['towns']}; YEARS = len(TJD['coll_years'])
     lb = {r['lsoa']: r['bua'] for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'lsoa_bua.csv'))) if r['bua'] in H}
     ls_msoa = {}
     for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
@@ -120,6 +121,9 @@ def main():
     for m in A:
         b = sum(rate(c)[0] for c in A[m].values()); n = sum(rate(c)[1] for c in A[m].values())
         k = 'with' if m in S else 'without'; cov[k + '_b'] += b; cov[k + '_n'] += n; cov[k] += 1
+    pop = collections.Counter()   # usual residents (Census 2021 TS007A), for collisions per head
+    for r in csv.DictReader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts007a.zip')).open('census2021-ts007a-lsoa.csv'), encoding='utf-8-sig')):
+        if r['geography code'] in lb: pop[lb[r['geography code']]] += int(r['Age: Total'])
     T = collections.defaultdict(collections.Counter)
     for m, t in m_town.items():
         for a, c in A.get(m, {}).items():
@@ -138,7 +142,10 @@ def main():
         if c['sexn'] >= .5 * c['n'] and c['bFemale'] + c['bMale'] >= 50:
             t.update(women=round(100 * c['bFemale'] / (c['bFemale'] + c['bMale']), 1),
                      f=round(100 * c['bFemale'] / c['nFemale'], 2), m=round(100 * c['bMale'] / c['nMale'], 2))
-        tj = TJ.get(tid, {}); a = t['ages']; young = (a['16–24'] + a['25–34']) / 2 if a['16–24'] and a['25–34'] else 0
+        tj = TJ.get(tid, {}); a = t['ages']
+        if pop[tid] and 'coll' in tj:   # cycle collisions a year per 10,000 residents, and how many were serious
+            t.update(pop=pop[tid], coll_pop=round(1e4 * tj['coll'] / YEARS / pop[tid], 2), ksi_pop=round(1e4 * tj['coll_ksi'] / YEARS / pop[tid], 2))
+        young = (a['16–24'] + a['25–34']) / 2 if a['16–24'] and a['25–34'] else 0
         if tj.get('cycle11') and young:
             t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2),
                      risk=tj.get('coll_rate'), ksi=tj.get('ksi_pct'))
@@ -192,6 +199,7 @@ def main():
                   risk_median=median([t['risk'] for t in K]), risk_corr=dict(change=corr([t['risk'] for t in K], [t['change'] for t in K]),
                   skew=corr([t['risk'] for t in K], [t['skew'] for t in K]), women=corr([t['risk'] for t in KW], [t['women'] for t in KW])))
     out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing,
+               coll_pop_median=median([t['coll_pop'] for t in towns if t['travel'] >= 8000 and 'coll_pop' in t]),
                corr=corr([math.log(t['cycle']) for t in W if t['cycle'] > 0], [t['women'] for t in W if t['cycle'] > 0]),
                coverage=dict(msoas=cov['with'] + cov['without'], with_sex=cov['with'],
                              cycle_with=round(100 * cov['with_b'] / cov['with_n'], 2), cycle_without=round(100 * cov['without_b'] / cov['without_n'], 2)))
