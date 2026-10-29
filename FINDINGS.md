@@ -333,6 +333,63 @@ By cycling level (median, the 193 towns with a women's share and measured roads,
 Calculated in `pipeline/people.py` (`roads`) from the area maps' measured road stretches, DfT traffic counts, the
 Propensity to Cycle Tool and Census 2021 travel to work by sex.
 
+### 11. Wetherby, Tadcaster and Selby: small towns between the cities
+
+*Added 29 October 2026, with the town cut-off lowered to about 6,500 residents so that Tadcaster is included. See
+[How the prediction works](https://kevinmayfield.github.io/CycleStats/predict.html).*
+
+Wetherby, Tadcaster and Selby lie between Leeds, York and Harrogate. All three cycle less than flat Goole, but for
+different reasons.
+
+| | Wetherby | Tadcaster | Selby | Goole |
+|---|---|---|---|---|
+| People travelling to work | 3,173 | 2,567 | 7,839 | 8,459 |
+| Cycle to work, 2021 (2011) | 1.5% (1.9%) | 2.3% (2.6%) | 4.4% (5.6%) | 10.8% (12.3%) |
+| Predicted from its factors | 2.3% | 1.9% | 4.2% | 6.1% |
+| Local effect | −34% | +21% | +5% | +76% |
+| Route gradient | 1.5% | 1.7% | 0.8% | 0.3% |
+| Commutes under 5 km | 32% | 27% | 42% | 54% |
+| Commutes of 10 km or more | 57% | 57% | 48% | 38% |
+| Work mainly from home | 39% | 30% | 21% | 12% |
+| Households with no car | 16% | 16% | 23% | 30% |
+| Neighbourhoods in the most deprived fifth | 0% | 0% | 15% | 36% |
+| Aged 65+ | 30% | 24% | 17% | 18% |
+| Go Dutch | 16% | 15% | 24% | 31% |
+
+Where each town's commuters work (Census 2021, home to work by neighbourhood):
+
+| | Own town | Main destinations |
+|---|---|---|
+| Wetherby | 30% | Leeds 25%, Harrogate 9%, Boston Spa 3%, Tockwith 3%, York 3% |
+| Tadcaster | 21% | Wetherby 13%, York 12%, Leeds 11%, Sherburn in Elmet 5%, Selby 4% |
+| Selby | 36% | York 12%, Sherburn in Elmet 7%, Leeds 5%, Thorpe Willoughby 4%, Barlby 4% |
+| Goole | 47% | Howden 7%, Hull 4%, Selby 4%, Eggborough 3% |
+
+- **Wetherby is a dormitory town for Leeds and Harrogate.** A quarter of its commuters go to Leeds, about 20 km away,
+  and 57% travel 10 km or more. It is affluent: no neighbourhoods in the most deprived fifth and few households
+  without a car. It is also one of the oldest towns in the data, and 39% worked mainly from home. Allowing for all of
+  that, it still cycles a third less than predicted, so even short trips within the town aren't being cycled. Few
+  collisions are recorded there (8 in 2021–25), but 5 of them were serious, and collisions per cyclist are 1.5 times
+  the typical town's.
+- **Tadcaster spreads its commuters in every direction.** Only 21% work in the town itself, and the rest are split
+  between Wetherby, York, Leeds, Sherburn and Selby: no single destination dominates. With so few short commutes, the
+  model predicts little cycling (short commutes alone take 22% off). Tadcaster beats that by a fifth, and its
+  collisions per cyclist are below the typical town's.
+- **Selby cycles about as its factors predict.** It looks low next to Goole, but Goole is exceptional: three-quarters
+  above its own prediction. Selby's work is further away: only 36% work in the town, against 47% in Goole, and nearly
+  half travel 10 km or more, to York, Sherburn's employment area, Leeds and the power stations. Its cycling fell from
+  5.6% in 2011 to 4.4% in 2021. The Selby coalfield's superpit complex closed in 2002–2004, and its work moved further
+  out. The model counts Selby as having no industrial past, so that is not tested.
+
+What would help each:
+- **Wetherby:** start inside the town, where 30% of commuters both live and work. Routes to Leeds and Harrogate would
+  mainly serve e-bikes.
+- **Tadcaster:** protected links to Wetherby and York, about 10 and 15 km away, both within e-bike range.
+- **Selby:** direct, protected routes to Sherburn, Drax, Eggborough and York, 10 to 20 km away.
+
+ONS withholds the split by sex for all three, so women's share can't be checked. The home-to-work flows were downloaded
+by hand from Nomis (ODWP01EW) and are not yet in the pipeline.
+
 ## The Danelaw Cycle Network
 
 The [Danelaw Cycle Network](https://kevinmayfield.github.io/CycleStats/danelaw.html) brings the findings together as
