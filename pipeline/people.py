@@ -13,7 +13,7 @@ cycling to work, for every council in England.
 
 An ageing cycling culture: for flat and gently sloping towns, cycling to work in 2011 (PCT, Census 2011) against 2021,
 set against how much more 50-64s cycle than 16-34s, with a model holding the 2011 level and region equal, and set against
-cycle collisions a year per 100 cycle commuters (data/towns.json). Each town also gets cycle collisions a year per
+cycle collisions per weekly cyclist (an index, below). Each town also gets cycle collisions a year per
 10,000 residents (Census 2021 TS007A), a measure of danger that does not depend on how many people already cycle.
 """
 import collections, csv, io, json, math, os, time, urllib.error, urllib.request, zipfile
@@ -79,6 +79,49 @@ def median(v):
     return round((v[n // 2] + v[(n - 1) // 2]) / 2, 1) if n else None
 
 
+# Active Lives (Sport England, DfT CW0302, downloaded by hand to raw/activelives/cw0302.ods): adults who cycle at least
+# once a week for any purpose, by council. Councils merged in 2023 are only given as the new council.
+NEW_COUNCIL = {'E07000026': 'E06000063', 'E07000028': 'E06000063', 'E07000029': 'E06000063',
+               'E07000027': 'E06000064', 'E07000030': 'E06000064', 'E07000031': 'E06000064',
+               **{f'E070001{n}': 'E06000065' for n in range(63, 70)}}
+
+
+def ods_rows(path, sheet):
+    import xml.etree.ElementTree as ET
+    T = '{urn:oasis:names:tc:opendocument:xmlns:table:1.0}'; O = '{urn:oasis:names:tc:opendocument:xmlns:office:1.0}'
+    X = '{urn:oasis:names:tc:opendocument:xmlns:text:1.0}'
+    for t in ET.parse(zipfile.ZipFile(path).open('content.xml')).getroot().iter(T + 'table'):
+        if t.get(T + 'name') != sheet: continue
+        for r in t.iter(T + 'table-row'):
+            row = []
+            for c in r:
+                v = c.get(O + 'value')
+                if v is None: v = ' '.join(''.join(p.itertext()) for p in c.iter(X + 'p'))
+                row += [v] * min(int(c.get(T + 'number-columns-repeated', '1')), 20)
+            yield row
+
+
+def weekly_ratio():
+    """for each 2021 council, adults who cycle weekly (Active Lives, mean of 2019, 2022 and 2023, leaving out the
+    pandemic years) for each person who cycles to work (Census 2021), pooled over councils merged since"""
+    al = {}
+    for r in ods_rows(os.path.join(RAW, 'activelives', 'cw0302.ods'), 'CW0302'):
+        if len(r) < 14 or r[4] != 'Any' or r[5] != 'At least once per week': continue
+        v = [float(x) for x in (r[9], r[12], r[13]) if x.replace('.', '', 1).isdigit()]
+        if v: al[r[0]] = sum(v) / len(v)
+    adults, bikes = collections.Counter(), collections.Counter()
+    z = zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts007a.zip'))
+    for r in csv.DictReader(io.TextIOWrapper(z.open('census2021-ts007a-ltla.csv'), encoding='utf-8-sig')):
+        kids = sum(int(r[f'Age: Aged {a}']) for a in ('4 years and under', '5 to 9 years', '10 to 14 years')) + int(r['Age: Aged 15 to 19 years']) / 5
+        adults[NEW_COUNCIL.get(r['geography code'], r['geography code'])] += int(r['Age: Total']) - kids
+    names = {}
+    for r in csv.reader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'heritage', 'census2021-ts061.zip')).open('census2021-ts061-ltla.csv'))):
+        if r[0] == 'date': continue
+        names[r[1]] = r[2]; bikes[NEW_COUNCIL.get(r[2], r[2])] += int(r[12])
+    ratio = {k: al[k] / 100 * adults[k] / bikes[k] for k in al if adults[k] and bikes[k]}
+    return {n: ratio.get(NEW_COUNCIL.get(c, c)) for n, c in names.items()}
+
+
 def casualties():
     cen = {}
     for r in csv.reader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'heritage', 'census2021-ts061.zip')).open('census2021-ts061-ltla.csv'))):
@@ -121,6 +164,7 @@ def main():
     for m in A:
         b = sum(rate(c)[0] for c in A[m].values()); n = sum(rate(c)[1] for c in A[m].values())
         k = 'with' if m in S else 'without'; cov[k + '_b'] += b; cov[k + '_n'] += n; cov[k] += 1
+    wr = weekly_ratio()
     pop = collections.Counter()   # usual residents (Census 2021 TS007A), for collisions per head
     for r in csv.DictReader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts007a.zip')).open('census2021-ts007a-lsoa.csv'), encoding='utf-8-sig')):
         if r['geography code'] in lb: pop[lb[r['geography code']]] += int(r['Age: Total'])
@@ -146,10 +190,12 @@ def main():
         if pop[tid] and 'coll' in tj:   # cycle collisions a year per 10,000 residents, and how many were serious
             t.update(pop=pop[tid], coll_pop=round(1e4 * tj['coll'] / YEARS / pop[tid], 2), ksi_pop=round(1e4 * tj['coll_ksi'] / YEARS / pop[tid], 2))
         if tj.get('coll_rate') is not None: t['coll_rider'] = tj['coll_rate']   # cycle collisions a year per 100 cycle commuters
+        k = next((v for n, v in wr.items() if n == tj.get('lad') or n.startswith(f"{tj.get('lad')},")), None)
+        if k and tj.get('cyclists') and 'coll' in tj:   # weekly cyclists: the town's cycle commuters times its council's ratio
+            t['weekly'] = round(tj['cyclists'] * k); t['coll_weekly'] = tj['coll'] / YEARS / t['weekly']
         young = (a['16–24'] + a['25–34']) / 2 if a['16–24'] and a['25–34'] else 0
         if tj.get('cycle11') and young:
-            t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2),
-                     risk=tj.get('coll_rate'), ksi=tj.get('ksi_pct'))
+            t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2), ksi=tj.get('ksi_pct'))
         towns.append(t)
     U = [t for t in towns if not t['skip'] or t['name'].split(' (')[0] in ('York', 'Cambridge')]
     W = [t for t in U if 'women' in t]
@@ -176,6 +222,11 @@ def main():
     for lab, f in pools:
         g = [t['id'] for t in U if f(t) and not t['name'].startswith('Cambridge')]   # Cambridge's students would swamp the pools
         age.append(dict(label=lab, towns=len(g), rates={al: round(100 * sum(T[i]['b' + a] for i in g) / sum(T[i]['n' + a] for i in g), 2) for a, al in AGES}))
+    # collisions per weekly cyclist as an index, the typical town of 8,000+ commuters = 100: it compares towns and is not
+    # a rider's chance of a crash (collisions count every rider of every age and trip, weekly cyclists only adults)
+    mid = sorted(t['coll_weekly'] for t in towns if t['travel'] >= 8000 and 'coll_weekly' in t); mid = mid[len(mid) // 2]
+    for t in towns:
+        if 'coll_weekly' in t: t['rider_index'] = round(100 * t.pop('coll_weekly') / mid)
     # an ageing cycling culture: flat and gently sloping towns where at least 1.5% cycle; skew in steps of 0.25
     F = [t for t in towns if t['tier'] in ('flat', 'gentle') and not t['skip'] and 'change' in t and t['c21'] >= 1.5]
     bands = []
@@ -187,14 +238,15 @@ def main():
                           examples=[t['name'].split(' (')[0] for t in sorted(g, key=lambda t: -t['travel'])[:5]]))
     m = model(F, lambda t: math.log(t['change']), [('skew', lambda t: t['skew'] * 4), ('2011 level', lambda t: math.log(t['c11'])),
                                                     ('North', lambda t: t['region'] == 'North'), ('West', lambda t: t['region'] == 'West')])
-    # collisions a year per 100 cycle commuters (towns.py): against the change, the older-rider skew and women's share
-    K = sorted([t for t in F if t.get('risk') is not None], key=lambda t: t['risk']); n = len(K)
+    # collisions per weekly cyclist (the index): against the change, the older-rider skew and women's share
+    for t in F: t['risk'] = t.get('rider_index')
+    K = sorted([t for t in F if t['risk'] is not None], key=lambda t: t['risk']); n = len(K)
     risk = [dict(label=lab, towns=len(g), risk=median([t['risk'] for t in g]), women=median([t['women'] for t in g if 'women' in t]),
                  change=median([100 * (t['change'] - 1) for t in g]), skew=median([t['skew'] for t in g]))
             for lab, g in (('Lowest third', K[:n // 3]), ('Middle third', K[n // 3:2 * n // 3]), ('Highest third', K[2 * n // 3:]))]
     KW = [t for t in K if 'women' in t]
     # the clearest cases: cycling fell 15% or more and rests most on older riders, towns with 8,000+ people travelling to work
-    strong = [dict(name=t['name'].split(' (')[0], change=round(100 * (t['change'] - 1)), skew=t['skew'], women=t.get('women'), risk=t['risk'])
+    strong = [dict(name=t['name'].split(' (')[0], change=round(100 * (t['change'] - 1)), skew=t['skew'], women=t.get('women'), risk=t.get('rider_index'))
               for t in sorted(F, key=lambda t: -t['skew']) if t['skew'] >= 1.25 and t['change'] < .85 and t['travel'] >= 8000]
     ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m, risk=risk, strong=strong,
                   risk_median=median([t['risk'] for t in K]), risk_corr=dict(change=corr([t['risk'] for t in K], [t['change'] for t in K]),
