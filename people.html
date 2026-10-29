@@ -125,7 +125,7 @@ button.sort:hover,button.sort:focus-visible{color:var(--accent);text-decoration:
     <div class="note" id="rnote"></div>
   </section>
   <section>
-    <div class="sh"><h2>Every town</h2><p>Towns with 8,000 or more people travelling to work. Click a column heading to sort by it. Towns where ONS withholds the split by sex are listed without it. 50–64s vs 16–34s is how likely 50–64s are to cycle to work against 16–34s: above 1 means a town's cycling rests more on older riders. Cycle collisions are police-recorded collisions involving a bicycle in the town, 2021–25, a year per 10,000 residents, with how many killed or seriously injured someone; the typical town has <span id="collmed"></span>. Towns where many people cycle have more collisions per head simply because more people are on bikes.</p></div>
+    <div class="sh"><h2>Every town</h2><p>Towns with 8,000 or more people travelling to work. Click a column heading to sort by it. Towns where ONS withholds the split by sex are listed without it. 50–64s vs 16–34s is how likely 50–64s are to cycle to work against 16–34s: above 1 means a town's cycling rests more on older riders. Cycle collisions are police-recorded collisions involving a bicycle in the town, 2021–25, a year per 10,000 residents, with how many killed or seriously injured someone; the typical town has <span id="collmed"></span>. Towns where many people cycle have more collisions per head simply because more people are on bikes, so the last column gives the same collisions a year per 100 people who cycle to work (typical town <span id="ridermed"></span>), closer to the risk for each rider; it counts all cycling against commuters only, and is lower where more people cycle (safety in numbers).</p></div>
     <div class="find"><label for="q">Find a town</label><input id="q" type="search" placeholder="e.g. Long Eaton">
       <label for="fr">Region</label><select id="fr"></select><label for="fh">Hills</label><select id="fh"></select><label for="fi">Industrial past</label><select id="fi"></select><span id="tcount"></span></div>
     <div class="tw"><table class="lt" id="ttable"></table></div>
@@ -197,12 +197,12 @@ fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.j
   const IND={coal:'Coalfield',steel:'Iron, steel and shipbuilding',other:'Other'};
   const older=t=>{const a=t.ages,y=(a['16–24']+a['25–34'])/2;return y?a['50–64']/y:null};
   const COLS=[['name','Town',t=>t.name],['cycle','Cycle to work',t=>t.cycle],['women',"Women's share of cycle commuters",t=>t.women],['f','Women who cycle',t=>t.f],['m','Men who cycle',t=>t.m],
-    ['older','50–64s vs 16–34s',older],['y','Aged 16–24',t=>t.ages['16–24']],['o','Aged 65+',t=>t.ages['65+']],['coll','Cycle collisions a year per 10,000 residents',t=>t.coll_pop]];
+    ['older','50–64s vs 16–34s',older],['y','Aged 16–24',t=>t.ages['16–24']],['o','Aged 65+',t=>t.ages['65+']],['coll','Cycle collisions a year per 10,000 residents',t=>t.coll_pop],['rider','Cycle collisions a year per 100 cycle commuters',t=>t.coll_rider]];
   const fmt={name:t=>`<i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]} · ${IND[t.industry]}</small>`,cycle:t=>p1(t.cycle)+'%',
     women:t=>t.women==null?'<small>withheld</small>':p0(t.women),f:t=>t.f==null?'–':p1(t.f)+'%',m:t=>t.m==null?'–':p1(t.m)+'%',
     older:t=>older(t)==null?'–':older(t).toFixed(2)+'×',y:t=>p1(t.ages['16–24'])+'%',o:t=>p1(t.ages['65+'])+'%',
-    coll:t=>t.coll_pop==null?'–':`${t.coll_pop.toFixed(1)} <small>(${t.ksi_pop.toFixed(1)} serious)</small>`};
-  document.getElementById('collmed').textContent=p1(D.coll_pop_median);
+    coll:t=>t.coll_pop==null?'–':`${t.coll_pop.toFixed(1)} <small>(${t.ksi_pop.toFixed(1)} serious)</small>`,rider:t=>t.coll_rider==null?'–':t.coll_rider.toFixed(1)};
+  document.getElementById('collmed').textContent=p1(D.coll_pop_median);document.getElementById('ridermed').textContent=p1(D.coll_rider_median);
   const BIG=T.filter(t=>t.travel>=8000);let all=false,sortK='women',sortDir=-1;
   const sel=(id,opts)=>{document.getElementById(id).innerHTML=`<option value="">All</option>`+Object.entries(opts).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('')};
   sel('fr',REG);sel('fh',{flat:'Flat',gentle:'Gently sloping',hilly:'Hilly'});sel('fi',IND);

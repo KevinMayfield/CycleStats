@@ -145,6 +145,7 @@ def main():
         tj = TJ.get(tid, {}); a = t['ages']
         if pop[tid] and 'coll' in tj:   # cycle collisions a year per 10,000 residents, and how many were serious
             t.update(pop=pop[tid], coll_pop=round(1e4 * tj['coll'] / YEARS / pop[tid], 2), ksi_pop=round(1e4 * tj['coll_ksi'] / YEARS / pop[tid], 2))
+        if tj.get('coll_rate') is not None: t['coll_rider'] = tj['coll_rate']   # cycle collisions a year per 100 cycle commuters
         young = (a['16–24'] + a['25–34']) / 2 if a['16–24'] and a['25–34'] else 0
         if tj.get('cycle11') and young:
             t.update(c11=tj['cycle11'], c21=tj['cycle21'], change=round(tj['cycle21'] / tj['cycle11'], 3), skew=round(a['50–64'] / young, 2),
@@ -200,6 +201,7 @@ def main():
                   skew=corr([t['risk'] for t in K], [t['skew'] for t in K]), women=corr([t['risk'] for t in KW], [t['women'] for t in KW])))
     out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing,
                coll_pop_median=median([t['coll_pop'] for t in towns if t['travel'] >= 8000 and 'coll_pop' in t]),
+               coll_rider_median=median([t['coll_rider'] for t in towns if t['travel'] >= 8000 and 'coll_rider' in t]),
                corr=corr([math.log(t['cycle']) for t in W if t['cycle'] > 0], [t['women'] for t in W if t['cycle'] > 0]),
                coverage=dict(msoas=cov['with'] + cov['without'], with_sex=cov['with'],
                              cycle_with=round(100 * cov['with_b'] / cov['with_n'], 2), cycle_without=round(100 * cov['without_b'] / cov['without_n'], 2)))
