@@ -374,7 +374,7 @@ def main():
         hw = rinfo[k][2].replace('_link', '')
         return ('busy' if hw in ('motorway', 'trunk', 'primary') else 'main' if hw in ('secondary', 'tertiary') else 'quiet'), k
 
-    # towns of about 10,000 people or more (from towns.py), in the projected metres used above
+    # towns of about 6,500 people or more (from towns.py), in the projected metres used above
     towns = json.load(open(os.path.join(HERE, '..', 'data', 'towns.json')))['towns']
     tgrid = collections.defaultdict(list)
     for t in towns:
