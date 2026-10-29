@@ -13,12 +13,15 @@ cycling to work, for every council in England.
 
 An ageing cycling culture: for flat and gently sloping towns, cycling to work in 2011 (PCT, Census 2011) against 2021,
 set against how much more 50-64s cycle than 16-34s, with a model holding the 2011 level and region equal, and set against
-cycle collisions per weekly cyclist (an index, below). Each town also gets cycle collisions a year per
+cycle collisions per weekly cyclist (an index, below).
+
+Women and deprivation: each MSOA's women's share of cycle commuters against its IMD 2025 score (the mean of its LSOAs),
+in fifths and within towns, and towns in thirds by their share of deprived neighbourhoods. Each town also gets cycle collisions a year per
 10,000 residents (Census 2021 TS007A), a measure of danger that does not depend on how many people already cycle.
 """
 import collections, csv, io, json, math, os, time, urllib.error, urllib.request, zipfile
 
-from industry import model
+from industry import lstsq, model
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, '..', 'raw')
@@ -149,9 +152,9 @@ def main():
     I = {t['id']: t for t in json.load(open(os.path.join(DATA, 'industry.json')))['towns']}
     TJD = json.load(open(os.path.join(DATA, 'towns.json'))); TJ = {t['id']: t for t in TJD['towns']}; YEARS = len(TJD['coll_years'])
     lb = {r['lsoa']: r['bua'] for r in csv.DictReader(open(os.path.join(RAW, 'imd', 'lsoa_bua.csv'))) if r['bua'] in H}
-    ls_msoa = {}
+    ls_msoa, imd = {}, {}   # LSOA to MSOA name, and LSOA IMD 2025 score
     for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
-        if r[0].startswith('E01'): ls_msoa[r[0]] = r[1][:-1]
+        if r[0].startswith('E01'): ls_msoa[r[0]] = r[1][:-1]; imd[r[0]] = float(r[4])
     mrows = csv.DictReader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts037.zip')).open('census2021-ts037-msoa.csv'), encoding='utf-8-sig'))
     code = {r['geography']: r['geography code'] for r in mrows}
     votes = collections.defaultdict(collections.Counter)
@@ -251,7 +254,39 @@ def main():
     ageing = dict(towns=len(F), corr=corr([t['skew'] for t in F], [t['change'] for t in F]), bands=bands, model=m, risk=risk, strong=strong,
                   risk_median=median([t['risk'] for t in K]), risk_corr=dict(change=corr([t['risk'] for t in K], [t['change'] for t in K]),
                   skew=corr([t['risk'] for t in K], [t['skew'] for t in K]), women=corr([t['risk'] for t in KW], [t['women'] for t in KW])))
-    out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing,
+    # women and deprivation: neighbourhoods (MSOAs with 20+ cycle commuters) by IMD 2025 score (mean of their LSOAs),
+    # in fifths and within towns (each neighbourhood against its own town's average), and towns in thirds
+    mimd = collections.defaultdict(list)
+    for l, m in ls_msoa.items():
+        if m in code: mimd[code[m]].append(imd[l])
+    M = []
+    for m, sx in S.items():
+        f, ma = sx['Female']['Bicycle'], sx['Male']['Bicycle']
+        if m in mimd and f + ma >= 20:
+            M.append(dict(town=m_town.get(m), imd=sum(mimd[m]) / len(mimd[m]), women=100 * f / (f + ma),
+                          cyc=100 * (f + ma) / (rate(sx['Female'])[1] + rate(sx['Male'])[1])))
+    M.sort(key=lambda x: x['imd']); n = len(M)
+    fifths = [dict(label=lab, msoas=len(g), imd=median([x['imd'] for x in g]), cycle=median([x['cyc'] for x in g]), women=median([x['women'] for x in g]))
+              for lab, g in zip(('Least deprived fifth', 'Second', 'Middle', 'Fourth', 'Most deprived fifth'), [M[k * n // 5:(k + 1) * n // 5] for k in range(5)])]
+    byt = collections.defaultdict(list)
+    for x in M:
+        if x['town']: byt[x['town']].append(x)
+    dx, dy, dc = [], [], []
+    for g in byt.values():
+        if len(g) < 3: continue
+        mi, mw, mc = (sum(f(x) for x in g) / len(g) for f in (lambda x: x['imd'], lambda x: x['women'], lambda x: math.log(x['cyc'])))
+        for x in g: dx.append((x['imd'] - mi) / 10); dy.append(x['women'] - mw); dc.append(math.log(x['cyc']) - mc)
+    within = round(lstsq([[1.0, a, c] for a, c in zip(dx, dc)], dy)[1], 2)
+    D3 = sorted([t for t in W if t['id'] in I], key=lambda t: I[t['id']]['deprived']); n3 = len(D3)
+    thirds = [dict(label=lab, towns=len(g), deprived=median([I[t['id']]['deprived'] for t in g]), cycle=median([t['cycle'] for t in g]),
+                   women=median([t['women'] for t in g]), f=median([t['f'] for t in g]), m=median([t['m'] for t in g]))
+              for lab, g in (('Least deprived third', D3[:n3 // 3]), ('Middle third', D3[n3 // 3:2 * n3 // 3]), ('Most deprived third', D3[2 * n3 // 3:]))]
+    hull = next((t for t in towns if t['name'] == 'Kingston upon Hull'), None)
+    hull_deprived = [x for x in byt.get(hull['id'], []) if x['imd'] >= 40] if hull else []
+    deprivation = dict(msoas=n, fifths=fifths, within=within, within_n=len(dx), thirds=thirds,
+                       hull=dict(cycle=[round(min(x['cyc'] for x in hull_deprived), 1), round(max(x['cyc'] for x in hull_deprived), 1)],
+                                 women=[round(min(x['women'] for x in hull_deprived)), round(max(x['women'] for x in hull_deprived))]) if hull_deprived else None)
+    out = dict(towns=towns, groups=groups, age=age, casualties=casualties(), ageing=ageing, deprivation=deprivation,
                coll_pop_median=median([t['coll_pop'] for t in towns if t['travel'] >= 8000 and 'coll_pop' in t]),
                coll_rider_median=median([t['coll_rider'] for t in towns if t['travel'] >= 8000 and 'coll_rider' in t]),
                corr=corr([math.log(t['cycle']) for t in W if t['cycle'] > 0], [t['women'] for t in W if t['cycle'] > 0]),
