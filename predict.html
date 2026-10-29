@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="How CycleStats predicts how many people in a town should cycle to work, in plain English: the factors, how much each matters, and any town's prediction set against what it actually does.">
+<title>How the Prediction Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: hero; the idea in four steps; pick a town (actual against predicted, what lifts and holds it back, its
+   measures); what each factor does (effect chart); how good the prediction is (scatter); limits */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
+  --accent:#0f6b5c; --soft:#e2f0ec;
+  /* diverging: lifts cycling (aqua) / holds it back (red), validated with the geography bands */
+  --up:#1baf7a; --down:#e34948; --pick:#6250d6;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --up:#199e70; --down:#e66767; --pick:#9085e9; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --up:#199e70; --down:#e66767; --pick:#9085e9; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;margin:6px 0 10px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:72ch;font-size:15px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.sh h2{margin:0 0 4px;font:700 24px/1.1 var(--display)}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:110ch}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.step{padding:16px 18px;border-right:1px solid var(--line);min-width:0}
+.step:last-child{border-right:0}
+.step b{display:block;font:700 15px/1.2 var(--display);margin-bottom:6px}
+.step .n{font:700 28px/1 var(--display);color:var(--accent);display:block;margin-bottom:6px}
+.step p{margin:0;font-size:13px;color:var(--muted)}
+.pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--line)}
+.pick label{font:600 13px var(--body)}
+.pick input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:260px}
+.pick .hint{color:var(--muted);font-size:12px}
+.tbox{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+.tbox>div{min-width:0}.tbox>div+div{border-left:1px solid var(--line)}
+.head{padding:16px 18px}
+.head h3{margin:0;font:700 28px/1.1 var(--display)}
+.head small{color:var(--muted)}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.num{border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.num b{display:block;font:700 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.num span{color:var(--muted);font-size:12px}
+.verdict{margin-top:12px;font-size:14px}
+.h4{margin:14px 18px 4px;font:700 17px/1.2 var(--display)}
+.bars{padding:4px 18px 14px;display:grid;gap:6px}
+.brow{display:grid;grid-template-columns:minmax(130px,200px) 1fr;gap:4px 12px;align-items:center}
+.brow .lab{font-size:13px}
+.track{position:relative;height:22px}
+.track .zero{position:absolute;top:-3px;bottom:-3px;border-left:2px solid var(--ink);opacity:.45}
+.track .bar{position:absolute;top:4px;height:14px}
+.track .bar.up{border-radius:0 4px 4px 0;background:var(--up)}
+.track .bar.down{border-radius:4px 0 0 4px;background:var(--down)}
+.track .val{position:absolute;top:2px;font:600 12px/18px var(--mono);white-space:nowrap}
+.brow.local .lab{font-weight:600}
+.brow.local .bar.up{background:repeating-linear-gradient(135deg,var(--up) 0 4px,transparent 4px 7px);border:1px solid var(--up)}
+.brow.local .bar.down{background:repeating-linear-gradient(135deg,var(--down) 0 4px,transparent 4px 7px);border:1px solid var(--down)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:8px 18px 12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.tw{overflow-x:auto;padding:0 18px 14px}
+table.lt{border-collapse:collapse;width:100%;font-size:13px}
+table.lt th,table.lt td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.lt th{font-weight:600;color:var(--muted);font-size:12px}
+table.lt th:first-child,table.lt td:first-child{text-align:left}
+.change{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:6px 18px 16px}
+.card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0;border-top:4px solid var(--c,var(--line))}
+.card b.big{display:block;font:700 26px/1 var(--display);font-variant-numeric:tabular-nums;margin:2px 0 6px}
+.card h4{margin:0;font:600 14px/1.25 var(--body)}
+.card p{margin:0;font-size:12.5px;color:var(--muted)}
+.card.fixed{--c:var(--muted)}
+.chart{position:relative;padding:8px 12px 12px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--line)}
+.chart .axis2 text{fill:var(--muted);font:11px var(--mono)}
+.chart text.lab{fill:var(--ink);font:500 12px var(--body)}
+.chart .ref{stroke:var(--ink);stroke-dasharray:4 4;opacity:.55}
+.chart circle.pt{stroke:var(--panel);stroke-width:1;cursor:pointer}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:min(300px,78vw);display:none;z-index:5}
+.tip b{display:block;font-size:13px}
+.note{padding:16px 18px;display:grid;gap:10px;max-width:110ch;font-size:14px}
+.note p{margin:0}
+.callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
+@media (max-width:900px){h1{font-size:40px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.step:nth-child(2){border-right:0}.step:nth-child(-n+2){border-bottom:1px solid var(--line)}.tbox{grid-template-columns:1fr}.tbox>div+div{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid var(--line)}.brow{grid-template-columns:1fr}.nums{grid-template-columns:1fr 1fr}.pick input{min-width:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · how the prediction works</div>
+      <h1>How the Prediction Works</h1>
+      <p class="lede">For every town we work out how many of its people we would expect to cycle to work, given its hills, its history, how far people travel, and more. Comparing that with what the town actually does shows which factors hold it back, and whether something local, good or bad, is making a difference beyond them.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="health.html">Health and active travel</a><a href="geography.html">Geography and history</a><a href="industry.html">Industry and work</a><a href="people.html">Who cycles</a><a href="predict.html" aria-current="page">How the prediction works</a><a href="danelaw.html">Danelaw Cycle Network</a></nav>
+  </header>
+  <section>
+    <div class="sh"><h2>The idea in four steps</h2></div>
+    <div class="steps" id="steps"></div>
+  </section>
+  <section id="town">
+    <div class="sh"><h2>Pick a town</h2><p>Its actual share cycling to work set against the prediction, what lifts and holds it back compared with the typical town, and its measures.</p></div>
+    <div class="pick"><label for="q">Town</label><input id="q" list="townlist" autocomplete="off" placeholder="Start typing a town"><datalist id="townlist"></datalist><span class="hint">or click any dot in the chart further down</span></div>
+    <div class="tbox">
+      <div class="head" id="thead"></div>
+      <div><div class="h4">What lifts and holds back its cycling</div><div class="bars" id="tbars"></div>
+        <div class="legend"><span><i style="background:var(--up)"></i>Lifts cycling</span><span><i style="background:var(--down)"></i>Holds it back</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 3px,transparent 3px 5px);border:1px solid var(--muted)"></i>Local effect, what the factors do not explain</span></div></div>
+    </div>
+    <div class="h4">What could change</div>
+    <div class="change" id="tchange"></div>
+    <div class="h4">Its measures against the typical town</div>
+    <div class="tw"><table class="lt" id="tvals"></table></div>
+  </section>
+  <section>
+    <div class="sh"><h2>What each factor does</h2><p>How much more or less cycling goes with each factor, everything else being equal, with the likely range. These come from comparing all the towns at once.</p></div>
+    <div class="chart" id="effects"></div>
+    <div class="note" id="enote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>How good is the prediction?</h2><p>Every town's prediction against what it actually does. Towns on the dashed line do what the prediction says; above it, they cycle more than their factors suggest; below, less. Click a dot to pick that town.</p></div>
+    <div class="chart" id="fitchart"><div class="tip" id="tip"></div></div>
+    <div class="note" id="fnote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>What the prediction cannot tell you</h2></div>
+    <div class="note" id="limits"></div>
+  </section>
+</div>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p1=v=>(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB'),pc=v=>(v>0?'+':v<0?'−':'')+Math.abs(Math.round(v))+'%';
+const REG={East:'Yorkshire and the East',West:'North West',North:'North East and Cumbria'};
+const IND={coal:'coalfield',steel:'iron, steel and shipbuilding',other:'none'};
+fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
+  const T=D.towns,TV=D.typical_values,byId=Object.fromEntries(T.map(t=>[t.id,t])),short=n=>n.split(' (')[0];
+  document.getElementById('steps').innerHTML=[
+    ['Gather the facts',`For each of ${nf(T.length)} towns: how hilly its commute routes are, how many other towns crowd round it, its industrial past, how far people travel to work, car ownership and deprivation, its housing, its age, how often it rains, its region and its size.`],
+    ['Compare every town at once',`Setting all ${nf(D.towns_fitted)} towns side by side shows how much more or less cycling goes with each fact, with the others held equal: for example, how much less a town cycles for each extra point of gradient.`],
+    ['Start from the typical town',`A typical town (middling on every measure, with no industrial past, in Yorkshire and the East) would have about ${p1(D.typical)}% cycling to work. Each of a town's facts then nudges that up or down to give its prediction.`],
+    ['Compare with what happens',`The gap between a town's prediction and its actual figure is its local effect: everything the facts do not capture, such as safe routes, local habits, employers or past investment, good or bad.`]
+  ].map(([h,p],i)=>`<div class="step"><span class="n">${i+1}</span><b>${h}</b><p>${p}</p></div>`).join('');
+  // town picker
+  const label=t=>`${t.name} (${t.area})`;
+  document.getElementById('townlist').innerHTML=[...T].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<option value="${esc(label(t))}">`).join('');
+  const ORDER=['Hills','Towns crowded round it','Post-war industrial decline','Short commutes','Car ownership and deprivation','Post-war estates','Older population','Rain','Region','Town size'];
+  let cur=null;
+  const show=t=>{cur=t;document.getElementById('q').value=label(t);try{history.replaceState(null,'','#'+t.id)}catch(e){}
+    const gap=t.local,diff=Math.abs(gap)<10?'about as much as predicted':gap>0?`${Math.round(gap)}% more than predicted`:`${Math.round(-gap)}% less than predicted`;
+    const facs=ORDER.filter(k=>k in t.factors).map(k=>[k,t.factors[k]]),worst=facs.filter(f=>f[1]<=-5).sort((a,b)=>a[1]-b[1]).slice(0,2),best=facs.filter(f=>f[1]>=5).sort((a,b)=>b[1]-a[1]).slice(0,1);
+    document.getElementById('thead').innerHTML=`<h3>${esc(t.name)}</h3><small>${esc(t.area)} · ${REG[t.region]}${t.skip?' · left out of the fit as a benchmark or outlier':''}</small>
+      <div class="nums"><div class="num"><b>${p1(t.cycle)}%</b><span>cycle to work (Census 2021)</span></div><div class="num"><b>${p1(t.pred)}%</b><span>predicted from its factors</span></div><div class="num" style="border-color:var(${gap>=0?'--up':'--down'})"><b>${pc(gap)}</b><span>local effect</span></div></div>
+      <p class="verdict">${esc(short(t.name))} cycles ${diff}. ${worst.length?`What holds it back most: ${worst.map(([k,v])=>`${k.toLowerCase()} (${pc(v)})`).join(' and ')}.`:'None of its factors holds it back much.'}${best.length?` What helps most: ${({'Hills':'flat routes','Towns crowded round it':'standing on its own','Rain':'drier weather','Older population':'a younger population','Post-war estates':'fewer post-war estates','Post-war industrial decline':'no heavy industrial past'})[best[0][0]]||best[0][0].toLowerCase()} (${pc(best[0][1])}).`:''} ${gap>=10?'Something local is working: routes, habits or employers the figures do not capture.':gap<=-10?'Something local is holding it back beyond its factors: worth looking at its routes and roads.':''}</p>`;
+    // bars on a log scale, so +100% and −50% are the same length
+    const rows=[...facs,['Local effect',gap]],L=v=>Math.log(1+v/100),mx=Math.max(Math.log(2),...rows.map(([,v])=>Math.abs(L(v)))),X=v=>50+L(v)/mx*46;
+    document.getElementById('tbars').innerHTML=rows.map(([k,v])=>{const a=Math.min(X(0),X(v)),w=Math.abs(X(v)-X(0)),up=v>=0;
+      return `<div class="brow${k==='Local effect'?' local':''}"><div class="lab">${esc(k)}</div><div class="track" role="img" aria-label="${esc(k)}: ${pc(v)}"><div class="zero" style="left:50%"></div>${Math.abs(v)>=.5?`<div class="bar ${up?'up':'down'}" style="left:${a}%;width:${w}%"></div>`:''}<div class="val" style="${up?`left:${X(v)+1}%`:`right:${100-X(v)+1}%`}">${Math.abs(v)<.5?'0%':pc(v)}</div></div></div>`}).join('');
+    const V=t.values,rowsV=[['Route gradient',p1(V.slope)+'%',p1(TV.slope)+'%'],['People working in towns within 10 km',nf(V.around),nf(TV.around)],['Industrial past',IND[V.industry],'none'],
+      ['Commuters travelling under 5 km',p1(V.near)+'%',p1(TV.near)+'%'],['Households with no car',V.nocar+'%',TV.nocar+'%'],['Neighbourhoods in the most deprived fifth',V.deprived+'%',TV.deprived+'%'],
+      ['Homes built 1945–1972',p1(V.postwar)+'%',p1(TV.postwar)+'%'],['Residents aged 65+',p1(V.old)+'%',p1(TV.old)+'%'],['Days a year with rain',Math.round(V.days)+(V.rain_from?` (from ${V.rain_from}, ${V.rain_km} km)`:''),Math.round(TV.days)],['Region',REG[t.region],REG.East],['People travelling to work',nf(t.travel),'–']];
+    document.getElementById('tvals').innerHTML=`<thead><tr><th>Measure</th><th>${esc(short(t.name))}</th><th>Typical town</th></tr></thead><tbody>${rowsV.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody>`;
+    change(t);drawFit()};
+  // what could change: the factors a town cannot change, and estimates for the ones it can
+  const change=t=>{const V=t.values,extra=v=>Math.max(0,Math.round(t.travel*(v-t.cycle)/100)),cards=[];
+    const fixed=ORDER.filter(k=>['Hills','Post-war industrial decline','Region','Rain','Older population'].includes(k)&&(t.factors[k]??0)<=-5);
+    cards.push(`<div class="card fixed"><h4>What it cannot change</h4><p>${fixed.length?fixed.map(k=>`${k.toLowerCase()} (${pc(t.factors[k])})`).join(', ')+'. These are already in its prediction: '+p1(t.pred)+'%.':'Nothing it cannot change holds it back much: its prediction is '+p1(t.pred)+'%.'}</p></div>`);
+    if(t.reach>t.cycle*1.02) cards.push(`<div class="card" style="--c:var(--accent)"><h4>Do as well as the best towns like it</h4><b class="big">${p1(t.reach)}%</b><p>If ${esc(short(t.name))} matched the quarter of towns that beat their prediction most (a local effect of ${pc(D.best_local)}), about ${nf(extra(t.reach))} more people would cycle to work. That is what local routes, safety and habits have achieved elsewhere, with the same hills and history.</p></div>`);
+    else cards.push(`<div class="card" style="--c:var(--accent)"><h4>Already ahead of towns like it</h4><p>${esc(short(t.name))} beats its prediction by ${pc(t.local)}, more than most towns. The next step is the Go Dutch level.</p></div>`);
+    const flags=[];
+    if(t.risk!=null&&t.risk>=D.risk_q3) flags.push(`collisions per cyclist are among the highest quarter of towns (index ${t.risk}, typical 100)`);
+    if(t.women!=null&&t.women<D.women_median) flags.push(`only ${Math.round(t.women)}% of its cycle commuters are women (typical ${Math.round(D.women_median)}%)`);
+    if(flags.length) cards.push(`<div class="card" style="--c:var(--down)"><h4>Make cycling safer</h4><p>${esc(short(t.name))}: ${flags.join('; ')}. On the roads in these areas, stretches with a protected cycle track have about a third fewer collisions than roads with nothing, and half the serious ones; painted lanes are no safer than nothing. Routes that feel safe for everyone bring in the people who stay off the road now.</p></div>`);
+    if(V.near<TV.near-5) cards.push(`<div class="card" style="--c:var(--pick)"><h4>Reach the jobs further away</h4><p>Only ${p1(V.near)}% of its commuters travel under 5 km (typical ${p1(TV.near)}%). Direct, protected routes to the business parks and towns where people work, 5 to 10 km away, matter more here than routes within the town.</p></div>`);
+    if(t.dutch!=null&&t.dutch>t.cycle) cards.push(`<div class="card" style="--c:var(--up)"><h4>The Go Dutch level</h4><b class="big">${p1(t.dutch)}%</b><p>The Propensity to Cycle Tool's estimate if cycling were as normal as in the Netherlands, given ${esc(short(t.name))}'s hills and the distances people travel: about ${nf(extra(t.dutch))} more people cycling to work. A ceiling to aim at, not a forecast.</p></div>`);
+    document.getElementById('tchange').innerHTML=cards.join('')};
+  document.getElementById('q').addEventListener('change',e=>{const v=e.target.value.toLowerCase(),t=T.find(t=>label(t).toLowerCase()===v)||T.find(t=>t.name.toLowerCase().startsWith(v));if(t)show(t)});
+  // effects chart
+  const E=[...D.terms].filter(e=>e.key!=='size').sort((a,b)=>a.effect-b.effect);
+  const drawEffects=()=>{const el=document.getElementById('effects');el.innerHTML='';
+    const W=Math.max(300,el.clientWidth-24),nar=W<620,row=nar?44:28,mg={l:nar?8:Math.min(380,W*.48),r:52,t:8,b:30},H=mg.t+mg.b+E.length*row;
+    const lo=Math.min(-60,...E.map(e=>e.lo)),hi=Math.max(40,...E.map(e=>e.hi)),L=v=>Math.log(1+v/100),x=v=>mg.l+(L(v)-L(lo))/(L(hi)-L(lo))*(W-mg.l-mg.r);
+    const ticks=[-50,-25,0,25].filter(v=>v>=lo&&v<=hi);
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Effect of each factor on cycling to work, with likely ranges"><g class="grid">${ticks.map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${mg.t}" y2="${H-mg.b}"/>`).join('')}</g>
+      <line class="ref" x1="${x(0)}" x2="${x(0)}" y1="${mg.t}" y2="${H-mg.b}"/><g class="axis2">${ticks.map(v=>`<text x="${x(v)}" y="${H-mg.b+16}" text-anchor="middle">${v===0?'no effect':pc(v)}</text>`).join('')}</g>`;
+    E.forEach((e,i)=>{const cy=mg.t+i*row+row/2+(nar?7:0),col=e.hi<0?'var(--down)':e.lo>0?'var(--up)':'var(--muted)';
+      s+=`<text class="lab" ${nar?`x="${mg.l}" y="${cy-11}"`:`x="${mg.l-8}" y="${cy+4}" text-anchor="end"`}>${esc(e.words[0].toUpperCase()+e.words.slice(1))}</text><line x1="${x(e.lo)}" x2="${x(e.hi)}" y1="${cy}" y2="${cy}" stroke="${col}" stroke-width="2.5"/><circle cx="${x(e.effect)}" cy="${cy}" r="5.5" fill="${col}"/><text x="${W-mg.r+6}" y="${cy+4}" style="fill:var(--ink);font:600 11.5px var(--mono)">${pc(e.effect)}</text>`});
+    el.innerHTML=s+'</svg>'};
+  const ef=k=>D.terms.find(e=>e.key===k);
+  document.getElementById('enote').innerHTML=`
+    <p class="callout"><b>Hills matter most, then history.</b> Each extra point of route gradient goes with ${pc(ef('hills').effect).replace('−','')} less cycling. A coalfield town cycles ${pc(ef('coal').effect).replace('−','')} less than a similar town elsewhere, and towns where more people work close to home cycle more. Grey factors make no clear difference once the others are counted.</p>
+    <p><b>Rain explains the regional gap.</b> Without rain in the model, towns in the North West cycle about a fifth less than similar towns in Yorkshire and the East. Count the days with rain (the North West gets 180 to 195 a year, the East 135 to 155) and that gap disappears: being in the North West now makes ${Math.abs(ef('west').effect)<5?'no clear':'a '+pc(ef('west').effect)} difference, while each extra 10 days of rain a year goes with ${pc(ef('rain').effect).replace('−','')} less cycling. Rain and region overlap so closely that some of this could still be habit or history in the same places, and wet towns like Barrow and Kendal still cycle well.</p>
+    <p>Each factor is a nudge that multiplies cycling up or down, so a hilly coalfield town carries both nudges.</p>`;
+  // fit chart: predicted against actual, log scales
+  const tip=document.getElementById('tip');
+  function drawFit(){const el=document.getElementById('fitchart');el.querySelector('svg')?.remove();
+    const W=Math.max(300,el.clientWidth-24),H=Math.round(Math.min(480,Math.max(300,W*.62))),mg={l:44,r:14,t:24,b:36};
+    const a=Math.log(.3),b=Math.log(40),x=v=>mg.l+(Math.log(Math.max(.3,Math.min(40,v)))-a)/(b-a)*(W-mg.l-mg.r),y=v=>mg.t+(1-(Math.log(Math.max(.3,Math.min(40,v)))-a)/(b-a))*(H-mg.t-mg.b);
+    const tk=[.5,1,2,4,8,16,32];
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each town's predicted share cycling to work against its actual share"><g class="grid">${tk.map(v=>`<line x1="${mg.l}" x2="${W-mg.r}" y1="${y(v)}" y2="${y(v)}"/>`).join('')}</g>
+      <line class="ref" x1="${x(.3)}" y1="${y(.3)}" x2="${x(40)}" y2="${y(40)}"/>
+      <g class="axis2">${tk.map(v=>`<text x="${x(v)}" y="${H-mg.b+16}" text-anchor="middle">${v}%</text>`).join('')}${tk.map(v=>`<text x="${mg.l-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`).join('')}
+      <text x="${(W+mg.l)/2}" y="${H-4}" text-anchor="middle">Predicted (log scale)</text><text x="${mg.l-38}" y="12">Actually cycle to work</text></g>`;
+    T.forEach(t=>{if(t===cur)return;s+=`<circle class="pt" data-id="${t.id}" cx="${x(t.pred).toFixed(1)}" cy="${y(t.cycle).toFixed(1)}" r="4" fill="var(${t.local>=0?'--up':'--down'})" fill-opacity=".55"/>`});
+    if(cur)s+=`<circle class="pt" data-id="${cur.id}" cx="${x(cur.pred)}" cy="${y(cur.cycle)}" r="8" fill="var(--pick)" stroke-width="2"/><text class="lab" x="${x(cur.pred)+(x(cur.pred)<W*.7?12:-12)}" y="${y(cur.cycle)+4}" text-anchor="${x(cur.pred)<W*.7?'start':'end'}" style="font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:3px">${esc(short(cur.name))}</text>`;
+    el.insertAdjacentHTML('beforeend',s+'</svg>');
+    el.querySelectorAll('circle.pt').forEach(c=>{const t=byId[c.dataset.id],sh=e=>{tip.innerHTML=`<b>${esc(t.name)}</b>${p1(t.cycle)}% cycle to work · predicted ${p1(t.pred)}% · local effect ${pc(t.local)}`;
+      const r=el.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(e.clientX-r.left+12,r.width-tip.offsetWidth-4)+'px';tip.style.top=Math.max(4,e.clientY-r.top-tip.offsetHeight-10)+'px'};
+      c.addEventListener('mousemove',sh);c.addEventListener('mouseleave',()=>tip.style.display='none');c.addEventListener('click',()=>{tip.style.display='none';show(t);document.getElementById('town').scrollIntoView({behavior:'smooth'})})})}
+  const within=T.filter(t=>!t.skip&&Math.abs(t.local)<=25).length,fitted=T.filter(t=>!t.skip).length;
+  const top=[...T].filter(t=>!t.skip&&t.travel>=8000).sort((a,b)=>b.local-a.local),fmt=t=>`${esc(short(t.name))} (${pc(t.local)})`;
+  document.getElementById('fnote').innerHTML=`
+    <p class="callout"><b>The factors explain about ${Math.round(D.r2*100)}% of the differences between towns.</b> ${Math.round(100*within/fitted)}% of towns are within a quarter of their prediction. The rest is the local effect.</p>
+    <p><b>Doing better than predicted</b> (towns of 8,000+ workers): ${top.slice(0,5).map(fmt).join(', ')}. <b>Doing worse:</b> ${top.slice(-5).reverse().map(fmt).join(', ')}. These are the places to learn from, and the places to look at first.</p>`;
+  document.getElementById('limits').innerHTML=`
+    <p><b>The estimates of what could change are a guide, not a forecast.</b> Matching the best towns assumes local action can move a town as far as it has moved others with the same factors; the safety figures come from comparing roads with and without protection in these areas (2021–25), not from before-and-after studies of each town.</p>
+    <p><b>It finds patterns, not causes.</b> The factors go with more or less cycling across towns; that does not prove changing one would change cycling by that much.</p>
+    <p><b>It only knows what it is told.</b> Safe routes, traffic, road danger and local investment are not in it: there is no consistent measure of them for every town, and collisions follow cycling (towns where more people cycle record more crashes), so they cannot be used to predict it. That is why they show up in the local effect.</p>
+    <p><b>Some measures are rough.</b> Industrial past goes by council, so a whole council is marked as a coalfield; rain comes from a weather grid about 9 km across, and ${D.rain_filled} towns the free weather service would not yet give take the figures of their nearest town (shown in their measures); the Census counts travel to work only, and was taken in March 2021, during a lockdown.</p>
+    <p><b>Hull, York and Cambridge</b> are left out of the comparison (the first two are the benchmarks, Cambridge is in a class of its own) but still get a prediction, which shows how far ahead of their factors they are.</p>`;
+  drawEffects();
+  const start=byId[location.hash.slice(1)]||T.find(t=>t.name==='Long Eaton')||T[0];show(start);
+  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawEffects();drawFit()},150)});
+}).catch(e=>{document.getElementById('steps').innerHTML=`<div class="step"><b>–</b><p>Could not load data/predict.json (${esc(e.message)})</p></div>`});
+</script>
+</body>
+</html>
