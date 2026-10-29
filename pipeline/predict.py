@@ -5,7 +5,7 @@ The model is a straight-line fit of the logarithm of the share who cycle to work
 so each factor multiplies cycling up or down by a set amount, whatever the town. Factors, all from the other steps:
   hills         average gradient of commute routes (towns.py, PCT)
   conurbation   people working in other towns within 10 km (heritage.py), the industrial revolution
-  decline       coalfield, or iron, steel and shipbuilding, by council (industry.py), post-war industrial decline
+  decline       coalfield pit town, edge of the coalfield, or iron, steel and shipbuilding (industry.py), post-war industrial decline
   short         share of commuters travelling under 5 km (industry.py, Census 2021 TS058)
   nocar, deprived   households with no car (Census 2021) and neighbourhoods in England's most deprived fifth (IMD 2025)
   postwar       share of homes built 1945-1972 (industry.py)
@@ -16,6 +16,8 @@ For what could change, each town also gets: what it would reach with the local e
 towns.py), its collisions per cyclist index and women's share of cycle commuters (people.py).
   region        North West, and North East and Cumbria, against Yorkshire and the East
   size          people travelling to work (log)
+The same model is also fitted separately to women's and men's cycling to work (people.py; towns where ONS gives the
+split by sex and 50 or more cycle), so each town gets a prediction for each.
 Hull, York and Cambridge are left out of the fit (benchmarks and an outlier) but still get a prediction.
 Each town's factor effects are against the typical town (the median of each measure; no industrial past; Yorkshire
 and the East); what the factors do not explain is the town's local effect.
@@ -32,7 +34,8 @@ USE_RAIN = os.environ.get('NO_RAIN') is None   # NO_RAIN=1 skips the rain factor
 # factor: (group shown on the page, the measure, its step for the plain-English effect, step wording)
 F = [('hills', 'Hills', lambda t: t['slope'], 1, 'each extra point of route gradient (%)'),
      ('conurbation', 'Towns crowded round it', lambda t: math.log1p(t['around'] / 1000), math.log(2), 'twice as many working in towns within 10 km'),
-     ('coal', 'Post-war industrial decline', lambda t: float(t['industry'] == 'coal'), 1, 'a coalfield town'),
+     ('coal', 'Post-war industrial decline', lambda t: float(t['industry'] == 'coal'), 1, 'a coalfield pit town'),
+     ('edge', 'Post-war industrial decline', lambda t: float(t['industry'] == 'edge'), 1, 'a town on the edge of the coalfield'),
      ('steel', 'Post-war industrial decline', lambda t: float(t['industry'] == 'steel'), 1, 'an iron, steel or shipbuilding town'),
      ('short', 'Short commutes', lambda t: t['near'], 10, '10 points more commuters travelling under 5 km'),
      ('nocar', 'Car ownership and deprivation', lambda t: t['nocar'], 10, '10 points more households with no car'),
@@ -96,13 +99,28 @@ def main():
     ref = []
     for k, _, g, _, _ in feats:
         v = sorted(g(t) for t in fit)
-        ref.append(0.0 if k in ('coal', 'steel', 'west', 'north') else v[len(v) // 2])
+        ref.append(0.0 if k in ('coal', 'edge', 'steel', 'west', 'north') else v[len(v) // 2])
     typical = math.exp(b[0] + sum(c * r for c, r in zip(b[1:], ref)))
     terms = []
     for (k, grp, g, step, words), c, mt in zip(feats, b[1:], m['terms']):
         lo, hi = math.log(mt['lo']), math.log(mt['hi'])
         terms.append(dict(key=k, group=grp, words=words, effect=round(100 * (math.exp(c * step) - 1), 1),
                           lo=round(100 * (math.exp(lo * step) - 1), 1), hi=round(100 * (math.exp(hi * step) - 1), 1)))
+    # the same model for women and for men separately (towns where ONS gives the split by sex and 50+ cycle)
+    for t in T:
+        pp = P.get(t['id'], {})
+        if pp.get('f') and pp.get('m'): t.update(f=pp['f'], m=pp['m'])
+    # too few edge-of-coalfield towns have the split by sex to estimate them apart, so there they count with the rest
+    sfeats = [f for f in feats if f[0] != 'edge']; scols = [(k, g) for k, _, g, _, _ in sfeats]
+    sref = [r for f, r in zip(feats, ref) if f[0] != 'edge']
+    sex = {}
+    for k in ('f', 'm'):
+        S = [t for t in fit if k in t]
+        ms = model(S, lambda t, k=k: math.log(t[k]), scols)
+        bs = lstsq([[1.0] + [g(t) for _, g in scols] for t in S], [math.log(t[k]) for t in S])
+        sex[k] = dict(b=bs, towns=len(S), r2=ms['r2'], typical=round(math.exp(bs[0] + sum(c * r for c, r in zip(bs[1:], sref))), 2),
+                      terms=[dict(key=kk, effect=round(100 * (math.exp(c * step) - 1), 1), lo=round(100 * (mt['lo'] ** step - 1), 1), hi=round(100 * (mt['hi'] ** step - 1), 1))
+                             for (kk, _, _, step, _), c, mt in zip(sfeats, bs[1:], ms['terms'])])
     towns = []
     for t in T:
         x = [g(t) for _, _, g, _, _ in feats]
@@ -113,6 +131,8 @@ def main():
                           lat=t['lat'], lon=t['lon'], travel=t['travel'], cycle=t['cycle'], pred=round(pred, 2),
                           local=round(100 * (t['cycle'] / pred - 1), 1),
                           factors={grp: round(100 * (math.exp(v) - 1), 1) for grp, v in groups.items()},
+                          **{f'{k}_{w}': v for k in ('f', 'm') if k in t for w, v in (
+                              ('act', t[k]), ('pred', round(math.exp(sex[k]['b'][0] + sum(c * g(t) for c, (_, g) in zip(sex[k]['b'][1:], scols))), 2)))},
                           dutch=TJ.get(t['id'], {}).get('dutch'), risk=P.get(t['id'], {}).get('rider_index'), women=P.get(t['id'], {}).get('women'),
                           values=dict(slope=t['slope'], around=t['around'], industry=t['industry'], near=t['near'], nocar=t['nocar'],
                                       deprived=t['deprived'], postwar=t['postwar'], old=t['old'], days=t['days'], mm=t['mm'],
@@ -125,6 +145,7 @@ def main():
     for t in towns: t['reach'] = round(max(t['cycle'], t['pred'] * (1 + best_local / 100)), 2)
     risk = sorted(t['risk'] for t in towns if t['risk'] is not None and t['travel'] >= 8000)
     out = dict(rain_filled=sum(1 for t in T if t.get('from_town')), best_local=best_local, risk_q3=risk[3 * len(risk) // 4], women_median=sorted(t['women'] for t in towns if t['women'] is not None)[len([t for t in towns if t['women'] is not None]) // 2],
+               sex={k: {kk: v for kk, v in d.items() if kk != 'b'} for k, d in sex.items()},
                r2=m['r2'], towns_fitted=len(fit), typical=round(typical, 2), typical_values=typ, terms=terms, towns=towns)
     json.dump(out, open(os.path.join(DATA, 'predict.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k != 'towns'}, indent=1))

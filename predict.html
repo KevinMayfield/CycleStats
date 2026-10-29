@@ -82,6 +82,13 @@ section{background:var(--panel);border:1px solid var(--line);border-radius:8px;o
 .brow.local .lab{font-weight:600}
 .brow.local .bar.up{background:repeating-linear-gradient(135deg,var(--up) 0 4px,transparent 4px 7px);border:1px solid var(--up)}
 .brow.local .bar.down{background:repeating-linear-gradient(135deg,var(--down) 0 4px,transparent 4px 7px);border:1px solid var(--down)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px 0}
+.seg button{font:500 12.5px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.sexrows{display:grid;gap:6px;margin-top:12px}
+.sexrow{display:grid;grid-template-columns:70px repeat(3,minmax(0,1fr));gap:8px;align-items:baseline;font-size:13px;border-top:1px solid var(--line);padding-top:6px}
+.sexrow b{font:700 18px/1 var(--display);font-variant-numeric:tabular-nums}
+.sexrow small{color:var(--muted)}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:8px 18px 12px;font-size:12px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
@@ -141,6 +148,7 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
   </section>
   <section>
     <div class="sh"><h2>What each factor does</h2><p>How much more or less cycling goes with each factor, everything else being equal, with the likely range. These come from comparing all the towns at once.</p></div>
+    <div class="seg" id="who" role="group" aria-label="Show effects for"><button type="button" data-k="all" aria-pressed="true">Everyone</button><button type="button" data-k="f" aria-pressed="false">Women</button><button type="button" data-k="m" aria-pressed="false">Men</button></div>
     <div class="chart" id="effects"></div>
     <div class="note" id="enote"></div>
   </section>
@@ -158,7 +166,7 @@ table.lt th:first-child,table.lt td:first-child{text-align:left}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const p1=v=>(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB'),pc=v=>(v>0?'+':v<0?'−':'')+Math.abs(Math.round(v))+'%';
 const REG={East:'Yorkshire and the East',West:'North West',North:'North East and Cumbria'};
-const IND={coal:'coalfield',steel:'iron, steel and shipbuilding',other:'none'};
+const IND={coal:'coalfield pit town',edge:'edge of the coalfield',steel:'iron, steel and shipbuilding',other:'none'};
 fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
   const T=D.towns,TV=D.typical_values,byId=Object.fromEntries(T.map(t=>[t.id,t])),short=n=>n.split(' (')[0];
   document.getElementById('steps').innerHTML=[
@@ -176,6 +184,7 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     const facs=ORDER.filter(k=>k in t.factors).map(k=>[k,t.factors[k]]),worst=facs.filter(f=>f[1]<=-5).sort((a,b)=>a[1]-b[1]).slice(0,2),best=facs.filter(f=>f[1]>=5).sort((a,b)=>b[1]-a[1]).slice(0,1);
     document.getElementById('thead').innerHTML=`<h3>${esc(t.name)}</h3><small>${esc(t.area)} · ${REG[t.region]}${t.skip?' · left out of the fit as a benchmark or outlier':''}</small>
       <div class="nums"><div class="num"><b>${p1(t.cycle)}%</b><span>cycle to work (Census 2021)</span></div><div class="num"><b>${p1(t.pred)}%</b><span>predicted from its factors</span></div><div class="num" style="border-color:var(${gap>=0?'--up':'--down'})"><b>${pc(gap)}</b><span>local effect</span></div></div>
+      <div class="sexrows">${'f_act' in t?[['Women','f'],['Men','m']].map(([n,k])=>{const a=t[k+'_act'],p=t[k+'_pred'],g=100*(a/p-1);return `<div class="sexrow"><span>${n}</span><span><b>${p1(a)}%</b> <small>cycle</small></span><span><b>${p1(p)}%</b> <small>predicted</small></span><span><b style="color:var(${g>=0?'--up':'--down'})">${pc(g)}</b> <small>local</small></span></div>`}).join(''):'<div class="sexrow" style="grid-template-columns:1fr"><small>ONS withholds the split by sex for too much of this town to predict women and men separately.</small></div>'}</div>
       <p class="verdict">${esc(short(t.name))} cycles ${diff}. ${worst.length?`What holds it back most: ${worst.map(([k,v])=>`${k.toLowerCase()} (${pc(v)})`).join(' and ')}.`:'None of its factors holds it back much.'}${best.length?` What helps most: ${({'Hills':'flat routes','Towns crowded round it':'standing on its own','Rain':'drier weather','Older population':'a younger population','Post-war estates':'fewer post-war estates','Post-war industrial decline':'no heavy industrial past'})[best[0][0]]||best[0][0].toLowerCase()} (${pc(best[0][1])}).`:''} ${gap>=10?'Something local is working: routes, habits or employers the figures do not capture.':gap<=-10?'Something local is holding it back beyond its factors: worth looking at its routes and roads.':''}</p>`;
     // bars on a log scale, so +100% and −50% are the same length
     const rows=[...facs,['Local effect',gap]],L=v=>Math.log(1+v/100),mx=Math.max(Math.log(2),...rows.map(([,v])=>Math.abs(L(v)))),X=v=>50+L(v)/mx*46;
@@ -217,19 +226,25 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
   sg.addEventListener('mousedown',e=>{const li=e.target.closest('li[data-i]');if(li){e.preventDefault();pick(hits[+li.dataset.i])}});
   q.addEventListener('blur',()=>setTimeout(()=>{close();if(cur&&q.value!==label(cur))q.value=label(cur)},120));
   // effects chart
-  const E=[...D.terms].filter(e=>e.key!=='size').sort((a,b)=>a.effect-b.effect);
-  const drawEffects=()=>{const el=document.getElementById('effects');el.innerHTML='';
+  const ORDER_E=[...D.terms].filter(e=>e.key!=='size').sort((a,b)=>a.effect-b.effect).map(e=>e.key),WORDS=Object.fromEntries(D.terms.map(e=>[e.key,e.words]));
+  let who='all',E=[];
+  const drawEffects=()=>{const src=who==='all'?D.terms:D.sex[who].terms;E=ORDER_E.filter(k=>src.some(e=>e.key===k)).map(k=>({...src.find(e=>e.key===k),words:WORDS[k]}));
+    const el=document.getElementById('effects');el.innerHTML='';
     const W=Math.max(300,el.clientWidth-24),nar=W<620,row=nar?44:28,mg={l:nar?8:Math.min(380,W*.48),r:52,t:8,b:30},H=mg.t+mg.b+E.length*row;
-    const lo=Math.min(-60,...E.map(e=>e.lo)),hi=Math.max(40,...E.map(e=>e.hi)),L=v=>Math.log(1+v/100),x=v=>mg.l+(L(v)-L(lo))/(L(hi)-L(lo))*(W-mg.l-mg.r);
-    const ticks=[-50,-25,0,25].filter(v=>v>=lo&&v<=hi);
+    const lo=-65,hi=110,L=v=>Math.log(1+v/100),x=v=>mg.l+(L(v)-L(lo))/(L(hi)-L(lo))*(W-mg.l-mg.r);
+    const ticks=[-50,-25,0,25,50,100].filter(v=>v>=lo&&v<=hi);
     let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Effect of each factor on cycling to work, with likely ranges"><g class="grid">${ticks.map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${mg.t}" y2="${H-mg.b}"/>`).join('')}</g>
       <line class="ref" x1="${x(0)}" x2="${x(0)}" y1="${mg.t}" y2="${H-mg.b}"/><g class="axis2">${ticks.map(v=>`<text x="${x(v)}" y="${H-mg.b+16}" text-anchor="middle">${v===0?'no effect':pc(v)}</text>`).join('')}</g>`;
     E.forEach((e,i)=>{const cy=mg.t+i*row+row/2+(nar?7:0),col=e.hi<0?'var(--down)':e.lo>0?'var(--up)':'var(--muted)';
       s+=`<text class="lab" ${nar?`x="${mg.l}" y="${cy-11}"`:`x="${mg.l-8}" y="${cy+4}" text-anchor="end"`}>${esc(e.words[0].toUpperCase()+e.words.slice(1))}</text><line x1="${x(e.lo)}" x2="${x(e.hi)}" y1="${cy}" y2="${cy}" stroke="${col}" stroke-width="2.5"/><circle cx="${x(e.effect)}" cy="${cy}" r="5.5" fill="${col}"/><text x="${W-mg.r+6}" y="${cy+4}" style="fill:var(--ink);font:600 11.5px var(--mono)">${pc(e.effect)}</text>`});
     el.innerHTML=s+'</svg>'};
+  document.getElementById('who').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;who=b.dataset.k;
+    document.querySelectorAll('#who button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));drawEffects()});
   const ef=k=>D.terms.find(e=>e.key===k);
+  const sx=(w,k)=>D.sex[w].terms.find(e=>e.key===k).effect;
   document.getElementById('enote').innerHTML=`
-    <p class="callout"><b>Hills matter most, then history.</b> Each extra point of route gradient goes with ${pc(ef('hills').effect).replace('−','')} less cycling. A coalfield town cycles ${pc(ef('coal').effect).replace('−','')} less than a similar town elsewhere, and towns where more people work close to home cycle more. Grey factors make no clear difference once the others are counted.</p>
+    <p class="callout"><b>Hills matter most, then history.</b> Each extra point of route gradient goes with ${pc(ef('hills').effect).replace('−','')} less cycling. A coalfield pit town cycles ${pc(ef('coal').effect).replace('−','')} less than a similar town elsewhere (a town on the edge of the coalfield ${pc(ef('edge').effect).replace('−','')} less), and towns where more people work close to home cycle more. Grey factors make no clear difference once the others are counted.</p>
+    <p><b>Women are held back more than men.</b> Fitting the same model to women and to men separately (switch above), each extra point of route gradient goes with ${pc(sx('f','hills')).replace('−','')} less cycling for women against ${pc(sx('m','hills')).replace('−','')} for men, and a pit town with ${pc(sx('f','coal')).replace('−','')} less for women against ${pc(sx('m','coal')).replace('−','')} for men. Deprived neighbourhoods and post-war estates weigh more on women too. (Too few edge-of-coalfield towns have the split by sex to show them apart, so for women and men they count with other towns.) Where hills, history or deprivation hold a town back, they hold back its women most.</p>
     <p><b>Rain explains the regional gap.</b> Without rain in the model, towns in the North West cycle about a fifth less than similar towns in Yorkshire and the East. Count the days with rain (the North West gets 180 to 195 a year, the East 135 to 155) and that gap disappears: being in the North West now makes ${Math.abs(ef('west').effect)<5?'no clear':'a '+pc(ef('west').effect)} difference, while each extra 10 days of rain a year goes with ${pc(ef('rain').effect).replace('−','')} less cycling. Rain and region overlap so closely that some of this could still be habit or history in the same places, and wet towns like Barrow and Kendal still cycle well.</p>
     <p>Each factor is a nudge that multiplies cycling up or down, so a hilly coalfield town carries both nudges.</p>`;
   // fit chart: predicted against actual, log scales
@@ -257,7 +272,7 @@ fetch('data/predict.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.
     <p><b>The estimates of what could change are a guide, not a forecast.</b> Matching the best towns assumes local action can move a town as far as it has moved others with the same factors; the safety figures come from comparing roads with and without protection in these areas (2021–25), not from before-and-after studies of each town.</p>
     <p><b>It finds patterns, not causes.</b> The factors go with more or less cycling across towns; that does not prove changing one would change cycling by that much.</p>
     <p><b>It only knows what it is told.</b> Safe routes, traffic, road danger and local investment are not in it: there is no consistent measure of them for every town, and collisions follow cycling (towns where more people cycle record more crashes), so they cannot be used to predict it. That is why they show up in the local effect.</p>
-    <p><b>Some measures are rough.</b> Industrial past goes by council, so a whole council is marked as a coalfield; rain comes from a weather grid about 9 km across, and ${D.rain_filled} towns the free weather service would not yet give take the figures of their nearest town (shown in their measures); the Census counts travel to work only, and was taken in March 2021, during a lockdown.</p>
+    <p><b>Some measures are rough.</b> Industrial past starts from council areas, split into pit towns and the edge of the coalfield by where collieries are mapped in OpenStreetMap, which misses some; rain comes from a weather grid about 9 km across, and ${D.rain_filled} towns the free weather service would not yet give take the figures of their nearest town (shown in their measures); the Census counts travel to work only, and was taken in March 2021, during a lockdown.</p>
     <p><b>Hull, York and Cambridge</b> are left out of the comparison (the first two are the benchmarks, Cambridge is in a class of its own) but still get a prediction, which shows how far ahead of their factors they are.</p>`;
   drawEffects();
   const start=byId[location.hash.slice(1)]||T.find(t=>t.name==='Long Eaton')||T[0];show(start);
