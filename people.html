@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Who cycles to work in each town: women's share of cycle commuters rises from a seventh to nearly half as cycling grows, and older workers keep cycling in flat towns that stand on their own.">
+<title>Who Cycles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: hero with headline figures; women (scatter, bars by group, casualty check); age (line chart); every town
+   (searchable table); how it was worked out */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#1d2321; --muted:#5d6762; --line:#dfe3df;
+  --accent:#0f6b5c; --soft:#e2f0ec;
+  /* hilliness, categorical slots (validated with the geography bands): flat aqua, gently sloping amber, hilly violet */
+  --t-flat:#1baf7a; --t-gentle:#eda100; --t-hilly:#6250d6;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --t-flat:#199e70; --t-gentle:#b98a00; --t-hilly:#9085e9; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
+  --t-flat:#199e70; --t-gentle:#b98a00; --t-hilly:#9085e9; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;margin:6px 0 10px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:72ch;font-size:15px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{font:500 12.5px/1 var(--body);color:var(--ink);text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0;border-top:4px solid var(--c,var(--line))}
+.fact b{display:block;font:700 32px/1 var(--display);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:12.5px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;margin-bottom:18px}
+.sh{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.sh h2{margin:0 0 4px;font:700 24px/1.1 var(--display)}
+.sh p{margin:0;color:var(--muted);font-size:12.5px;max-width:110ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 18px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.two>div+div{border-left:1px solid var(--line)}
+.two h3,.ph{margin:12px 18px 0;font:700 17px/1.2 var(--display)}
+.chart{position:relative;padding:8px 12px 12px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--line)}
+.chart .axis2 text{fill:var(--muted);font:11px var(--mono)}
+.chart .ref{stroke:var(--ink);stroke-dasharray:4 4;opacity:.6}
+.chart circle.pt{stroke:var(--panel);stroke-width:1}
+.chart text.dl{font:600 12px var(--body);fill:var(--ink)}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:min(300px,78vw);display:none;z-index:5}
+.tip b{display:block;font-size:13px}
+.groups{padding:6px 18px 16px;display:grid;gap:4px}
+.groups h4{margin:10px 0 2px;font:600 12px/1.2 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.grow{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:4px 14px;align-items:center}
+.grow .lab{font-size:13px}.grow .lab small{color:var(--muted);font-size:11.5px;margin-left:4px}
+.gtrack{position:relative;height:22px}
+.gtrack .bar{position:absolute;left:0;top:4px;height:14px;border-radius:0 4px 4px 0;background:var(--accent)}
+.gtrack .val{position:absolute;top:2px;font:600 12px/18px var(--mono);white-space:nowrap}
+.gtrack .eq{position:absolute;top:-3px;bottom:-3px;border-left:2px dashed var(--ink);opacity:.5}
+.note{padding:16px 18px;display:grid;gap:10px;max-width:110ch;font-size:14px}
+.note p{margin:0}
+.callout{border-left:4px solid var(--accent);background:var(--soft);padding:12px 14px;border-radius:0 6px 6px 0}
+.tw{overflow-x:auto;padding:6px 18px 4px}
+table.lt{border-collapse:collapse;width:100%;min-width:620px;font-size:13px}
+table.lt th,table.lt td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.lt th{font-weight:600;color:var(--muted);font-size:12px;vertical-align:bottom}
+table.lt th:first-child,table.lt td:first-child{text-align:left}
+table.lt td:first-child i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+table.lt td small{color:var(--muted)}
+.find{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 18px 0;font-size:12.5px;color:var(--muted)}
+.find input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:220px}
+.more{margin:8px 18px 14px;font:500 12.5px var(--body);color:var(--accent);background:none;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
+.method{padding:14px 18px;display:grid;gap:8px;max-width:110ch;font-size:13px;color:var(--muted)}
+.method p{margin:0}.method b{color:var(--ink)}
+@media (max-width:900px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:40px}.two{grid-template-columns:1fr}.two>div+div{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:560px){.grow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">CycleStats · who cycles</div>
+      <h1>Who Cycles</h1>
+      <p class="lede">Where few people cycle, it is mostly men, and mostly younger men in the hilly cities. As cycling grows, women catch up: in the towns that cycle most, close to half of cycle commuters are women, as in the Netherlands. In the flat towns that stand on their own, people in their sixties and older still at work cycle almost as much as people in their twenties. The things that hold cycling back (hills, conurbations, the coalfields) hold back women and older riders most.</p>
+    </div>
+    <nav class="nav"><a href="index.html">Overview</a><a href="area.html">Area maps</a><a href="towns.html">Where Dutch infrastructure should work</a><a href="health.html">Health and active travel</a><a href="geography.html">Geography and history</a><a href="industry.html">Industry and work</a><a href="people.html" aria-current="page">Who cycles</a><a href="danelaw.html">Danelaw Cycle Network</a></nav>
+  </header>
+  <div class="facts" id="facts"></div>
+  <section>
+    <div class="sh"><h2>Women cycle where everyone cycles</h2><p>Women's share of the people who cycle to work in each town (Census 2021). Each dot is a town, placed by how many of its commuters cycle and coloured by how hilly it is; the dashed line is an even split. The bars give the typical town in each group.</p></div>
+    <div class="two">
+      <div><h3>Women's share against how much a town cycles</h3><div class="chart" id="scatter"><div class="tip" id="tip"></div></div><div class="legend" id="slegend"></div></div>
+      <div><h3>Women's share in the typical town</h3><div class="groups" id="groups"></div></div>
+    </div>
+    <div class="note" id="wnote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Older riders keep cycling where it is flat and close</h2><p>The share of people in work who cycle to it, by age, pooled over flat towns that stand on their own, over every town, and over hilly towns and towns inside a conurbation.</p></div>
+    <div class="chart" id="ages"></div>
+    <div class="note" id="anote"></div>
+  </section>
+  <section>
+    <div class="sh"><h2>Every town</h2><p>Sorted by women's share of cycle commuters. Towns where ONS withholds the split by sex are listed without it.</p></div>
+    <div class="find"><label for="q">Find a town</label><input id="q" type="search" placeholder="e.g. Long Eaton"></div>
+    <div class="tw"><table class="lt" id="ttable"></table></div>
+    <button class="more" id="more" type="button">Show all towns</button>
+  </section>
+  <section>
+    <div class="sh"><h2>How this was worked out</h2></div>
+    <div class="method" id="method"></div>
+  </section>
+</div>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p1=v=>v==null?'–':(+v).toFixed(1),p0=v=>v==null?'–':Math.round(v)+'%',nf=v=>Math.round(v).toLocaleString('en-GB');
+const TIER={flat:['Flat','--t-flat'],gentle:['Gently sloping','--t-gentle'],hilly:['Hilly','--t-hilly']};
+const tierOf=t=>TIER[t.tier]||TIER.flat;   // the benchmarks (Hull, York) are flat
+const REG={East:'Yorkshire and the East',West:'North West',North:'North East and Cumbria'};
+const short=n=>n.split(' (')[0];
+fetch('data/people.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
+  const G=D.groups,g=(by,k)=>G[by].find(x=>x.key===k),A=D.age,own=A[0].rates,hill=A[2].rates,C=D.casualties;
+  document.getElementById('facts').innerHTML=`
+    <div class="fact" style="--c:var(--accent)"><b>${p0(g('cycling','1').women)} → ${p0(g('cycling','4').women)}</b><span>women's share of cycle commuters, from the typical town where under 2% cycle to the towns where 8% or more do</span></div>
+    <div class="fact" style="--c:var(--t-flat)"><b>${p0(g('tier','flat').women)}</b><span>women's share in the typical flat town, against ${p0(g('tier','hilly').women)} in a hilly one</span></div>
+    <div class="fact"><b>${p0(g('setting','own').women)}</b><span>in a town on its own, against ${p0(g('setting','inside').women)} inside a conurbation and ${p0(g('industry','coal').women)} on the coalfields</span></div>
+    <div class="fact" style="--c:var(--t-hilly)"><b>${Math.round(100*own['65+']/own['16–24'])}% vs ${Math.round(100*hill['65+']/hill['16–24'])}%</b><span>how much workers aged 65+ cycle against 16–24s, in flat towns on their own and in hilly or conurbation towns</span></div>`;
+  // scatter: cycling (log) against women's share
+  const T=D.towns,W=T.filter(t=>t.women!=null&&!(t.skip&&!['York','Cambridge'].includes(short(t.name)))),tip=document.getElementById('tip');
+  const LABEL=['Cambridge','York','Newark-on-Trent','Boston','Spalding','Norwich','Peterborough','Long Eaton','Derby','Leeds','Middlesbrough','Scunthorpe','Doncaster','Sunderland'];
+  const drawScatter=()=>{const el=document.getElementById('scatter');el.querySelector('svg')?.remove();
+    const Wd=Math.max(300,el.clientWidth-24),Hh=Math.round(Math.min(440,Math.max(300,Wd*.78))),mg={l:40,r:14,t:24,b:36};
+    const a=Math.log(.4),b=Math.log(40),x=v=>mg.l+(Math.log(Math.max(.4,Math.min(40,v)))-a)/(b-a)*(Wd-mg.l-mg.r),y=v=>mg.t+(1-v/60)*(Hh-mg.t-mg.b);
+    const xt=[.5,1,2,4,8,16,32],yt=[0,10,20,30,40,50,60];
+    let s=`<svg viewBox="0 0 ${Wd} ${Hh}" role="img" aria-label="Scatter of each town's cycling to work against women's share of cycle commuters"><g class="grid">${yt.map(v=>`<line x1="${mg.l}" x2="${Wd-mg.r}" y1="${y(v)}" y2="${y(v)}"/>`).join('')}</g>
+      <line class="ref" x1="${mg.l}" x2="${Wd-mg.r}" y1="${y(50)}" y2="${y(50)}"/><text x="${Wd-mg.r-4}" y="${y(50)-5}" text-anchor="end" style="fill:var(--muted);font:11px var(--mono)">even split</text>
+      <g class="axis2">${xt.map(v=>`<text x="${x(v)}" y="${Hh-mg.b+16}" text-anchor="middle">${v}%</text>`).join('')}${yt.map(v=>`<text x="${mg.l-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`).join('')}
+      <text x="${(Wd+mg.l)/2}" y="${Hh-4}" text-anchor="middle">Cycle to work (log scale)</text><text x="${mg.l-34}" y="12">Women's share of cycle commuters</text></g>`;
+    [...W].sort((p,q)=>q.travel-p.travel).forEach(t=>{s+=`<circle class="pt" data-id="${t.id}" cx="${x(t.cycle).toFixed(1)}" cy="${y(t.women).toFixed(1)}" r="${(3.5+Math.sqrt(t.travel/3e5)*10).toFixed(1)}" fill="var(${tierOf(t)[1]})" fill-opacity=".8"/>`});
+    W.filter(t=>(Wd<560?['Cambridge','Newark-on-Trent','Boston','Long Eaton','Middlesbrough','Sunderland']:LABEL).includes(short(t.name))).forEach(t=>{const right=x(t.cycle)<Wd*.75;s+=`<text class="dl" x="${x(t.cycle)+(right?8:-8)}" y="${y(t.women)+4}" text-anchor="${right?'start':'end'}" style="paint-order:stroke;stroke:var(--panel);stroke-width:3px">${esc(short(t.name))}</text>`});
+    el.insertAdjacentHTML('beforeend',s+'</svg>');
+    el.querySelectorAll('circle.pt').forEach(c=>{const show=e=>{const t=T.find(z=>z.id===c.dataset.id);
+      tip.innerHTML=`<b>${esc(t.name)}</b>${tierOf(t)[0]} · ${REG[t.region]}<br>${p1(t.cycle)}% cycle to work · ${p0(t.women)} of them women<br>Women ${p1(t.f)}% · men ${p1(t.m)}%`;
+      const r=el.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(e.clientX-r.left+12,r.width-tip.offsetWidth-4)+'px';tip.style.top=Math.max(4,e.clientY-r.top-tip.offsetHeight-10)+'px'};
+      c.addEventListener('mousemove',show);c.addEventListener('click',show);c.addEventListener('mouseleave',()=>tip.style.display='none')})};
+  document.getElementById('slegend').innerHTML=Object.values(TIER).map(([n,c])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+`<span>Size: people travelling to work</span><span>Correlation with cycling ${D.corr}</span>`;
+  // group bars, 0 to 50%
+  const SECT={cycling:'How much the town cycles',tier:'Hills',setting:'Industrial revolution: towns around it',industry:'Post-war industrial decline',region:'Region'};
+  document.getElementById('groups').innerHTML=Object.entries(SECT).map(([by,h])=>`<h4>${h}</h4>`+G[by].map(x=>{const w=x.women/50*100;
+    return `<div class="grow"><div class="lab">${esc(x.label)}<small>${x.towns} towns</small></div><div class="gtrack" role="img" aria-label="${esc(x.label)}: ${p0(x.women)} women"><div class="bar" style="width:${Math.min(100,w)*.86}%"></div><div class="val" style="left:calc(${Math.min(100,w)*.86}% + 6px)">${p0(x.women)}</div><div class="eq" style="left:86%" title="even split"></div></div></div>`}).join('')).join('')+`<div class="grow"><div></div><div style="font:11px var(--mono);color:var(--muted);text-align:right;padding-right:calc(14% - 30px)">50%, even split ┆</div></div>`;
+  const c1=C[0],c4=C[C.length-1];
+  document.getElementById('wnote').innerHTML=`
+    <p class="callout"><b>A women's share near a half is the sign of cycling that works for everyone.</b> Where under 2% cycle to work, the typical town's cycle commuters are ${p0(g('cycling','1').women)} women, and men are about ${Math.round(g('cycling','1').m/g('cycling','1').f)} times as likely to cycle as women. Where 8% or more cycle, the share is ${p0(g('cycling','4').women)}, and Cambridge and Newark-on-Trent are close to an even split. Flat towns that stand on their own come closest; hilly, conurbation and coalfield towns are furthest away.</p>
+    <p><b>Road casualties tell the same story, for every council in England.</b> Where under 2% cycle to work, ${p0(c1.women)} of cyclists hurt on the roads in 2021–25 were women and ${p0(c1.children)} were children under 16. Where 8% or more cycle, ${p0(c4.women)} were women and ${p0(c4.children)} children: in low-cycling places cycling is something children and men do, not everyday transport for adults.</p>
+    <p><b>For the Danelaw route</b>, the low-cycling towns along it have a long way to go: Long Eaton ${p0(W.find(t=>t.name==='Long Eaton')?.women)}, Derby ${p0(W.find(t=>t.name==='Derby')?.women)}, Middlesbrough ${p0(W.find(t=>t.name==='Middlesbrough')?.women)}, Scunthorpe ${p0(W.find(t=>t.name==='Scunthorpe')?.women)}. A route that feels safe enough for women and older riders is the test of whether it works.</p>`;
+  // ages: line chart, one line per pool
+  const AG=Object.keys(own),PC=['var(--t-flat)','var(--muted)','var(--t-hilly)'];
+  const drawAges=()=>{const el=document.getElementById('ages');el.innerHTML='';
+    const Wd=Math.max(300,el.clientWidth-24),nar=Wd<620,mg={l:40,r:nar?16:210,t:16,b:46},Hh=nar?300:320,top=Math.ceil(Math.max(...A.flatMap(p=>Object.values(p.rates))));
+    const x=i=>mg.l+i/(AG.length-1)*(Wd-mg.l-mg.r),y=v=>mg.t+(1-v/top)*(Hh-mg.t-mg.b),yt=[...Array(top+1).keys()];
+    let s=`<svg viewBox="0 0 ${Wd} ${Hh}" role="img" aria-label="Cycling to work by age for three groups of towns"><g class="grid">${yt.map(v=>`<line x1="${mg.l}" x2="${Wd-mg.r}" y1="${y(v)}" y2="${y(v)}"/>`).join('')}</g>
+      <g class="axis2">${AG.map((a,i)=>`<text x="${x(i)}" y="${Hh-mg.b+18}" text-anchor="middle">${a}</text>`).join('')}${yt.map(v=>`<text x="${mg.l-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`).join('')}<text x="${(Wd+mg.l-mg.r)/2}" y="${Hh-8}" text-anchor="middle">Age</text></g>`;
+    A.forEach((p,j)=>{const v=AG.map(a=>p.rates[a]);
+      s+=`<path d="${v.map((r,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(r).toFixed(1)}`).join('')}" fill="none" stroke="${PC[j]}" stroke-width="2.5"/>`+v.map((r,i)=>`<circle cx="${x(i)}" cy="${y(r)}" r="5" fill="${PC[j]}" stroke="var(--panel)" stroke-width="1.5"><title>${esc(p.label)}, ${AG[i]}: ${p1(r)}%</title></circle>`).join('');
+      if(!nar) s+=`<text class="dl" x="${x(AG.length-1)+12}" y="${y(v[v.length-1])+4}">${esc(p.label)} (${p.towns})</text>`});
+    el.innerHTML=s+'</svg>'+(nar?`<div class="legend">${A.map((p,j)=>`<span><i style="background:${PC[j]}"></i>${esc(p.label)}</span>`).join('')}</div>`:'')};
+  document.getElementById('anote').innerHTML=`
+    <p class="callout"><b>In flat towns on their own, cycling hardly falls with age.</b> ${p1(own['65+'])}% of workers aged 65 and over cycle to work, against ${p1(own['16–24'])}% of 16–24s and ${p1(own['50–64'])}% of 50–64s. In hilly towns and conurbations it halves, from ${p1(hill['16–24'])}% to ${p1(hill['65+'])}%. Boston, Long Eaton and Retford have more of their older workers cycling than their young ones.</p>
+    <p>That matters for health: older people gain most from regular exercise, and the Netherlands' high cycling owes much to people who keep riding into their seventies and eighties. The Census only counts people in work, so it misses retired people; national surveys (Active Lives) find weekly cycling holds up to about 64, then falls.</p>`;
+  // table
+  let all=false;
+  const rows=[...T].sort((p,q)=>(q.women??-1)-(p.women??-1)||q.cycle-p.cycle);
+  const draw=()=>{const q=document.getElementById('q').value.trim().toLowerCase(),L=rows.filter(t=>!q||t.name.toLowerCase().includes(q)),show=q||all?L:L.slice(0,25);
+    document.getElementById('ttable').innerHTML=`<thead><tr><th>Town</th><th>Cycle to work</th><th>Women's share of cycle commuters</th><th>Women who cycle</th><th>Men who cycle</th><th>Aged 16–24</th><th>Aged 65+</th></tr></thead><tbody>`+
+      show.map(t=>`<tr><td><i style="background:var(${tierOf(t)[1]})"></i>${esc(t.name)} <small>${REG[t.region]}</small></td><td>${p1(t.cycle)}%</td><td>${t.women==null?'<small>withheld</small>':p0(t.women)}</td><td>${t.f==null?'–':p1(t.f)+'%'}</td><td>${t.m==null?'–':p1(t.m)+'%'}</td><td>${p1(t.ages['16–24'])}%</td><td>${p1(t.ages['65+'])}%</td></tr>`).join('')+'</tbody>';
+    document.getElementById('more').style.display=q||all?'none':''};
+  document.getElementById('q').addEventListener('input',draw);document.getElementById('more').addEventListener('click',()=>{all=true;draw()});
+  drawScatter();drawAges();draw();addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawScatter();drawAges()},150)});
+  const cv=D.coverage;
+  document.getElementById('method').innerHTML=`
+    <p><b>Source.</b> Census 2021 method of travel to work by sex, and by age, for each neighbourhood (MSOA, about 8,000 people), from the ONS API. Each neighbourhood is given to the town most of it lies in. Rates are people who cycle over people travelling to work, leaving out those working mainly from home; the Census was taken in March 2021, during a lockdown.</p>
+    <p><b>Women's share.</b> ONS withholds the split by sex for ${nf(cv.msoas-cv.with_sex)} of ${nf(cv.msoas)} neighbourhoods to protect privacy. A town gets a share only where at least half its commuters are covered and at least 50 cycle. Withheld neighbourhoods cycle slightly less (${p1(cv.cycle_without)}% against ${p1(cv.cycle_with)}%), so shares may lean a little high. Groups give the median town; Hull is left out, York and Cambridge are kept, except that Cambridge, with its students, is left out of the age lines.</p>
+    <p><b>Casualties.</b> Cyclists killed or injured in police-recorded collisions, 2021–25 (STATS19), by the council where the collision happened, against that council's Census cycling to work, for every council in England. Women may be hurt less per mile than men, so their share of casualties probably understates their share of riders.</p>
+    <p><b>Limits.</b> Travel to work only, and only people in work: no school runs, shopping or leisure, and no retired people. These are comparisons between towns, not proof of what causes the differences.</p>`;
+}).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/people.json (${esc(e.message)})</span></div>`});
+</script>
+</body>
+</html>
