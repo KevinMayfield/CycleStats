@@ -2,6 +2,8 @@
 
 Brings together, for Long Eaton (ONS built-up area E63002115):
   travel     Census 2021 method of travel (TS061) and distance to work (TS058) for its LSOAs
+  neighbours where people in Sandiacre, the Broxtowe towns, Breaston and Ilkeston work and how they travel, and how many
+             work in Long Eaton (Census 2021 flows and TS061)
   work       Census 2021 home-to-workplace flows by MSOA (raw/od/ODWP01EW, ODWP14EW): where its people work, and the
              Nottingham Road corridor, people travelling each way between Long Eaton and Toton, Stapleford, Beeston
              and Chilwell, and Nottingham
@@ -170,6 +172,41 @@ def work(mt):
                 corridor=[dict(place=p, out=out[p], inn=inn[p]) for p in places],
                 cd_nocar=round(100 * nocar['No cars or vans in household|cd'] / nocar['No cars or vans in household'], 1),
                 cd_twocar=round(100 * nocar['2 cars or vans in household|cd'] / nocar['2 cars or vans in household'], 1))
+
+
+def neighbours(lb, mt):
+    """where people in Long Eaton and its neighbours work, and how they travel (Census 2021): Sandiacre and the
+    Broxtowe towns, plus Breaston and Ilkeston in Erewash"""
+    toton = {'E02005862', 'E02005864'}
+    names = {LE: 'Long Eaton', 'E63002062': 'Sandiacre', 'E63002042': 'Stapleford', 'E63002057': 'Beeston and Chilwell',
+             'E63002098': 'Breaston and Draycott', 'E63001997': 'Ilkeston'}
+    town = lambda m: 'Toton and Chilwell West' if m in toton else names.get(mt.get(m))
+    D = collections.defaultdict(collections.Counter)
+    for r in csv.DictReader(open(os.path.join(RAW, 'od', 'ODWP01EW_MSOA.csv'))):
+        if r['Place of work indicator (4 categories) code'] != '3': continue
+        h = town(r['Middle layer Super Output Areas code'])
+        if not h: continue
+        w, lab, n = r['MSOA of workplace code'], r['MSOA of workplace label'], int(r['Count']); tw = town(w)
+        k = ('own' if tw == h else 'le' if tw == 'Long Eaton' else 'cd' if lab in ('North West Leicestershire 001', 'North West Leicestershire 002')
+             else 'nottingham' if lab.startswith('Nottingham ') else 'derby' if lab.startswith('Derby ') else 'local' if lab.startswith(('Broxtowe', 'Erewash')) else 'other')
+        D[h][k] += n; D[h]['all'] += n
+    ls_msoa = {}
+    for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
+        if r[0].startswith('E01'): ls_msoa[r[0]] = r[1][:-1]
+    code = {r['geography']: r['geography code'] for r in csv.DictReader(io.TextIOWrapper(
+        zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts037.zip')).open('census2021-ts037-msoa.csv'), encoding='utf-8-sig'))}
+    rd = csv.reader(io.TextIOWrapper(zipfile.ZipFile(os.path.join(RAW, 'heritage', 'census2021-ts061.zip')).open('census2021-ts061-lsoa.csv'), encoding='utf-8-sig'))
+    h = next(rd); ix = {k.replace('Method of travel to workplace: ', ''): i for i, k in enumerate(h)}; M = collections.defaultdict(collections.Counter)
+    for r in rd:
+        m = code.get(ls_msoa.get(r[2])); t = 'Toton and Chilwell West' if m in toton else names.get(lb.get(r[2]))
+        if not t: continue
+        g = lambda k: int(r[ix[k]])
+        M[t]['all'] += g('Total: All usual residents aged 16 years and over in employment the week before the census') - g('Work mainly at or from home')
+        for k, col in (('drive', 'Driving a car or van'), ('bike', 'Bicycle'), ('bus', 'Bus, minibus or coach')): M[t][k] += g(col)
+    order = ['Long Eaton', 'Sandiacre', 'Stapleford', 'Toton and Chilwell West', 'Beeston and Chilwell', 'Breaston and Draycott', 'Ilkeston']
+    return [dict(town=t, broxtowe=t in ('Stapleford', 'Toton and Chilwell West', 'Beeston and Chilwell'), workers=D[t]['all'],
+                 **{k: D[t][k] for k in ('own', 'le', 'cd', 'nottingham', 'derby', 'local', 'other')},
+                 **{k: round(100 * M[t][k] / M[t]['all'], 1) for k in ('drive', 'bike', 'bus')}) for t in order]
 
 
 def corridor():
@@ -346,9 +383,10 @@ def main():
     PR = json.load(open(os.path.join(DATA, 'predict.json'))); P = next(t for t in PR['towns'] if t['id'] == LE)
     PE = next(t for t in json.load(open(os.path.join(DATA, 'people.json')))['towns'] if t['id'] == LE)
     paths, extend, schools, jobs = geometry()
+    mt = msoa_towns(lb)
     out = dict(town=dict(cycle11=T['cycle11'], cycle21=T['cycle21'], dutch=T['dutch'], slope=T['slope'], travel=T['travel'], pred=P['pred'], local=P['local'],
                          women=PE.get('women'), f=PE.get('f'), f_pred=P.get('f_pred'), skew=PE.get('skew'), risk=PE.get('rider_index'), pit_km=6.8),
-               travel=travel(lb), work=work(msoa_towns(lb)), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
+               travel=travel(lb), work=work(mt), neighbours=neighbours(lb, mt), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
                schools=pct_schools(), school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
     json.dump(out, open(os.path.join(DATA, 'longeaton.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k not in ('paths', 'extend', 'places', 'crashes', 'corridor')}, indent=1)[:2500])

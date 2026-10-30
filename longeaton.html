@@ -150,6 +150,14 @@ table.lt td.l{text-align:left}
   </section>
 
   <section>
+    <div class="sh"><h2>The neighbours: the same pattern, and Long Eaton is a destination</h2><p>Where people in Sandiacre, the Broxtowe towns (Stapleford, Toton and Chilwell West, Beeston and Chilwell), Breaston and Ilkeston work, and how they travel (Census 2021). Each bar splits a town's commuters by workplace.</p></div>
+    <div class="legend" id="nbleg"></div>
+    <div class="chart" id="nbchart"></div>
+    <div class="tw"><table class="lt" id="nbtable"></table></div>
+    <div class="note" id="nbnote"></div>
+  </section>
+
+  <section>
     <div class="sh"><h2>Where the jobs went</h2><p>The big employers that Long Eaton's people could walk or cycle to have closed. The work moved to sites by the motorway junctions and into the cities, reached mainly by car. A schematic map: closed works in grey, today's main destinations with arrows sized by the number of Long Eaton residents who travel to work there (Census 2021).</p></div>
     <div class="legend" id="jobleg"></div>
     <div class="chart" id="jobsmap"></div>
@@ -421,6 +429,23 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
   document.getElementById('modenote').innerHTML=`<p>A further ${p0(D.travel.home)} of people in work worked mainly from home. The Census was taken in March 2021, during a lockdown.</p>`;
   document.getElementById('dest').innerHTML=`<thead><tr><th>Where they work</th><th>Workers</th><th>Share</th></tr></thead><tbody>`+W.dest.map(d=>`<tr><td>${esc(d.place)}</td><td>${nf(d.workers)}</td><td>${p1(d.share)}%</td></tr>`).join('')+'</tbody>';
   document.getElementById('paradox').innerHTML=`<p class="callout"><b>The car paradox.</b> Castle Donington is a dormitory village with few workers of its own. The jobs on its northern edge are taken by people who drive in. Of Long Eaton's workers from households without a car, ${p1(W.cd_nocar)}% work there, against ${p1(W.cd_twocar)}% from two-car households. They are the people least able to afford a car, travelling to the jobs hardest to reach without one.</p>`;
+  // the neighbours: where their people work, as stacked bars
+  const NB=D.neighbours,NS=[['own','Own town','--accent'],['le','Long Eaton','--c1'],['cd','North of Castle Donington','--c4'],['nottingham','Nottingham','--c2'],['derby','Derby','--c3'],['rest','Elsewhere, including nearby towns','--car']];
+  NB.forEach(t=>t.rest=t.local+t.other);
+  document.getElementById('nbleg').innerHTML=NS.map(([,n,c])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('');
+  const drawNb=()=>{const el=document.getElementById('nbchart'),Wd=Math.max(300,el.clientWidth-24),nar=Wd<620,lab=nar?0:190,row=nar?40:26,mg={l:lab+8,r:8,t:4,b:4},H=mg.t+mg.b+NB.length*row,x=v=>mg.l+v*(Wd-mg.l-mg.r);
+    let s=`<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Where people in Long Eaton and its neighbours work">`;
+    NB.forEach((t,i)=>{const y0=mg.t+i*row+(nar?16:3);let a=0;s+=`<text class="lab" ${nar?`x="${mg.l}" y="${y0-4}"`:`x="${mg.l-8}" y="${y0+13}" text-anchor="end"`} style="${t.town==='Long Eaton'?'font-weight:700':''}">${esc(t.town)}${t.broxtowe?' <tspan style="fill:var(--muted);font-weight:400">· Broxtowe</tspan>':''}</text>`;
+      NS.forEach(([k,n,c])=>{const v=t[k]/t.workers;if(v>0){s+=`<rect x="${x(a)}" y="${y0}" width="${Math.max(0,x(a+v)-x(a)-1.5)}" height="18" fill="var(${c})"><title>${esc(t.town)}: ${n} ${Math.round(100*v)}% (${nf(t[k])})</title></rect>`;
+        if(v>=.07)s+=`<text x="${x(a)+4}" y="${y0+13}" style="fill:var(--panel);font:600 10.5px var(--mono)">${Math.round(100*v)}%</text>`}a+=v})});
+    el.innerHTML=s+'</svg>'};
+  document.getElementById('nbtable').innerHTML=`<thead><tr><th>Town</th><th>Commuters</th><th>Work in own town</th><th>Work in Long Eaton</th><th>North of Castle Donington</th><th>Drive</th><th>Cycle</th><th>Bus</th></tr></thead><tbody>`+
+    NB.map(t=>`<tr><td>${esc(t.town)}${t.broxtowe?' <small style="color:var(--muted)">Broxtowe</small>':''}</td><td>${nf(t.workers)}</td><td>${p0(100*t.own/t.workers)}</td><td>${t.town==='Long Eaton'?'–':`${nf(t.le)} (${p0(100*t.le/t.workers)})`}</td><td>${nf(t.cd)} (${p0(100*t.cd/t.workers)})</td><td>${p1(t.drive)}%</td><td>${p1(t.bike)}%</td><td>${p1(t.bus)}%</td></tr>`).join('')+'</tbody>';
+  const into=NB.filter(t=>t.town!=='Long Eaton'),intoN=into.reduce((a,t)=>a+t.le,0),nb=n=>NB.find(t=>t.town===n);
+  document.getElementById('nbnote').innerHTML=`
+    <p class="callout"><b>The neighbours share Long Eaton's pattern.</b> Few people work in their own town: ${Math.round(Math.min(...into.filter(t=>t.town!=='Ilkeston').map(t=>100*t.own/t.workers)))}–${p0(Math.max(...into.filter(t=>t.town!=='Ilkeston').map(t=>100*t.own/t.workers)))} in the smaller towns, against Long Eaton's ${p0(100*NB[0].own/NB[0].workers)}. Work is scattered across Nottingham, Derby, the business parks and each other's towns, and ${Math.round(Math.min(...into.map(t=>t.drive)))}–${Math.round(Math.max(...into.map(t=>t.drive)))}% of commuters drive. Beeston is the exception, with ${p1(nb('Beeston and Chilwell').bike)}% cycling, the tram and a big share working in Nottingham.</p>
+    <p><b>Long Eaton is one of their destinations.</b> ${nf(intoN)} people from these towns work in Long Eaton, ${nf(nb('Sandiacre').le)} of them from Sandiacre (${p0(100*nb('Sandiacre').le/nb('Sandiacre').workers)} of its commuters) and ${nf(nb('Breaston and Draycott').le)} from Breaston and Draycott (${p0(100*nb('Breaston and Draycott').le/nb('Breaston and Draycott').workers)}). Stapleford and Toton send ${nf(nb('Stapleford').le+nb('Toton and Chilwell West').le)} between them, along Toton Lane and Nottingham Road.</p>
+    <p><b>So the network serves them too.</b> Paths into the Market Place (Nottingham Road, Derby Road and Wilsthorpe Road), with links north along Toton Lane to Stapleford and over the Erewash to Sandiacre, would carry people into Long Eaton's jobs as well as out of it. The Castle Donington paths serve the ${nf(into.reduce((a,t)=>a+t.cd,0))} neighbours who work there too.</p>`;
   // where the jobs went: a schematic map from lat/lon
   const HI=D.history,DEST=Object.fromEntries(W.dest.map(d=>[d.place,d.workers]));
   document.getElementById('jobleg').innerHTML=`<span><i style="background:none;border:2px dashed var(--muted);border-radius:50%"></i>Closed works, a short ride from home</span><span><i style="background:var(--c4)"></i>Today's destination (arrow width: workers)</span><span><i style="background:var(--car);height:4px"></i>Motorway and trunk roads</span><span><i style="background:var(--c3);border-radius:50%"></i>Peak-hour pinch points</span>`;
@@ -569,8 +594,8 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
     <li>The Long Eaton–Castle Donington cycle link study (October 2026) for journey times, the deprived areas and the predictions.</li>
     <li>Side-road zebra trials (TRL, Greater Manchester 2021; Welsh Government 2023); Manchester's CYCLOPS junctions (TfGM); Cambridge's Fendon Road roundabout.</li>
     <li>Written up as a Markdown page too: <a href="https://github.com/KevinMayfield/CycleStats/blob/main/LONG-EATON.md">LONG-EATON.md</a>.</li></ul>`;
-  drawJobs();drawCorr();drawPct();drawTrips();drawRoads();
-  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawJobs();drawCorr();drawPct();drawTrips();drawRoads()},150)});
+  drawNb();drawJobs();drawCorr();drawPct();drawTrips();drawRoads();
+  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawNb();drawJobs();drawCorr();drawPct();drawTrips();drawRoads()},150)});
 }).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/longeaton.json (${esc(e.message)})</span></div>`});
 </script>
 </body>

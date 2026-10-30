@@ -105,6 +105,29 @@ edge are taken by people who drive in.
 
 These are the people least able to afford a car, travelling to the jobs that are hardest to reach without one.
 
+### The neighbours: the same pattern, and Long Eaton is a destination
+
+Sandiacre, the Broxtowe towns, Breaston and Ilkeston share Long Eaton's pattern (Census 2021):
+
+| Town | Commuters | Work in own town | Work in Long Eaton | North of Castle Donington | Drive | Cycle | Bus |
+|---|---|---|---|---|---|---|---|
+| Long Eaton | 12,553 | 28% | – | 1,179 (9%) | 69.5% | 4.3% | 6.2% |
+| Sandiacre | 2,425 | 8% | **351 (14%)** | 133 (5%) | 75.7% | 2.5% | 6.4% |
+| Stapleford (Broxtowe) | 4,342 | 10% | 321 (7%) | 147 (3%) | 69.9% | 3.1% | 7.2% |
+| Toton and Chilwell West (Broxtowe) | 4,006 | 9% | 321 (8%) | 135 (3%) | 68.2% | 4.3% | 5.4% |
+| Beeston and Chilwell (Broxtowe) | 8,495 | 17% | 301 (4%) | 196 (2%) | 60.9% | 7.2% | 7.1% |
+| Breaston and Draycott | 1,558 | 7% | **247 (16%)** | 116 (7%) | 79.0% | 3.4% | 4.1% |
+| Ilkeston | 12,087 | 31% | 712 (6%) | 381 (3%) | 72.2% | 2.0% | 5.1% |
+
+- **Few people work in their own town.** In the smaller towns it is 7–17%; work is scattered across Nottingham, Derby,
+  the business parks and each other's towns.
+- **Most drive.** 61–79% of commuters drive. Beeston is the exception, with the tram, 7.2% cycling and a big share
+  working in Nottingham.
+- **Long Eaton is one of their destinations.** 2,253 people from these towns work in Long Eaton, including 14% of
+  Sandiacre's commuters and 16% of Breaston and Draycott's.
+- **So the network carries people in as well as out.** Paths into the Market Place, with links north along Toton Lane
+  to Stapleford and over the Erewash to Sandiacre, serve them too.
+
 ### The Nottingham Road corridor
 
 The A6005 runs east from the Market Place along Nottingham Road, past Toton and Chilwell, into Beeston and on to
