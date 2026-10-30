@@ -37,8 +37,11 @@ TRIPS = [dict(area='A · Coniston Road', decile=1, car=15, bus=50, bike=37, path
 # Propensity to Cycle Tool, 2011 base: commuters in the six most deprived areas, and the two secondary schools
 COMMUTE = dict(workers=3943, rows=[('2011 Census', 287, 2238), ('Government Target', 469, 2140), ('Go Dutch', 1118, 1811),
                                    ('Go Dutch with e-bikes', 1279, 1698)])
-SCHOOLS = [dict(name='The Long Eaton School', pupils=1287, cycle2011=179, target=263, dutch=1013, driven=[53, 11], within5=94),
-           dict(name='Wilsthorpe School', pupils=824, cycle2011=76, target=126, dutch=637, driven=[80, 15], within5=97)]
+# secondary schools on the network and the Nottingham Road corridor: (PCT school name, name shown, town)
+SCHOOL_LIST = [('The Long Eaton School', 'The Long Eaton School', 'Long Eaton'), ('Wilsthorpe Community School', 'Wilsthorpe School', 'Long Eaton'),
+               ('Chilwell School', 'Chilwell School', 'Chilwell'), ('George Spencer Academy', 'George Spencer Academy', 'Stapleford and Toton'),
+               ('Friesland School', 'Friesland School', 'Sandiacre')]
+PCT_SCHOOLS = 'https://media.githubusercontent.com/media/npct/pct-outputs-regional-notR/master/school/lsoa/{}/d_attributes.csv'
 SCHOOL_COMPARE = [('All English secondaries', 3.8), ('Flat, compact English secondaries', 7.0), ('Derbyshire and Derby', 2.3),
                   ('The Long Eaton School', 13.9), ('Wilsthorpe School', 9.2), ('Cambridge', 48.7)]
 # the proposed paths: (number, name, length km, what it is, OpenStreetMap test on tags and the way's middle point)
@@ -80,6 +83,24 @@ SECONDARY = ('The Long Eaton School', 'Wilsthorpe School', 'Trent College', 'Chi
              'Alderman White School', 'Friesland School', 'Castle Donington College', 'Bramcote College')
 JOBS = ('Willow Farm Business Park', 'Trent Lane Industrial Estate', 'SEGRO East Midlands Gateway', 'East Midlands Airport',
         'East Midlands Distribution Centre', 'Beeston Business Park', 'Boots PLC')
+
+
+def pct_schools():
+    """Propensity to Cycle Tool school data (2011 school census) for the secondaries in SCHOOL_LIST"""
+    rows = {}
+    for region in ('derbyshire', 'nottinghamshire'):
+        path = os.path.join(RAW, 'pct', f'{region}_school_d.csv')
+        if not os.path.exists(path):
+            open(path, 'wb').write(urllib.request.urlopen(urllib.request.Request(PCT_SCHOOLS.format(region), headers={'User-Agent': 'CycleStats'}), timeout=300).read())
+        for r in csv.DictReader(open(path)): rows[r['schoolname']] = r
+    num = lambda v: float(v) if v not in ('', 'NA') else 0.0
+    out = []
+    for key, name, town in SCHOOL_LIST:
+        r = rows[key]; n = num(r['all'])
+        out.append(dict(name=name, town=town, pupils=round(n), cycle2011=round(num(r['bicycle'])), target=round(num(r['govtarget_slc'])),
+                        cambridge=round(num(r['cambridge_slc'])), dutch=round(num(r['dutch_slc'])), driven=[round(num(r['car'])), round(num(r['dutch_sld']))],
+                        within5=round(num(r['perc_rf_dist_u5km'])), slope=round(num(r['avslope_perc_u5km']), 2)))
+    return out
 
 
 def lsoa_town():
@@ -328,7 +349,7 @@ def main():
     out = dict(town=dict(cycle11=T['cycle11'], cycle21=T['cycle21'], dutch=T['dutch'], slope=T['slope'], travel=T['travel'], pred=P['pred'], local=P['local'],
                          women=PE.get('women'), f=PE.get('f'), f_pred=P.get('f_pred'), skew=PE.get('skew'), risk=PE.get('rider_index'), pit_km=6.8),
                travel=travel(lb), work=work(msoa_towns(lb)), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
-               schools=SCHOOLS, school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
+               schools=pct_schools(), school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
     json.dump(out, open(os.path.join(DATA, 'longeaton.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k not in ('paths', 'extend', 'places', 'crashes', 'corridor')}, indent=1)[:2500])
     print('roads', out['roads']['totals'], out['roads']['serious']); [print('  ', r) for r in out['roads']['rows']]

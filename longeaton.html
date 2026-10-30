@@ -367,11 +367,13 @@ table.lt td.l{text-align:left}
   </section>
 
   <section>
-    <div class="sh"><h2>Children and school</h2><p>Both Long Eaton secondaries sit on the proposed network. In 2011, the last year the school census asked how pupils travelled, their pupils cycled far more than almost anywhere in England.</p></div>
+    <div class="sh"><h2>Children and school</h2><p>Five secondary schools sit on the proposed network and the Nottingham Road corridor: The Long Eaton School and Wilsthorpe in Long Eaton, Chilwell School, George Spencer Academy in Stapleford and Toton, and Friesland School in Sandiacre. The figures are from 2011, the last year the school census asked how pupils travelled.</p></div>
     <div class="two">
       <div><h3>Pupils cycling to secondary school, 2011</h3><div class="bars" id="schoolcmp"></div></div>
-      <div><h3>What a safe network could mean (Propensity to Cycle Tool)</h3><div class="tw"><table class="lt" id="schools"></table></div><div class="note" id="kidsnote"></div></div>
+      <div class="note" id="kidsnote"></div>
     </div>
+    <h3>What a safe network could mean (Propensity to Cycle Tool)</h3>
+    <div class="tw"><table class="lt" id="schools"></table></div>
   </section>
 
   <section>
@@ -396,7 +398,7 @@ const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const p1=v=>(+v).toFixed(1),nf=v=>Math.round(v).toLocaleString('en-GB'),p0=v=>Math.round(v)+'%';
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
-const bars=(el,rows,mx,col,fmt)=>{document.getElementById(el).innerHTML=rows.map(([lab,v,c])=>`<div class="brow"><span>${lab}</span><div class="track2" role="img" aria-label="${esc(lab)}: ${fmt(v)}"><div class="bar" style="width:${Math.max(.5,v/mx*85)}%;background:var(${c||col})"></div><div class="val" style="left:calc(${Math.max(.5,v/mx*85)}% + 6px)">${fmt(v)}</div></div></div>`).join('')};
+const bars=(el,rows,mx,col,fmt)=>{document.getElementById(el).innerHTML=rows.map(([lab,v,c])=>`<div class="brow"><span>${lab}</span><div class="track2" role="img" aria-label="${esc(lab.replace(/<[^>]+>/g,''))}: ${fmt(v)}"><div class="bar" style="width:${Math.max(.5,v/mx*85)}%;background:var(${c||col})"></div><div class="val" style="left:calc(${Math.max(.5,v/mx*85)}% + 6px)">${fmt(v)}</div></div></div>`).join('')};
 fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(D=>{
   const T=D.town,K=D.crashes,W=D.work,tr=D.trips,A=tr[0],cor=W.corridor,corTot=cor.reduce((a,c)=>a+c.out+c.inn,0),corMax=Math.max(...D.corridor.map(p=>p.now)),corDutch=Math.max(...D.corridor.map(p=>p.dutch)),corE=Math.max(...D.corridor.map(p=>p.ebike));
   const typ=k=>(K.types.find(t=>t.type===k)||{share:0}).share,turn=typ('Driver turning right across the cyclist')+typ('Driver turning left across the cyclist');
@@ -534,16 +536,16 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
     el.innerHTML=s+'</svg>'};
   document.getElementById('tripnote').innerHTML=`<p class="callout"><b>The bus is slowest from the poorest streets.</b> The my15 is the only direct service: every 30 minutes in the daytime, hourly before 06:00 and after 19:00, just when shifts start and finish. From Coniston Road it takes ${A.bus} minutes against ${A.car} by car.</p><p><b>The new paths bring cycling close to the car.</b> A pedal bike takes ${Math.min(...tr.map(t=>t.path))}–${Math.max(...tr.map(t=>t.path))} minutes and an e-bike ${Math.min(...tr.map(t=>t.ebike))}–${Math.max(...tr.map(t=>t.ebike))}, against ${Math.min(...tr.map(t=>t.car))}–${Math.max(...tr.map(t=>t.car))} by car, and quicker than the bus from every area. But time is not the main barrier: today's route uses 30–40 mph roads, Harrington Bridge and the A50 roundabouts, often in the dark. What the paths change most is whether people will ride at all.</p>`;
   // schools
-  const SC=D.school_compare;bars('schoolcmp',SC.map(([n,v])=>[n,v,n.startsWith('The Long')||n.startsWith('Wilsthorpe')?'--c1':'--car']),50,'--car',v=>p1(v)+'%');
-  const S=D.schools;
-  document.getElementById('schools').innerHTML=`<thead><tr><th></th>${S.map(s=>`<th>${esc(s.name)}</th>`).join('')}</tr></thead><tbody>
-    <tr><td>Pupils, 2011</td>${S.map(s=>`<td>${nf(s.pupils)}</td>`).join('')}</tr>
-    <tr><td>Live within 5 km</td>${S.map(s=>`<td>${s.within5}%</td>`).join('')}</tr>
-    <tr><td>Cycling, 2011</td>${S.map(s=>`<td>${p0(100*s.cycle2011/s.pupils)} (${s.cycle2011})</td>`).join('')}</tr>
-    <tr><td>Government Target</td>${S.map(s=>`<td>${p0(100*s.target/s.pupils)}</td>`).join('')}</tr>
-    <tr><td>Go Dutch</td>${S.map(s=>`<td>${p0(100*s.dutch/s.pupils)} (${nf(s.dutch)})</td>`).join('')}</tr>
-    <tr><td>Driven to school, 2011 → Go Dutch</td>${S.map(s=>`<td>${s.driven[0]} → ${s.driven[1]}</td>`).join('')}</tr></tbody>`;
-  document.getElementById('kidsnote').innerHTML=`<p class="callout"><b>Children are being hurt.</b> ${K.children} of the cyclists injured in Long Eaton in 2021–25 were under 16, ${K.children_school_run} of them at school-run times. Wilsthorpe Island, the roundabout at Wilsthorpe School's gate, is a hotspot.</p><p>Even against other flat, compact schools, Long Eaton's pupils cycled about twice as much in 2011, with no protected network. No school-level travel figures have been collected since. Hands-up surveys or bike-rack counts at both schools would give a current baseline.</p>`;
+  const S=D.schools,sh=s=>100*s.cycle2011/s.pupils,NAT=D.school_compare.filter(([n])=>!S.some(s=>s.name===n));
+  bars('schoolcmp',[...S.map(s=>[`${s.name} <small style="color:var(--muted)">${esc(s.town)}</small>`,sh(s),'--c1']),...NAT.map(([n,v])=>[n,v,'--car'])],50,'--car',v=>p1(v)+'%');
+  document.getElementById('schools').innerHTML=`<thead><tr><th>School</th><th>Pupils, 2011</th><th>Live within 5 km</th><th>Route gradient within 5 km</th><th>Cycling, 2011</th><th>Government Target</th><th>Cambridge</th><th>Go Dutch</th><th>Driven to school, 2011 → Go Dutch</th></tr></thead><tbody>`+
+    S.map(s=>`<tr><td>${esc(s.name)}<br><small style="color:var(--muted)">${esc(s.town)}</small></td><td>${nf(s.pupils)}</td><td>${s.within5}%</td><td>${p1(s.slope)}%</td><td>${p1(sh(s))}% (${s.cycle2011})</td><td>${p0(100*s.target/s.pupils)}</td><td>${p0(100*s.cambridge/s.pupils)}</td><td>${p0(100*s.dutch/s.pupils)} (${nf(s.dutch)})</td><td>${s.driven[0]} → ${s.driven[1]}</td></tr>`).join('')+
+    `<tr><td><b>All five</b></td><td><b>${nf(S.reduce((a,s)=>a+s.pupils,0))}</b></td><td></td><td></td><td><b>${p1(100*S.reduce((a,s)=>a+s.cycle2011,0)/S.reduce((a,s)=>a+s.pupils,0))}% (${S.reduce((a,s)=>a+s.cycle2011,0)})</b></td><td></td><td></td><td><b>${p0(100*S.reduce((a,s)=>a+s.dutch,0)/S.reduce((a,s)=>a+s.pupils,0))} (${nf(S.reduce((a,s)=>a+s.dutch,0))})</b></td><td><b>${S.reduce((a,s)=>a+s.driven[0],0)} → ${S.reduce((a,s)=>a+s.driven[1],0)}</b></td></tr></tbody>`;
+  const sn=n=>S.find(s=>s.name===n)||{};const cw=sn('Chilwell School'),gs=sn('George Spencer Academy'),fr=sn('Friesland School');
+  document.getElementById('kidsnote').innerHTML=`<p class="callout"><b>Where the routes are flat, children cycle.</b> Chilwell School (${p1(sh(cw))}%) and The Long Eaton School (${p1(sh(S[0]))}%) sit on the flat Trent valley floor, with routes averaging under 1% gradient, and were in England's top tenth. George Spencer (${p1(sh(gs))}%) and Friesland (${p1(sh(fr))}%) draw from the slopes up towards Stapleford, Bramcote and Stanton, at ${p1(gs.slope)}% and ${p1(fr.slope)}%. Friesland also has fewer pupils within 5 km (${fr.within5}%) and more driven to school (${fr.driven[0]}) than any of the others.</p>
+    <p><b>Even the hillier schools could reach high levels.</b> Under Go Dutch, the Propensity to Cycle Tool puts George Spencer at ${p0(100*gs.dutch/gs.pupils)} and Friesland at ${p0(100*fr.dutch/fr.pupils)}. Across all five schools that is ${nf(S.reduce((a,s)=>a+s.dutch,0))} pupils cycling instead of ${S.reduce((a,s)=>a+s.cycle2011,0)}, and ${S.reduce((a,s)=>a+s.driven[0]-s.driven[1],0)} fewer driven.</p>
+    <p><b>Children are being hurt.</b> ${K.children} of the cyclists injured in Long Eaton in 2021–25 were under 16, ${K.children_school_run} of them at school-run times. Wilsthorpe Island, the roundabout at Wilsthorpe School's gate, is a hotspot.</p>
+    <p>No school-level travel figures have been collected since 2011. Hands-up surveys or bike-rack counts at the five schools would give a current baseline.</p>`;
   // commute predictions
   const CM=D.commute;
   document.getElementById('commute').innerHTML=`<thead><tr><th>Scenario</th><th>Cycle to work</th><th>Drive to work</th><th>Fewer drivers</th></tr></thead><tbody>`+CM.rows.map(([n,c,d],i)=>`<tr><td>${esc(n)}</td><td>${p0(100*c/CM.workers)} (${nf(c)})</td><td>${p0(100*d/CM.workers)} (${nf(d)})</td><td>${i?nf(CM.rows[0][2]-d):''}</td></tr>`).join('')+'</tbody>';

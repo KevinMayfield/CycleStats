@@ -175,6 +175,25 @@ secondary's routes average 1.6%.
 | Cambridge, England's highest | 48.7% |
 | The two schools at Dutch rates (Go Dutch) | 77–79% |
 
+**Three more secondaries sit on the Nottingham Road corridor** (Propensity to Cycle Tool, 2011 school census):
+
+| School | Town | Pupils | Route gradient within 5 km | Cycling, 2011 | Go Dutch | Driven, 2011 → Go Dutch |
+|---|---|---|---|---|---|---|
+| The Long Eaton School | Long Eaton | 1,287 | 0.3% | 13.9% (179) | 79% | 53 → 11 |
+| Wilsthorpe School | Long Eaton | 824 | 0.4% | 9.2% (76) | 77% | 80 → 15 |
+| Chilwell School | Chilwell | 1,059 | 0.8% | **14.2% (150)** | 83% | 83 → 18 |
+| George Spencer Academy | Stapleford and Toton | 1,359 | 1.9% | 5.4% (73) | 70% | 170 → 55 |
+| Friesland School | Sandiacre | 1,351 | 2.7% | **0.9% (12)** | 64% | 324 → 103 |
+| **All five** | | **5,880** | | **8.3% (490)** | **74% (4,341)** | **710 → 202** |
+
+- **Where the routes are flat, children cycle.** Chilwell School and The Long Eaton School sit on the flat Trent
+  valley floor and were in England's top tenth.
+- **The hillier schools cycle less.** George Spencer and Friesland draw from the slopes up towards Stapleford,
+  Bramcote and Stanton.
+- **Friesland stands out.** It also has the fewest pupils within 5 km (76%) and the most driven to school (324).
+- **Even the hillier schools could reach high levels.** Go Dutch puts George Spencer at 70% and Friesland at 64%.
+  Across the five schools that is 4,341 pupils cycling instead of 490, and about 500 fewer driven.
+
 Even against other flat, compact schools, Long Eaton's pupils cycled about twice as much, with no protected network.
 Nationally, cycling to school has since fallen to about 2% of trips by 11–16-year-olds (National Travel Survey 2024).
 No school-level figures have been collected since 2011.
