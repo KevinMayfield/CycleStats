@@ -97,6 +97,10 @@ CROSSINGS = [dict(river='Trent', name='Cavendish Bridge (B5010, old A6) and the 
 STATIONS = [dict(name='Long Eaton', lat=52.8848, lon=-1.2876), dict(name='Attenborough', lat=52.9065, lon=-1.2310),
             dict(name='Beeston', lat=52.9206, lon=-1.2079), dict(name='East Midlands Parkway', lat=52.8627, lon=-1.2629),
             dict(name='Spondon', lat=52.9124, lon=-1.4110), dict(name='Toton Lane tram', lat=52.9165, lon=-1.2636, tram=True)]
+# National Cycle Route 6 against the direct road route, Long Eaton Market Place to Beeston station: NCN 6 measured
+# along the OpenStreetMap route relation (raw/east-midlands/ncn6.json), the direct route by the OSRM bike profile
+# (routing.openstreetmap.de), October 2026
+NCN6 = dict(ncn_km=7.0, direct_km=5.7, straight_km=4.9)
 SECONDARY = ('The Long Eaton School', 'Wilsthorpe School', 'Trent College', 'Chilwell School', 'George Spencer Academy',
              'Alderman White School', 'Friesland School', 'Castle Donington College', 'Bramcote College')
 JOBS = ('Willow Farm Business Park', 'Trent Lane Industrial Estate', 'SEGRO East Midlands Gateway', 'East Midlands Airport',
@@ -291,6 +295,29 @@ def m1_and_rail(lb, mt):
                 cd_residents=dict(cdres), rail=rail)
 
 
+def ncn6_lines():
+    """National Cycle Route 6 between Long Eaton and Nottingham, from OpenStreetMap (raw/east-midlands/ncn6.json)"""
+    path = os.path.join(RAW, 'east-midlands', 'ncn6.json')
+    if not os.path.exists(path): return []
+    return [[[round(g['lat'], 5), round(g['lon'], 5)] for g in e['geometry'][::2] + e['geometry'][-1:]]
+            for e in json.load(open(path))['elements'] if e['type'] == 'way' and e.get('geometry') and e['geometry'][0]['lon'] > -1.30]
+
+
+def counts():
+    """DfT cycle counts (AADF) on the A6005 between Long Eaton and Beeston: the latest year, and the last year counted"""
+    rows = [r for r in csv.DictReader(open(os.path.join(RAW, 'east-midlands', 'aadf.csv'))) if r['road_name'] == 'A6005']
+    out = {}
+    for r in rows:
+        try: la, lo = float(r['latitude']), float(r['longitude'])
+        except ValueError: continue
+        if not (52.895 < la < 52.92 and -1.275 < lo < -1.225): continue
+        c = out.setdefault(r['count_point_id'], dict(lat=la, lon=lo, stretch=f"{r['start_junction_road_name']} to {r['end_junction_road_name']}", latest=None, counted=None))
+        y, v = int(r['year']), int(r['pedal_cycles'])
+        if not c['latest'] or y > c['latest'][0]: c['latest'] = (y, v)
+        if r['estimation_method'] == 'Counted' and (not c['counted'] or y > c['counted'][0]): c['counted'] = (y, v)
+    return sorted(out.values(), key=lambda c: c['lon'])
+
+
 def corridor():
     """PCT commuters per day along the A6005 from Long Eaton to Beeston, every 400 m or so"""
     roads = [e for e in json.load(open(os.path.join(RAW, 'east-midlands', 'osm', 'roads.json')))['elements']
@@ -469,7 +496,8 @@ def main():
     out = dict(town=dict(cycle11=T['cycle11'], cycle21=T['cycle21'], dutch=T['dutch'], slope=T['slope'], travel=T['travel'], pred=P['pred'], local=P['local'],
                          women=PE.get('women'), f=PE.get('f'), f_pred=P.get('f_pred'), skew=PE.get('skew'), risk=PE.get('rider_index'), pit_km=6.8),
                travel=travel(lb), work=work(mt), neighbours=neighbours(lb, mt), m1=m1_and_rail(lb, mt),
-               rivers=rivers(), crossings=CROSSINGS, stations=STATIONS, corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
+               rivers=rivers(), crossings=CROSSINGS, stations=STATIONS,
+               ncn6=dict(NCN6, lines=ncn6_lines()), counts=counts(), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
                schools=pct_schools(), school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
     json.dump(out, open(os.path.join(DATA, 'longeaton.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k not in ('paths', 'extend', 'places', 'crashes', 'corridor')}, indent=1)[:2500])

@@ -147,6 +147,19 @@ Nottingham. Toton Lane branches north to Stapleford.
 - **Secondary schools along the way** add children's trips: Chilwell School, George Spencer Academy, Alderman White
   School, Bramcote College and Trent College.
 
+**Riders already choose the direct road over the signed route.**
+
+- **National Cycle Route 6** links Long Eaton with Beeston and Nottingham along towpaths, the Trent and back streets.
+  It is about 7.0 km from the Market Place to Beeston station, against 5.7 km by the direct route: 23% further.
+- **Strava data** shows riders using NCN 6 and the Trent path less than direct roads like Nottingham Road. Strava
+  over-represents sport and leisure riders and misses most commuters and school children, but it points the same way
+  as DfT's roadside counts.
+- **DfT's roadside counts** put about 200 cycles a day on the A6005 Nottingham Road in Long Eaton (240 when last
+  counted by hand, in 2019) and about 286 through Chilwell (393 when last counted, in 2020). That is on a road with
+  no protection.
+- **People want the direct route.** The Netherlands' design guidance and the UK's LTN 1/20 both put directness first
+  for everyday cycling. A detour that suits a leisure ride loses commuters and school children.
+
 A protected Nottingham Road (path 1) is the first link of that corridor. It also joins the Danelaw Cycle Network's
 Derby–Nottingham route.
 
