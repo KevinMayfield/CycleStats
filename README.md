@@ -2,6 +2,8 @@
 
 **[What the data says](FINDINGS.md)**: a summary of the findings and the Danelaw Cycle Network.
 
+**[Long Eaton: safe routes to work and school](LONG-EATON.md)**: a case study and proposal for protected routes, Dutch-style roundabouts and CYCLOPS junctions linking Long Eaton's homes and schools with the jobs north of Castle Donington.
+
 An interactive map of cycling across the North of England (Yorkshire, the North East, Tees Valley, Cumbria, Lancashire, Greater Manchester, the Liverpool City Region and Cheshire & Warrington), Lincolnshire, Nottinghamshire, Derbyshire, Leicestershire and Rutland, plus Cambridgeshire & Peterborough and Norfolk & Suffolk: seventeen areas, with an area picker, several views for each and a neighbourhood layer for deprivation, housing condition and car ownership, plus a [summary page](https://kevinmayfield.github.io/CycleStats/summary.html) that ranks across every area:
 
 | Area | Boundary |
