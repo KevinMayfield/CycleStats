@@ -218,6 +218,25 @@ The trains serve Derby and Nottingham city centres, Leicester and London, and th
 places local people work are by the motorway junctions, and none of them has a passenger station: Castle Donington,
 the airport and the Gateway. The Castle Donington line carries freight only.
 
+**The jobs moved; the ways of getting to them didn't.** Census 2021 home-to-workplace flows:
+
+| Place | Jobs there | Filled from elsewhere | Working residents | Work in their own place |
+|---|---|---|---|---|
+| Castle Donington area (airport, business parks, Gateway) | 17,467 | 93% | 4,224 | 27% |
+| Long Eaton | 9,278 | 62% | 12,553 | 28% |
+| Beeston and Chilwell | 8,979 | 84% | 8,495 | 17% |
+| Stapleford | 2,299 | 80% | 4,342 | 10% |
+
+- **Jobs used to be close to home.** When Toton Sidings and Stanton Ironworks were the big employers, the work was a
+  walk or a short ride away.
+- **Their replacement was built for the car.** The new work went to the motorway junctions:
+  - The one direct bus, the my15, runs hourly at shift times.
+  - The nearest station, East Midlands Parkway, is about 4 km from the Gateway.
+  - There is no protected cycle route across the Trent.
+- **So each journey is now a car trip** across the same few crossings, and 61–76% of commuters from these towns
+  drive.
+- **The web page has an interactive version.** It maps commuting to or from each of the four places.
+
 **What it means for the proposal.** A protected path over Harrington Bridge would be the only way across those 12 km
 of Trent that isn't a motorway. With the B6540 path and the A50 junction, it gives the jobs north of Castle Donington
 a way in that doesn't add to the queues at junctions 24 and 25.

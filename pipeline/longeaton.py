@@ -2,6 +2,8 @@
 
 Brings together, for Long Eaton (ONS built-up area E63002115):
   travel     Census 2021 method of travel (TS061) and distance to work (TS058) for its LSOAs
+  flows      commuting to and from Castle Donington's job sites, Long Eaton, Beeston and Stapleford, grouped into towns
+             and council areas, with flow-weighted centres from the LSOA outlines in raw/<area>/lsoa.geojson
   m1         commuting that has to cross the Trent or use the M1 (Census 2021 flows), who fills the jobs north of
              Castle Donington, and train and tram use (TS061); river crossings and stations for a diagram, with river
              centrelines from OpenStreetMap cached in raw/east-midlands/rivers.json
@@ -318,6 +320,54 @@ def counts():
     return sorted(out.values(), key=lambda c: c['lon'])
 
 
+def flows(lb, mt):
+    """commuting to and from four places (Census 2021 home-to-workplace flows by MSOA), each grouped into nearby towns
+    and council areas, with a flow-weighted centre for each group for the map"""
+    ls_msoa = {}
+    for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
+        if r[0].startswith('E01'): ls_msoa[r[0]] = r[1][:-1]
+    code = {r['geography']: r['geography code'] for r in csv.DictReader(io.TextIOWrapper(
+        zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts037.zip')).open('census2021-ts037-msoa.csv'), encoding='utf-8-sig'))}
+    pts = collections.defaultdict(list)   # MSOA centres from the LSOA outlines we hold
+    for a in ('east-midlands', 'derbyshire', 'nottinghamshire', 'leicestershire', 'south-yorkshire', 'sheffield'):
+        f = os.path.join(RAW, a, 'lsoa.geojson')
+        if not os.path.exists(f): continue
+        for ft in json.load(open(f))['features']:
+            g = ft['geometry']; ring = g['coordinates'][0] if g['type'] == 'Polygon' else g['coordinates'][0][0]
+            m = code.get(ls_msoa.get(ft['properties'].get('LSOA21CD')))
+            if m: pts[m].append((sum(p[1] for p in ring) / len(ring), sum(p[0] for p in ring) / len(ring)))
+    centre = {m: (sum(a for a, _ in v) / len(v), sum(b for _, b in v) / len(v)) for m, v in pts.items()}
+    toton = {'E02005862', 'E02005864'}
+    cdon = {'North West Leicestershire 001', 'North West Leicestershire 002'}
+    towns = {LE: 'Long Eaton', 'E63002057': 'Beeston and Chilwell', 'E63002042': 'Stapleford', 'E63002062': 'Sandiacre',
+             'E63001997': 'Ilkeston', 'E63002098': 'Breaston and Draycott'}
+    def group(m, lab):
+        if lab in cdon: return 'Castle Donington area'
+        if m in toton: return 'Toton and Chilwell West'
+        t = towns.get(mt.get(m))
+        if t: return t
+        l = lab.rsplit(' ', 1)[0]
+        return {'Erewash': 'Rest of Erewash', 'Broxtowe': 'Rest of Broxtowe', 'North West Leicestershire': 'Rest of North West Leicestershire'}.get(l, l)
+    places = {'Castle Donington area': 'Castle Donington area', 'Long Eaton': 'Long Eaton', 'Beeston': 'Beeston and Chilwell', 'Stapleford': 'Stapleford'}
+    acc = {(p, d): collections.defaultdict(lambda: [0, 0.0, 0.0, 0]) for p in places for d in ('to', 'from')}
+    for r in csv.DictReader(open(os.path.join(RAW, 'od', 'ODWP01EW_MSOA.csv'))):
+        if r['Place of work indicator (4 categories) code'] != '3': continue
+        h, w, n = r['Middle layer Super Output Areas code'], r['MSOA of workplace code'], int(r['Count'])
+        gh, gw = group(h, r['Middle layer Super Output Areas label']), group(w, r['MSOA of workplace label'])
+        for p, g in places.items():
+            for d, here, there, m in (('to', gw, gh, h), ('from', gh, gw, w)):
+                if here == g:
+                    e = acc[(p, d)][there]; e[0] += n
+                    if m in centre: e[1] += centre[m][0] * n; e[2] += centre[m][1] * n; e[3] += n
+    out = {}
+    for (p, d), G in acc.items():
+        total = sum(v[0] for v in G.values()); here = places[p]
+        rows = sorted(([k, v[0], round(v[1] / v[3], 4) if v[3] else None, round(v[2] / v[3], 4) if v[3] else None] for k, v in G.items()), key=lambda x: -x[1])
+        out[f'{p}|{d}'] = dict(place=p, direction=d, total=total, own=next((r[1] for r in rows if r[0] == here), 0),
+                               rows=[r for r in rows if r[0] != here][:12])
+    return out
+
+
 def corridor():
     """PCT commuters per day along the A6005 from Long Eaton to Beeston, every 400 m or so"""
     roads = [e for e in json.load(open(os.path.join(RAW, 'east-midlands', 'osm', 'roads.json')))['elements']
@@ -497,7 +547,8 @@ def main():
                          women=PE.get('women'), f=PE.get('f'), f_pred=P.get('f_pred'), skew=PE.get('skew'), risk=PE.get('rider_index'), pit_km=6.8),
                travel=travel(lb), work=work(mt), neighbours=neighbours(lb, mt), m1=m1_and_rail(lb, mt),
                rivers=rivers(), crossings=CROSSINGS, stations=STATIONS,
-               ncn6=dict(NCN6, lines=ncn6_lines()), counts=counts(), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
+               ncn6=dict(NCN6, lines=ncn6_lines()), counts=counts(),
+               flows=flows(lb, mt), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
                schools=pct_schools(), school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
     json.dump(out, open(os.path.join(DATA, 'longeaton.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k not in ('paths', 'extend', 'places', 'crashes', 'corridor')}, indent=1)[:2500])
