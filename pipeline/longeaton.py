@@ -2,6 +2,9 @@
 
 Brings together, for Long Eaton (ONS built-up area E63002115):
   travel     Census 2021 method of travel (TS061) and distance to work (TS058) for its LSOAs
+  m1         commuting that has to cross the Trent or use the M1 (Census 2021 flows), who fills the jobs north of
+             Castle Donington, and train and tram use (TS061); river crossings and stations for a diagram, with river
+             centrelines from OpenStreetMap cached in raw/east-midlands/rivers.json
   neighbours where people in Sandiacre, the Broxtowe towns, Breaston and Ilkeston work and how they travel, and how many
              work in Long Eaton (Census 2021 flows and TS061)
   work       Census 2021 home-to-workplace flows by MSOA (raw/od/ODWP01EW, ODWP14EW): where its people work, and the
@@ -81,6 +84,19 @@ HISTORY = dict(
            dict(name='A52', pts=[[52.920, -1.470], [52.914, -1.370], [52.917, -1.302], [52.930, -1.240], [52.952, -1.168]])],
     junctions=[dict(name='J24', lat=52.840, lon=-1.297), dict(name='J24A', lat=52.857, lon=-1.297), dict(name='J25', lat=52.917, lon=-1.302)],
     centre=dict(lat=52.8985, lon=-1.272))
+# road crossings of the rivers round Long Eaton (OpenStreetMap roads crossing the river centrelines; the M1 and A50
+# added by hand, as the road downloads leave out motorways) and the stations
+CROSSINGS = [dict(river='Trent', name='Cavendish Bridge (B5010, old A6) and the A50, Shardlow', lat=52.866, lon=-1.338),
+             dict(river='Trent', name='Harrington Bridge (B6540), Sawley', lat=52.873, lon=-1.297, key=True),
+             dict(river='Trent', name='M1, between junctions 24 and 25', lat=52.869, lon=-1.297, motorway=True),
+             dict(river='Trent', name='Clifton Bridge (A52), Nottingham', lat=52.924, lon=-1.165),
+             dict(river='Erewash', name='Nottingham Road (A6005), Toton', lat=52.903, lon=-1.252),
+             dict(river='Erewash', name='A52 Brian Clough Way and Station Road (B5010), Sandiacre', lat=52.921, lon=-1.283),
+             dict(river='Erewash', name='Stanton Gate', lat=52.940, lon=-1.281),
+             dict(river='Soar', name='A453 and Station Road, Kegworth', lat=52.850, lon=-1.267)]
+STATIONS = [dict(name='Long Eaton', lat=52.8848, lon=-1.2876), dict(name='Attenborough', lat=52.9065, lon=-1.2310),
+            dict(name='Beeston', lat=52.9206, lon=-1.2079), dict(name='East Midlands Parkway', lat=52.8627, lon=-1.2629),
+            dict(name='Spondon', lat=52.9124, lon=-1.4110), dict(name='Toton Lane tram', lat=52.9165, lon=-1.2636, tram=True)]
 SECONDARY = ('The Long Eaton School', 'Wilsthorpe School', 'Trent College', 'Chilwell School', 'George Spencer Academy',
              'Alderman White School', 'Friesland School', 'Castle Donington College', 'Bramcote College')
 JOBS = ('Willow Farm Business Park', 'Trent Lane Industrial Estate', 'SEGRO East Midlands Gateway', 'East Midlands Airport',
@@ -207,6 +223,72 @@ def neighbours(lb, mt):
     return [dict(town=t, broxtowe=t in ('Stapleford', 'Toton and Chilwell West', 'Beeston and Chilwell'), workers=D[t]['all'],
                  **{k: D[t][k] for k in ('own', 'le', 'cd', 'nottingham', 'derby', 'local', 'other')},
                  **{k: round(100 * M[t][k] / M[t]['all'], 1) for k in ('drive', 'bike', 'bus')}) for t in order]
+
+
+def rivers():
+    """river centrelines round Long Eaton from OpenStreetMap (Overpass), cached and thinned for the diagram"""
+    path = os.path.join(RAW, 'east-midlands', 'rivers.json')
+    if not os.path.exists(path):
+        import urllib.parse
+        q = '[out:json][timeout:180];way["waterway"="river"]["name"~"Trent|Erewash|Soar|Derwent"](52.80,-1.50,52.97,-1.14);out geom tags;'
+        d = urllib.request.urlopen(urllib.request.Request('https://overpass-api.de/api/interpreter', data=urllib.parse.urlencode({'data': q}).encode(),
+                                                          headers={'User-Agent': 'CycleStats'}), timeout=300).read()
+        open(path, 'wb').write(d)
+    out = []
+    for e in json.load(open(path))['elements']:
+        g = e.get('geometry') or []
+        out.append(dict(name=e['tags']['name'].replace('River ', ''), pts=[[round(p['lat'], 4), round(p['lon'], 4)] for p in g[::3] + g[-1:]]))
+    return out
+
+
+def m1_and_rail(lb, mt):
+    """commuting that has to use the M1 junctions or the Trent crossings, and how little goes by train (Census 2021)"""
+    toton = {'E02005862', 'E02005864'}
+    names = {LE: 'Long Eaton', 'E63002062': 'Sandiacre', 'E63002042': 'Stapleford', 'E63002057': 'Beeston and Chilwell',
+             'E63002098': 'Breaston and Draycott', 'E63002183': 'Castle Donington'}
+    town = lambda m: 'Toton and Chilwell West' if m in toton else names.get(mt.get(m))
+    lad = lambda lab: lab.rsplit(' ', 1)[0]
+    north = {'Long Eaton', 'Sandiacre', 'Stapleford', 'Beeston and Chilwell', 'Toton and Chilwell West', 'Breaston and Draycott'}
+    south = {'North West Leicestershire', 'Charnwood', 'Leicester', 'Blaby', 'Harborough', 'Hinckley and Bosworth', 'Oadby and Wigston', 'Melton', 'Rushcliffe', 'South Derbyshire'}
+    m1n = {'Amber Valley', 'Bolsover', 'Mansfield', 'Ashfield', 'Chesterfield', 'North East Derbyshire', 'Sheffield', 'Rotherham', 'Barnsley', 'Wakefield', 'Leeds', 'Bassetlaw'}
+    m1s = {'Charnwood', 'Leicester', 'Blaby', 'Harborough', 'Oadby and Wigston', 'Hinckley and Bosworth', 'West Northamptonshire', 'North Northamptonshire', 'Milton Keynes', 'Rugby'}
+    cd = ('North West Leicestershire 001', 'North West Leicestershire 002')
+    F, inflow, cdres = collections.Counter(), collections.Counter(), collections.Counter()
+    for r in csv.DictReader(open(os.path.join(RAW, 'od', 'ODWP01EW_MSOA.csv'))):
+        if r['Place of work indicator (4 categories) code'] != '3': continue
+        h, wl, n = town(r['Middle layer Super Output Areas code']), r['MSOA of workplace label'], int(r['Count'])
+        if wl in cd: inflow[lad(r['Middle layer Super Output Areas label'])] += n
+        if h in north:
+            F['workers'] += n
+            if wl in cd: F['cd'] += n
+            elif lad(wl) in south: F['south'] += n
+            if lad(wl) in m1n: F['m1n'] += n
+            if lad(wl) in m1s: F['m1s'] += n
+            if lad(wl) == 'Nottingham': F['nottingham'] += n
+            if lad(wl) == 'Derby': F['derby'] += n
+        if h == 'Castle Donington':
+            cdres['all'] += n; cdres['home'] += n if town(r['MSOA of workplace code']) == 'Castle Donington' else 0
+    ls_msoa = {}
+    for r in csv.reader(open(os.path.join(RAW, 'imd', 'imd2025.csv'), encoding='utf-8-sig')):
+        if r[0].startswith('E01'): ls_msoa[r[0]] = r[1][:-1]
+    code = {r['geography']: r['geography code'] for r in csv.DictReader(io.TextIOWrapper(
+        zipfile.ZipFile(os.path.join(RAW, 'industry', 'ts037.zip')).open('census2021-ts037-msoa.csv'), encoding='utf-8-sig'))}
+    z = zipfile.ZipFile(os.path.join(RAW, 'heritage', 'census2021-ts061.zip'))
+    rd = csv.reader(io.TextIOWrapper(z.open('census2021-ts061-lsoa.csv'), encoding='utf-8-sig')); h = next(rd)
+    ix = {k.replace('Method of travel to workplace: ', ''): i for i, k in enumerate(h)}; M = collections.defaultdict(collections.Counter)
+    tot = 'Total: All usual residents aged 16 years and over in employment the week before the census'
+    for r in rd:
+        m = code.get(ls_msoa.get(r[2])); t = 'Toton and Chilwell West' if m in toton else names.get(lb.get(r[2]))
+        if not t: continue
+        M[t]['com'] += int(r[ix[tot]]) - int(r[ix['Work mainly at or from home']])
+        M[t]['train'] += int(r[ix['Train']]); M[t]['tram'] += int(r[ix['Underground, metro, light rail, tram']])
+    eng = next(r for r in csv.reader(io.TextIOWrapper(z.open('census2021-ts061-ctry.csv'), encoding='utf-8-sig')) if r[1] == 'England')
+    com = int(eng[ix[tot]]) - int(eng[ix['Work mainly at or from home']])
+    rail = [dict(town=t, train=round(100 * M[t]['train'] / M[t]['com'], 1), trains=M[t]['train'], tram=round(100 * M[t]['tram'] / M[t]['com'], 1))
+            for t in ('Long Eaton', 'Beeston and Chilwell', 'Toton and Chilwell West', 'Stapleford', 'Sandiacre', 'Breaston and Draycott', 'Castle Donington')]
+    rail.append(dict(town='England', train=round(100 * int(eng[ix['Train']]) / com, 1), tram=round(100 * int(eng[ix['Underground, metro, light rail, tram']]) / com, 1)))
+    return dict(north=dict(F), inflow=dict(total=sum(inflow.values()), top=inflow.most_common(8), local=inflow['North West Leicestershire']),
+                cd_residents=dict(cdres), rail=rail)
 
 
 def corridor():
@@ -386,7 +468,8 @@ def main():
     mt = msoa_towns(lb)
     out = dict(town=dict(cycle11=T['cycle11'], cycle21=T['cycle21'], dutch=T['dutch'], slope=T['slope'], travel=T['travel'], pred=P['pred'], local=P['local'],
                          women=PE.get('women'), f=PE.get('f'), f_pred=P.get('f_pred'), skew=PE.get('skew'), risk=PE.get('rider_index'), pit_km=6.8),
-               travel=travel(lb), work=work(mt), neighbours=neighbours(lb, mt), corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
+               travel=travel(lb), work=work(mt), neighbours=neighbours(lb, mt), m1=m1_and_rail(lb, mt),
+               rivers=rivers(), crossings=CROSSINGS, stations=STATIONS, corridor=corridor(), crashes=crashes(lb), roads=roads(lb), trips=TRIPS, commute=COMMUTE,
                schools=pct_schools(), school_compare=SCHOOL_COMPARE, history=HISTORY, paths=paths, extend=extend, places=dict(schools=schools, jobs=jobs))
     json.dump(out, open(os.path.join(DATA, 'longeaton.json'), 'w'), separators=(',', ':'))
     print(json.dumps({k: v for k, v in out.items() if k not in ('paths', 'extend', 'places', 'crashes', 'corridor')}, indent=1)[:2500])
