@@ -28,5 +28,6 @@ python3 heritage.py > /dev/null && echo "   wrote data/heritage.json"   # downlo
 python3 industry.py > /dev/null && echo "   wrote data/industry.json"   # needs heritage.json; downloads Census tables and ONS COVID-19 deaths to raw/industry/ (first run needs openpyxl)
 python3 people.py > /dev/null && echo "   wrote data/people.json"   # needs heritage.json and industry.json; asks the ONS API, cached in raw/people/ (first run needs a Python that can reach it over HTTPS)
 python3 predict.py > /dev/null && echo "   wrote data/predict.json"   # needs industry, people and towns json; rain days from Open-Meteo, cached in raw/rain/ (the free service limits requests an hour, so a first run can take a while)
+python3 longeaton.py > /dev/null && echo "   wrote data/longeaton.json"   # Long Eaton case study; filters the national STATS19 vehicle and casualty files once, to raw/dft/
 # index of areas for the app's area picker
 python3 -c "import json,os;a=json.load(open('areas.json'));json.dump([{'id':k,'name':v['name']} for k,v in a.items() if os.path.exists('../data/'+k+'.json')],open('../data/areas.json','w'),indent=1)"
