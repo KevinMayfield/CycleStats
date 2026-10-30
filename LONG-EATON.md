@@ -147,8 +147,83 @@ Nottingham. Toton Lane branches north to Stapleford.
 - **Secondary schools along the way** add children's trips: Chilwell School, George Spencer Academy, Alderman White
   School, Bramcote College and Trent College.
 
+**Riders already choose the direct road over the signed route.**
+
+- **National Cycle Route 6** links Long Eaton with Beeston and Nottingham along towpaths, the Trent and back streets.
+  It is about 7.0 km from the Market Place to Beeston station, against 5.7 km by the direct route: 23% further.
+- **Strava data** shows riders using NCN 6 and the Trent path less than direct roads like Nottingham Road. Strava
+  over-represents sport and leisure riders and misses most commuters and school children, but it points the same way
+  as DfT's roadside counts.
+- **DfT's roadside counts** put about 200 cycles a day on the A6005 Nottingham Road in Long Eaton (240 when last
+  counted by hand, in 2019) and about 286 through Chilwell (393 when last counted, in 2020). That is on a road with
+  no protection.
+- **People want the direct route.** The Netherlands' design guidance and the UK's LTN 1/20 both put directness first
+  for everyday cycling. A detour that suits a leisure ride loses commuters and school children.
+
 A protected Nottingham Road (path 1) is the first link of that corridor. It also joins the Danelaw Cycle Network's
 Derby–Nottingham route.
+
+### Rivers, the M1 and the rail paradox
+
+**The jobs are across the rivers, and the rivers have few crossings.**
+
+- The airport, business parks and East Midlands Gateway north of Castle Donington employ **17,467** people. Only
+  2,051 of them live in North West Leicestershire.
+- The rest drive in:
+
+  | Where they live | Workers |
+  |---|---|
+  | Derby | 4,048 |
+  | Erewash | 1,972 |
+  | Nottingham | 1,907 |
+  | Charnwood | 1,476 |
+  | South Derbyshire | 879 |
+  | Leicester | 772 |
+  | Broxtowe | 657 |
+
+- **Only two crossings in 12 km.** Between Shardlow (Cavendish Bridge and the A50) and Clifton Bridge in Nottingham,
+  the only road crossings of the Trent are **Harrington Bridge (B6540) and the M1**.
+- **The other rivers hem the area in.** The Erewash closes off the west and north, with crossings at Toton, Sandiacre
+  and Stanton Gate. The Soar funnels traffic to the Gateway at Kegworth.
+- **Long Eaton and its neighbours send a lot of traffic across them.** From Long Eaton, Sandiacre, Stapleford,
+  Toton, Beeston and Breaston:
+  - 1,906 commuters cross the Trent to Castle Donington's sites, and 2,428 to elsewhere south of the river.
+  - 1,844 work up the M1 to the north and 809 down it to the south.
+  - 8,455 work in Nottingham and 2,889 in Derby.
+- **Castle Donington is a dormitory.** Only 642 of its 2,585 working residents work in the village.
+- **So a few links carry it all:** M1 junctions 24, 24A and 25, Harrington Bridge, and the A6005 and B6540 through
+  Long Eaton.
+
+**The rail paradox.** The area is full of railway:
+
+- the Midland Main Line
+- Long Eaton, Attenborough, Beeston and East Midlands Parkway stations
+- Toton depot
+- the Castle Donington freight line
+- the tram at Toton Lane
+
+Yet almost no one commutes by it:
+
+| Where commuters live | Train | Tram |
+|---|---|---|
+| Long Eaton | 1.1% (156) | 0.4% |
+| Beeston and Chilwell | 1.6% | 3.6% |
+| Toton and Chilwell West | 0.6% | 4.2% |
+| Stapleford | 0.3% | 1.4% |
+| Sandiacre | 0.2% | 0.5% |
+| Castle Donington | 0.4% | 0% |
+| England | 2.9% | 2.8% |
+
+The trains serve Derby and Nottingham city centres, Leicester and London, and the tram serves Nottingham. The
+places local people work are by the motorway junctions, and none of them has a passenger station: Castle Donington,
+the airport and the Gateway. The Castle Donington line carries freight only.
+
+**What it means for the proposal.** A protected path over Harrington Bridge would be the only way across those 12 km
+of Trent that isn't a motorway. With the B6540 path and the A50 junction, it gives the jobs north of Castle Donington
+a way in that doesn't add to the queues at junctions 24 and 25.
+
+The Census doesn't say which roads people drive, so this is inferred from where they live and work. Traffic counts
+from National Highways and the county councils would confirm it.
 
 ## 3. Bus, car and bike: door-to-door times to the Castle Donington business parks
 

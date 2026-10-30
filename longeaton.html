@@ -17,6 +17,7 @@
   --accent:#0f6b5c; --soft:#e2f0ec;
   /* categorical slots (validated with the industry palette): aqua, amber, red, violet; grey for the car */
   --c1:#1baf7a; --c2:#eda100; --c3:#e34948; --c4:#6250d6; --car:#7d8782;
+  --water:#4f8fca;
   /* diagram surfaces */
   --road:#c9ccc8; --verge:#e7eadf; --track:#c8553d; --paving:#ece7dc; --zebra:#ffffff;
   --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
@@ -25,11 +26,11 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --c1:#199e70; --c2:#b98a00; --c3:#e66767; --c4:#9085e9; --car:#8b948f;
+  --c1:#199e70; --c2:#b98a00; --c3:#e66767; --c4:#9085e9; --car:#8b948f; --water:#4a86c0;
   --road:#3a413e; --verge:#232a27; --track:#a9473a; --paving:#4a4740; --zebra:#d8dcd9; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b211f; --ink:#e7ebe8; --muted:#9aa49f; --line:#2c3431; --accent:#4cc3a8; --soft:#183a33;
-  --c1:#199e70; --c2:#b98a00; --c3:#e66767; --c4:#9085e9; --car:#8b948f;
+  --c1:#199e70; --c2:#b98a00; --c3:#e66767; --c4:#9085e9; --car:#8b948f; --water:#4a86c0;
   --road:#3a413e; --verge:#232a27; --track:#a9473a; --paving:#4a4740; --zebra:#d8dcd9; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
@@ -162,6 +163,18 @@ table.lt td.l{text-align:left}
     <div class="legend" id="jobleg"></div>
     <div class="chart" id="jobsmap"></div>
     <div class="note" id="jobsnote"></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Rivers, the M1 and the rail paradox</h2><p>Why the motorway junctions and Long Eaton's roads jam: the jobs are across the rivers, the rivers have few crossings, and the railway doesn't go where people work.</p></div>
+    <div class="facts" id="m1facts" style="padding:14px 18px 0;margin:0"></div>
+    <div class="legend" id="rvleg"></div>
+    <div class="chart" id="rvmap"></div>
+    <div class="two">
+      <div><h3>Who fills the jobs north of Castle Donington</h3><div class="bars" id="inflow"></div></div>
+      <div><h3>Commuting by train and tram</h3><div class="tw"><table class="lt" id="railtab"></table></div></div>
+    </div>
+    <div class="note" id="m1note"></div>
   </section>
 
   <section>
@@ -473,6 +486,43 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
     <ul>${HI.old.map(o=>`<li><b>${esc(o.name)}</b>, ${o.km} km from the town centre: ${esc(o.what)}</li>`).join('')}</ul>
     <p><b>The work moved to the motorway junctions and the cities.</b> Today ${nf(cdw)} Long Eaton residents work north of Castle Donington, by M1 junction 24, the A50, the airport and East Midlands Gateway. ${nf(DEST['Nottingham'])} work in Nottingham and ${nf(DEST['Derby'])} in Derby, along the A52 and A6005. These sites were planned around the car, and 70% of Long Eaton's commuters now drive.</p>
     <p><b>That is a big part of the area's peak-hour congestion.</b> Thousands of short and middle-distance commutes that once went on foot, by bike or by train now funnel by car through the same pinch points: M1 junctions 24, 24A and 25, Harrington Bridge and the A6005. That's an irony for an area built on moving things, from the Trent and the Erewash Canal to Toton Sidings, the M1 and the airport. Safe cycle routes to the same sites would take some of that traffic off the roads. (There are no traffic counts on this page; National Highways and county data would put a number on the queues.)</p>`;
+  // rivers, the M1 and the rail paradox
+  const MR=D.m1,MN=MR.north,IN=MR.inflow,rl=n=>MR.rail.find(r=>r.town===n);
+  document.getElementById('m1facts').innerHTML=`
+    <div class="fact" style="--c:var(--c4)"><b>${nf(IN.total)}</b><span>people work north of Castle Donington (airport, business parks, Gateway); only ${nf(IN.local)} live in North West Leicestershire</span></div>
+    <div class="fact" style="--c:var(--water)"><b>2</b><span>road crossings of the Trent in the 12 km between Shardlow and Clifton: Harrington Bridge and the M1</span></div>
+    <div class="fact" style="--c:var(--c2)"><b>${nf(MN.cd+MN.south)}</b><span>commuters from Long Eaton and its neighbours who cross the Trent southwards to work; ${nf(MN.m1n+MN.m1s)} more commute along the M1 corridor</span></div>
+    <div class="fact" style="--c:var(--c3)"><b>${p1(rl('Long Eaton').train)}%</b><span>of Long Eaton's commuters go by train, against ${p1(rl('England').train)}% across England, despite its station and the main line</span></div>`;
+  document.getElementById('rvleg').innerHTML=`<span><i style="background:var(--water);height:4px"></i>River</span><span><i style="background:var(--car);height:5px"></i>M1, A50, A52</span><span><i style="background:var(--panel);border:2px solid var(--ink)"></i>Road crossing of a river (red: Harrington Bridge)</span><span><i style="background:var(--ink);border-radius:50%"></i>Station (open square: tram)</span><span><i style="background:var(--c4)"></i>Jobs north of Castle Donington, arrows sized by workers coming in</span>`;
+  const drawRv=()=>{const el=document.getElementById('rvmap'),Wd=Math.max(300,el.clientWidth-24),nar=Wd<620,fs=nar?10:11.5,la0=52.83,la1=52.965,lo0=-1.48,lo1=-1.15,k=Math.cos(52.9*Math.PI/180),H=Math.round(Wd*((la1-la0)/((lo1-lo0)*k)));
+    const X=lo=>(lo-lo0)/(lo1-lo0)*Wd,Y=la=>(la1-la)/(la1-la0)*H,halo='paint-order:stroke;stroke:var(--bg);stroke-width:3px';
+    let s=`<svg viewBox="0 0 ${Wd} ${H}" style="overflow:hidden" role="img" aria-label="Schematic map of the rivers, their road crossings, the M1 and the stations around Long Eaton"><rect width="${Wd}" height="${H}" fill="var(--bg)" rx="6"/>`;
+    D.rivers.forEach(r=>{s+=`<path d="${r.pts.map((p,i)=>`${i?'L':'M'}${X(p[1]).toFixed(1)} ${Y(p[0]).toFixed(1)}`).join('')}" fill="none" stroke="var(--water)" stroke-width="${r.name==='Trent'?(nar?3:4.5):2}" stroke-linejoin="round" opacity=".85"/>`});
+    [['Trent',52.857,-1.392],['Erewash',52.935,-1.296],['Soar',52.842,-1.252],['Derwent',52.912,-1.445]].filter(r=>!(nar&&r[0]==='Soar')).forEach(([n,la,lo])=>{s+=`<text x="${X(lo)}" y="${Y(la)}" style="fill:var(--water);font:italic 600 ${fs}px var(--body);${halo}">${n}</text>`});
+    HI.roads.forEach(r=>{s+=`<path d="${r.pts.map((p,i)=>`${i?'L':'M'}${X(p[1]).toFixed(1)} ${Y(p[0]).toFixed(1)}`).join('')}" fill="none" stroke="var(--car)" stroke-width="${nar?3:5}" stroke-linecap="round" opacity=".8"/>`});
+    // the gap along the Trent from Shardlow to Clifton
+    const g1=X(-1.338),g2=X(-1.165),gy=H-(nar?14:18);
+    s+=`<path d="M${g1} ${gy-3} L${g1} ${gy+3} M${g1} ${gy} L${g2} ${gy} M${g2} ${gy-3} L${g2} ${gy+3}" stroke="var(--c3)" stroke-width="1.5" fill="none"/><text x="${(g1+g2)/2}" y="${gy-6}" text-anchor="middle" style="fill:var(--c3);font:600 ${fs}px var(--body);${halo}">${nar?'12 km: two crossings':'12 km of Trent: only Harrington Bridge and the M1 cross it'}</text>`;
+    // inflow arrows into the Castle Donington job zone
+    const jz=[52.848,-1.322],jx=X(jz[1]),jy=Y(jz[0]),FROM={'Derby':[52.922,-1.475],'Nottingham':[52.954,-1.158],'Erewash':[52.92,-1.30],'Charnwood':[52.832,-1.20],'South Derbyshire':[52.842,-1.475],'Broxtowe':[52.945,-1.22],'Leicester':[52.832,-1.29]},mxI=Math.max(...IN.top.map(t=>t[1]));
+    IN.top.forEach(([n,v])=>{const f=FROM[n];if(!f)return;const x=X(f[1]),y=Y(f[0]);s+=`<path d="M${x} ${y} Q${(x+jx)/2+(jy-y)*.12} ${(y+jy)/2-(jx-x)*.12} ${jx} ${jy}" fill="none" stroke="var(--c4)" stroke-width="${2+v/mxI*(nar?9:14)}" stroke-opacity=".45" stroke-linecap="round"><title>From ${esc(n)}: ${nf(v)} workers</title></path>`});
+    s+=`<ellipse cx="${jx}" cy="${jy}" rx="${nar?20:30}" ry="${nar?12:17}" fill="var(--c4)" opacity=".9"/><text x="${jx}" y="${jy+4}" text-anchor="middle" style="fill:var(--panel);font:700 ${fs}px var(--body)">${nf(IN.total)}</text>`;
+    // crossings and stations
+    D.crossings.forEach(c=>{const x=X(c.lon),y=Y(c.lat);s+=`<rect x="${x-5}" y="${y-5}" width="10" height="10" fill="var(--panel)" stroke="${c.key?'var(--c3)':'var(--ink)'}" stroke-width="${c.key?3:2}"><title>${esc(c.river)}: ${esc(c.name)}</title></rect>`});
+    D.stations.forEach(st=>{const x=X(st.lon),y=Y(st.lat);s+=st.tram?`<rect x="${x-4}" y="${y-4}" width="8" height="8" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"><title>${esc(st.name)}</title></rect>`:`<circle cx="${x}" cy="${y}" r="4.5" fill="var(--ink)"><title>${esc(st.name)} station</title></circle>`;
+      if(!nar&&st.name!=='Toton Lane tram')s+=`<text x="${x+7}" y="${y+12}" style="fill:var(--muted);font:500 ${fs-1}px var(--body);${halo}">${esc(st.name)}</text>`});
+    const hb=D.crossings.find(c=>c.key);s+=`<text x="${X(hb.lon)-9}" y="${Y(hb.lat)+4}" text-anchor="end" style="fill:var(--c3);font:700 ${fs}px var(--body);${halo}">Harrington Bridge</text>`;
+    [['Long Eaton',52.9005,-1.272,'start'],['Castle Donington',52.836,-1.338,'end'],['Derby',52.93,-1.475,'start'],['Nottingham',52.948,-1.16,'end'],['Sandiacre',52.928,-1.29,'end']].forEach(([n,la,lo,a])=>{s+=`<text x="${X(lo)+(a==='end'?-6:6)}" y="${Y(la)}" text-anchor="${a}" style="fill:var(--ink);font:700 ${fs}px var(--body);${halo}">${n}</text>`});
+    s+=`<text x="${X(-1.316)}" y="${Y(52.962)+10}" text-anchor="end" style="fill:var(--muted);font:600 ${fs}px var(--mono);${halo}">M1</text>`;
+    el.innerHTML=s+'</svg>'};
+  bars('inflow',IN.top.map(([n,v])=>[n==='North West Leicestershire'?'North West Leicestershire (local)':n,v,n==='Erewash'||n==='Broxtowe'?'--c1':n==='North West Leicestershire'?'--accent':'--c4']),Math.max(...IN.top.map(t=>t[1])),'--c4',v=>nf(v));
+  document.getElementById('railtab').innerHTML=`<thead><tr><th>Where commuters live</th><th>Train</th><th>Tram</th></tr></thead><tbody>`+MR.rail.map(r=>`<tr><td>${esc(r.town)}</td><td>${p1(r.train)}%${r.trains!=null?` <small style="color:var(--muted)">(${nf(r.trains)})</small>`:''}</td><td>${p1(r.tram)}%</td></tr>`).join('')+'</tbody>';
+  const cr=MR.cd_residents;
+  document.getElementById('m1note').innerHTML=`
+    <p class="callout"><b>The jobs are across the rivers, and the rivers have few crossings.</b> The airport, business parks and East Midlands Gateway employ ${nf(IN.total)} people, and only ${nf(IN.local)} live in North West Leicestershire. The rest drive in, from Derby, Erewash, Nottingham, Loughborough and beyond. Between Shardlow and Clifton Bridge, about 12 km, only Harrington Bridge and the M1 cross the Trent, so traffic from Long Eaton, Sandiacre, Stapleford and Beeston has to use one or the other. The Erewash closes off the west and north, with a handful of crossings at Toton, Sandiacre and Stanton Gate. The Soar funnels traffic to the Gateway at Kegworth.</p>
+    <p><b>So commuting piles onto a few links.</b> From Long Eaton and its neighbours, ${nf(MN.cd)} commuters cross the Trent to Castle Donington's sites and ${nf(MN.south)} more to elsewhere south of the river. ${nf(MN.m1n)} work up the M1 to the north and ${nf(MN.m1s)} down it to the south. ${nf(MN.nottingham)} work in Nottingham and ${nf(MN.derby)} in Derby, along the A52 by junction 25 and the A6005 through Long Eaton. Castle Donington itself is a dormitory: only ${nf(cr.home)} of its ${nf(cr.all)} working residents work in the village, and the rest drive out. With no parallel roads to spread the load, M1 junctions 24, 24A and 25, Harrington Bridge, and the A6005 and B6540 through Long Eaton carry it all.</p>
+    <p><b>The rail paradox.</b> The area is full of railway: the Midland Main Line, Long Eaton, Attenborough, Beeston and East Midlands Parkway stations, Toton depot, the Castle Donington freight line and the tram at Toton Lane. Yet ${p1(rl('Long Eaton').train)}% of Long Eaton's commuters go by train (${nf(rl('Long Eaton').trains)} people), less than half the England rate, and ${p1(rl('Sandiacre').train)}% of Sandiacre's. The trains serve Derby and Nottingham city centres, Leicester and London, and the tram serves Nottingham. The places local people work are by the motorway junctions: Castle Donington, the airport and the Gateway have no passenger station, and the Castle Donington line carries freight only. The tram does better only where it ends, at Toton (${p1(rl('Toton and Chilwell West').tram)}%).</p>
+    <p><b>What it means for the proposal.</b> A protected path over Harrington Bridge would be the only way across those 12 km of Trent that isn't a motorway. With the B6540 path and the A50 junction, it gives the ${nf(IN.total)} jobs north of Castle Donington a way in that doesn't add to the queues at junctions 24 and 25. The Census doesn't say which roads people drive, so this is inferred from where they live and work. Traffic counts from National Highways and the county councils would confirm it.</p>`;
   // corridor diagram: schematic line with flows each way
   const drawCorr=()=>{const el=document.getElementById('corrdiag'),Wd=Math.max(300,el.clientWidth-24),nar=Wd<640;
     if(nar){// phone: the corridor runs down the page
@@ -505,6 +555,7 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
   document.getElementById('corrnote').innerHTML=`
     <p class="callout"><b>${nf(corTot)} people travel to work each day between Long Eaton and the towns along this corridor:</b> ${nf(cor.reduce((a,c)=>a+c.out,0))} going out and ${nf(cor.reduce((a,c)=>a+c.inn,0))} coming in. Toton and Chilwell West are 2–3 km away, Stapleford and Beeston 4–6 km, Nottingham 9–11 km: commuting distances that suit a bike and, beyond Beeston, an e-bike.</p>
     <p><b>People already cycle it.</b> The Propensity to Cycle Tool puts ${nf(Math.min(...D.corridor.map(p=>p.now)))}–${nf(corMax)} cycle commuters a day on the A6005 in 2011 (2011 Census). If people cycled as the Dutch do over the same distances and hills, that would be ${nf(Math.min(...D.corridor.map(p=>p.dutch)))}–${nf(corDutch)}, or up to ${nf(corE)} with e-bikes. The road has painted lanes in places and no protection.</p>
+    <p><b>Riders already choose the direct road over the signed route.</b> National Cycle Route 6 links Long Eaton with Beeston and Nottingham along towpaths, the Trent and back streets. It's about ${p1(D.ncn6.ncn_km)} km from the Market Place to Beeston station, against ${p1(D.ncn6.direct_km)} km by the direct route, ${Math.round(100*(D.ncn6.ncn_km/D.ncn6.direct_km-1))}% further. Strava data shows riders using NCN 6 and the Trent path less than direct roads like Nottingham Road. Strava over-represents sport and leisure riders and misses most commuters and school children, but it points the same way as DfT's roadside counts. They put about ${nf(D.counts[0].latest[1])} cycles a day on Nottingham Road in Long Eaton${D.counts[0].counted?` (${nf(D.counts[0].counted[1])} when last counted by hand, in ${D.counts[0].counted[0]})`:''} and about ${nf(D.counts[D.counts.length-1].latest[1])} through Chilwell${D.counts[D.counts.length-1].counted?` (${nf(D.counts[D.counts.length-1].counted[1])} in ${D.counts[D.counts.length-1].counted[0]})`:''}, on a road with no protection. People want the direct route. The Netherlands' design guidance, and the UK's LTN 1/20, both put directness first for everyday cycling. A detour that suits a leisure ride loses commuters and school children.</p>
     <p><b>Schools along the way</b> add trips by children: ${sch.join(', ')}, as well as the primaries in Toton, Chilwell and Beeston. A protected Nottingham Road (path 1) is the first link, and joins the Danelaw Cycle Network's Derby–Nottingham route.</p>`;
   // map
   const el=document.getElementById('map');el.classList.toggle('dark',isDark());
@@ -513,6 +564,7 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
   // if the page was laid out before the map had a size, fit it again once it has one
   new ResizeObserver(()=>{m.invalidateSize();if(m.getZoom()<11)m.fitBounds(BOUNDS,{animate:false})}).observe(el);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · STATS19 · Census 2021'}).addTo(m);
+  (D.ncn6.lines||[]).forEach(l=>L.polyline(l,{color:css('--c2'),weight:3,opacity:.9,dashArray:'2 6',lineCap:'round'}).bindTooltip('National Cycle Route 6 (existing): towpaths, riverside and back streets',{className:'tt',sticky:true}).addTo(m));
   D.extend.forEach(e=>e.lines.forEach(l=>L.polyline(l,{color:css('--accent'),weight:4,opacity:.8,dashArray:'8 7'}).bindTooltip(esc(e.name),{className:'tt',sticky:true}).addTo(m)));
   D.paths.forEach(p=>{p.lines.forEach(l=>L.polyline(l,{color:css('--accent'),weight:6,opacity:.95}).bindTooltip(`<b>${p.n} · ${esc(p.name)}</b>, ${p.km} km<br>${esc(p.what)}`,{className:'tt',sticky:true}).addTo(m));
     const all=p.lines.flat(),mid=all[Math.floor(all.length/2)];if(mid)L.marker(mid,{icon:L.divIcon({className:'',html:`<div class="pnum">${p.n}</div>`,iconSize:[22,22],iconAnchor:[11,11]}),zIndexOffset:3000}).addTo(m)});
@@ -524,7 +576,7 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
   D.places.schools.forEach(s=>L.marker([s.lat,s.lon],{icon:L.divIcon({className:'',html:`<svg width="${s.kind==='secondary'?16:11}" height="${s.kind==='secondary'?16:11}"><rect x="1" y="1" width="${s.kind==='secondary'?14:9}" height="${s.kind==='secondary'?14:9}" fill="${css('--c2')}" stroke="${css('--panel')}" stroke-width="1.5"/></svg>`,iconSize:s.kind==='secondary'?[16,16]:[11,11]})}).bindTooltip(esc(s.name),{className:'tt'}).addTo(m));
   D.places.jobs.forEach(j=>L.marker([j.lat,j.lon],{icon:L.divIcon({className:'',html:`<svg width="18" height="18"><path d="M9 1L17 9L9 17L1 9Z" fill="${css('--c4')}" stroke="${css('--panel')}" stroke-width="1.5"/></svg>`,iconSize:[18,18]})}).bindTooltip(esc(j.name),{className:'tt'}).addTo(m));
   [['Long Eaton',52.8985,-1.272],['Toton',52.907,-1.257],['Beeston',52.926,-1.216],['Stapleford',52.931,-1.272],['Sawley',52.879,-1.298],['Castle Donington',52.842,-1.338]].forEach(([n,la,lo])=>L.marker([la,lo],{interactive:false,icon:L.divIcon({className:'',html:`<span class="plab">${n}</span>`,iconSize:[0,0],iconAnchor:[-8,8]})}).addTo(m));
-  document.getElementById('mapleg').innerHTML=`<span><i style="background:var(--accent);height:5px"></i>Proposed path (numbered)</span><span><i style="background:repeating-linear-gradient(90deg,var(--accent) 0 6px,transparent 6px 10px);height:4px"></i>Corridor extension</span><span><i style="background:var(--c3);border-radius:50%"></i>Serious collision</span><span><i style="background:var(--car);border-radius:50%"></i>Slight collision</span><span><i style="border:2px dashed var(--c3);border-radius:50%;background:none"></i>Hotspot</span><span><i style="background:var(--c2)"></i>School (larger: secondary)</span><span><i style="background:var(--c4);transform:rotate(45deg) scale(.8)"></i>Job site</span>`;
+  document.getElementById('mapleg').innerHTML=`<span><i style="background:var(--accent);height:5px"></i>Proposed path (numbered)</span><span><i style="background:repeating-linear-gradient(90deg,var(--accent) 0 6px,transparent 6px 10px);height:4px"></i>Corridor extension</span><span><i style="background:repeating-linear-gradient(90deg,var(--c2) 0 3px,transparent 3px 8px);height:4px"></i>National Cycle Route 6 (existing)</span><span><i style="background:var(--c3);border-radius:50%"></i>Serious collision</span><span><i style="background:var(--car);border-radius:50%"></i>Slight collision</span><span><i style="border:2px dashed var(--c3);border-radius:50%;background:none"></i>Hotspot</span><span><i style="background:var(--c2)"></i>School (larger: secondary)</span><span><i style="background:var(--c4);transform:rotate(45deg) scale(.8)"></i>Job site</span>`;
   // every road user: stacked bars by road
   const RD=D.roads,RS=[['cycle','Bicycle involved','--c1'],['pedestrian','Pedestrian hurt','--c2'],['motor','Motor vehicles only','--c4']];
   document.getElementById('roadleg').innerHTML=RS.map(([,n,c])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join('')+'<span>Number at the end: killed or seriously injured</span>';
@@ -594,8 +646,8 @@ fetch('data/longeaton.json').then(r=>{if(!r.ok)throw new Error(r.status);return 
     <li>The Long Eaton–Castle Donington cycle link study (October 2026) for journey times, the deprived areas and the predictions.</li>
     <li>Side-road zebra trials (TRL, Greater Manchester 2021; Welsh Government 2023); Manchester's CYCLOPS junctions (TfGM); Cambridge's Fendon Road roundabout.</li>
     <li>Written up as a Markdown page too: <a href="https://github.com/KevinMayfield/CycleStats/blob/main/LONG-EATON.md">LONG-EATON.md</a>.</li></ul>`;
-  drawNb();drawJobs();drawCorr();drawPct();drawTrips();drawRoads();
-  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawNb();drawJobs();drawCorr();drawPct();drawTrips();drawRoads()},150)});
+  drawNb();drawJobs();drawRv();drawCorr();drawPct();drawTrips();drawRoads();
+  addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(()=>{drawNb();drawJobs();drawRv();drawCorr();drawPct();drawTrips();drawRoads()},150)});
 }).catch(e=>{document.getElementById('facts').innerHTML=`<div class="fact"><b>–</b><span>Could not load data/longeaton.json (${esc(e.message)})</span></div>`});
 </script>
 </body>
